@@ -9,6 +9,7 @@ import { CountUp, FillBar, Marquee, Reveal, Typewriter, useCountdown } from '../
 import { Btn, Pill, SectionHead, Stars } from './ui';
 import ProductCard from './ProductCard';
 import heroBannerImg from '../assets/hero-banner.png';
+import logoImg from '../assets/logo.png';
 
 export default function Home() {
   const nav = useNavigate();
@@ -490,7 +491,24 @@ function Footer() {
   );
   return (
     <footer style={{ margin: '28px 14px 10px', padding: 20, background: '#fff', borderRadius: 24, border: `1px solid ${C.border}` }}>
-      <div style={{ fontWeight: 800, fontSize: 16, color: C.primary }}>SASTIKA MOBILES</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <img
+          src={logoImg}
+          alt="Sastika Mobiles Logo"
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '50%',
+            objectFit: 'cover',
+            border: '1.5px solid #d4af37',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+          }}
+        />
+        <div>
+          <div style={{ fontWeight: 900, fontSize: 16, color: C.primary, letterSpacing: -0.2 }}>SASTIKA</div>
+          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: '#b8860b' }}>MOBILES</div>
+        </div>
+      </div>
       <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.55, margin: '6px 0 14px' }}>Tamil Nadu's trusted destination for certified smartphones, genuine accessories and expert repairs.</p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <div>

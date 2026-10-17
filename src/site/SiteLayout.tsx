@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { C } from '../theme';
 import { useStore } from '../store';
 import Icon, { type IconName } from '../components/Icon';
+import logoImg from '../assets/logo.png';
 
 
 
@@ -81,13 +82,23 @@ export default function SiteLayout() {
             <button className="tap" onClick={() => setDrawer(true)} style={{ width: 38, height: 38, display: 'grid', placeItems: 'center' }} aria-label="Menu">
               <Icon name="menu" size={22} />
             </button>
-            <div onClick={() => nav('/')} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <div style={{ width: 30, height: 30, borderRadius: 9, background: C.primary, display: 'grid', placeItems: 'center' }}>
-                <Icon name="phone" size={16} color={C.accent} />
-              </div>
-              <div style={{ lineHeight: 1 }}>
-                <div style={{ fontWeight: 800, fontSize: 15, letterSpacing: -0.2, color: C.primary }}>SASTIKA</div>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.muted }}>MOBILES</div>
+            <div onClick={() => nav('/')} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer' }}>
+              <img
+                src={logoImg}
+                alt="Sastika Mobiles Logo"
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+                  border: '1.5px solid #d4af37',
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ lineHeight: 1.1 }}>
+                <div style={{ fontWeight: 900, fontSize: 15, letterSpacing: -0.2, color: C.primary }}>SASTIKA</div>
+                <div style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: 2.2, color: '#b8860b' }}>MOBILES</div>
               </div>
             </div>
             <button className="tap" onClick={() => setSearching((s) => !s)} style={{ width: 38, height: 38, display: 'grid', placeItems: 'center' }} aria-label="Search">
@@ -133,7 +144,24 @@ export default function SiteLayout() {
             <div onClick={() => setDrawer(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(6,51,46,.5)', zIndex: 40, animation: 'fadeIn .25s ease' }} />
             <aside style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '78%', background: '#fff', zIndex: 41, animation: 'slideRight .35s cubic-bezier(.2,.8,.2,1)', padding: '22px 18px', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
-                <div style={{ fontWeight: 800, fontSize: 18, color: C.primary }}>SASTIKA <span style={{ color: C.muted, fontSize: 11, letterSpacing: 2 }}>MOBILES</span></div>
+                <div onClick={() => { setDrawer(false); nav('/'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                  <img
+                    src={logoImg}
+                    alt="Sastika Mobiles Logo"
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      border: '2px solid #d4af37',
+                      boxShadow: '0 3px 10px rgba(0,0,0,0.15)',
+                    }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 900, fontSize: 18, color: C.primary, letterSpacing: -0.2 }}>SASTIKA</div>
+                    <div style={{ color: '#b8860b', fontSize: 10, letterSpacing: 2, fontWeight: 800 }}>MOBILES</div>
+                  </div>
+                </div>
                 <button onClick={() => setDrawer(false)} aria-label="Close"><Icon name="x" size={22} /></button>
               </div>
               {DRAWER.map((d, i) => (
