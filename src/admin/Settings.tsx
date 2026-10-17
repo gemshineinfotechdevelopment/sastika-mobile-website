@@ -10,8 +10,7 @@ interface Cfg {
   gstin: string;
   email: string;
   phone: string;
-  addressBranch1: string;
-  addressBranch2: string;
+  address: string;
   currency: string;
   gstOn: boolean;
   lowStockAlerts: boolean;
@@ -23,12 +22,11 @@ interface Cfg {
 }
 
 const DEFAULT: Cfg = {
-  business: 'சஷ்டிகா மொபைல்ஸ் (Sastika Mobiles)',
+  business: 'Sastika Mobiles',
   gstin: '33BQTPJ5275L1Z6',
   email: 'sastikamobiles.svk@gmail.com',
   phone: '+91 98765 43210',
-  addressBranch1: 'ஸ்ரீ ரெங்கா காம்ப்ளக்ஸ், கென்னடி மெடிக்கல் அருகில், சித்துராஜபுரம் (Sri Renga Complex, Sithurajapuram)',
-  addressBranch2: 'சிவகாசி பஸ் நிலையம், சிவகாசி (Sivakasi Bus Stand, Sivakasi)',
+  address: 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189',
   currency: 'INR (₹)',
   gstOn: true,
   lowStockAlerts: true,
@@ -53,7 +51,14 @@ export default function Settings() {
   const [cfg, setCfg] = useState<Cfg>(() => {
     try {
       const raw = localStorage.getItem('sastika:settings');
-      return raw ? { ...DEFAULT, ...(JSON.parse(raw) as Partial<Cfg>) } : DEFAULT;
+      if (!raw) return DEFAULT;
+      const parsed = JSON.parse(raw);
+      return {
+        ...DEFAULT,
+        ...parsed,
+        business: parsed.business && !parsed.business.includes('சஷ்டிகா') ? parsed.business : DEFAULT.business,
+        address: parsed.address || parsed.addressBranch1 || DEFAULT.address,
+      };
     } catch {
       return DEFAULT;
     }
@@ -139,19 +144,19 @@ export default function Settings() {
   };
 
   const switches: { k: keyof Cfg; t: string; s: string }[] = [
-    { k: 'gstOn', t: 'GST Tax Engine', s: 'Add GSTIN 33BQTPJ5275L1Z6 breakdown to invoices' },
-    { k: 'autoInvoice', t: 'Automated Invoicing', s: 'Generate and email tax bill on dispatch' },
-    { k: 'lowStockAlerts', t: 'Low-Stock Alerts', s: 'Notify managers at reorder threshold' },
-    { k: 'smsUpdates', t: 'SMS & WhatsApp Updates', s: 'Send order confirmation and repair status alerts' },
-    { k: 'upiOn', t: 'UPI Payments (GPay, PhonePe, Paytm)', s: 'Accept instant UPI at checkout' },
-    { k: 'codOn', t: 'Cash on Delivery / In-Store Pickup', s: 'Allow payment upon delivery or store pickup' },
+    { k: 'gstOn', t: 'GST Tax Engine', s: 'Include GSTIN 33BQTPJ5275L1Z6 breakdown on all invoices' },
+    { k: 'autoInvoice', t: 'Automated Invoicing', s: 'Generate and email tax bill automatically on order dispatch' },
+    { k: 'lowStockAlerts', t: 'Low-Stock Alerts', s: 'Notify managers when inventory drops below reorder threshold' },
+    { k: 'smsUpdates', t: 'SMS & WhatsApp Updates', s: 'Send order confirmation and repair status alerts to customers' },
+    { k: 'upiOn', t: 'UPI Payments (GPay, PhonePe, Paytm)', s: 'Accept instant zero-fee UPI payments at checkout' },
+    { k: 'codOn', t: 'Cash on Delivery / In-Store Pickup', s: 'Allow payment upon delivery or during store pickup' },
   ];
 
   return (
     <div>
       <PageTitle
         title="Enterprise Retail Settings"
-        sub="Configure brand logo, shop details, GSTIN, branch addresses and retail controls."
+        sub="Configure brand logo, shop details, GSTIN tax credentials, store address, and retail controls."
         actions={
           <>
             <AButton variant="danger" onClick={reset}>
@@ -170,9 +175,9 @@ export default function Settings() {
           <div style={{ ...panel, animation: 'fadeUp .5s ease .05s both' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 17 }}>Brand Logo &amp; Identity (லோகோ அமைப்பு)</div>
+                <div style={{ fontWeight: 800, fontSize: 17 }}>Brand Logo &amp; Identity</div>
                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>
-                  Upload your shop logo. It updates automatically in Storefront Header, Drawer and Admin Portal.
+                  Upload your store logo. It updates automatically across the Storefront Header, Mobile Drawer, and Admin Portal.
                 </div>
               </div>
               <Tag tone="green">Active</Tag>
@@ -288,32 +293,34 @@ export default function Settings() {
             </div>
           </div>
 
-          {/* Business Profile from Real Bill */}
+          {/* Business Profile from Official Invoice */}
           <div style={{ ...panel, animation: 'fadeUp .5s ease .1s both' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 17 }}>Shop Details &amp; Tax Profile (கடை விவரங்கள்)</div>
+                <div style={{ fontWeight: 800, fontSize: 17 }}>Store Details &amp; Tax Profile</div>
                 <div style={{ fontSize: 12.5, color: C.muted }}>
-                  Real shop credentials from Sastika Mobiles Tax Invoice (Sithurajapuram &amp; Sivakasi)
+                  Official store credentials from Sastika Mobiles Tax Invoice (Sithurajapuram, Sivakasi)
                 </div>
               </div>
               <Tag tone="amber">GST Registered</Tag>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              <FieldRow label="BUSINESS NAME (கடையின் பெயர்)">
+              <FieldRow label="BUSINESS / STORE NAME">
                 <input
                   style={field}
                   value={cfg.business}
                   onChange={(e) => set('business', e.target.value)}
+                  placeholder="Sastika Mobiles"
                 />
               </FieldRow>
 
-              <FieldRow label="REGISTERED GSTIN (வரி எண்)">
+              <FieldRow label="REGISTERED GSTIN">
                 <input
                   style={{ ...field, fontWeight: 700, letterSpacing: 0.8 }}
                   value={cfg.gstin}
                   onChange={(e) => set('gstin', e.target.value)}
+                  placeholder="33BQTPJ5275L1Z6"
                 />
               </FieldRow>
 
@@ -323,6 +330,7 @@ export default function Settings() {
                   type="email"
                   value={cfg.email}
                   onChange={(e) => set('email', e.target.value)}
+                  placeholder="sastikamobiles.svk@gmail.com"
                 />
               </FieldRow>
 
@@ -331,25 +339,17 @@ export default function Settings() {
                   style={field}
                   value={cfg.phone}
                   onChange={(e) => set('phone', e.target.value)}
+                  placeholder="+91 98765 43210"
                 />
               </FieldRow>
 
               <div style={{ gridColumn: '1 / -1' }}>
-                <FieldRow label="BRANCH 1 ADDRESS (கிளை 1 - சித்துராஜபுரம்)">
+                <FieldRow label="STORE ADDRESS">
                   <input
                     style={field}
-                    value={cfg.addressBranch1}
-                    onChange={(e) => set('addressBranch1', e.target.value)}
-                  />
-                </FieldRow>
-              </div>
-
-              <div style={{ gridColumn: '1 / -1' }}>
-                <FieldRow label="BRANCH 2 ADDRESS (கிளை 2 - சிவகாசி பஸ் நிலையம்)">
-                  <input
-                    style={field}
-                    value={cfg.addressBranch2}
-                    onChange={(e) => set('addressBranch2', e.target.value)}
+                    value={cfg.address}
+                    onChange={(e) => set('address', e.target.value)}
+                    placeholder="Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189"
                   />
                 </FieldRow>
               </div>
@@ -423,26 +423,26 @@ export default function Settings() {
               </span>
               <div>
                 <div style={{ fontWeight: 800, fontSize: 15, color: C.primary }}>
-                  சஷ்டிகா மொபைல்ஸ்
+                  {cfg.business || 'Sastika Mobiles'}
                 </div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b' }}>
-                  சேல்ஸ் &amp; சர்வீஸ் &bull; TAX INVOICE
+                  Sales &amp; Service &bull; TAX INVOICE
                 </div>
               </div>
             </div>
 
             <div style={{ fontSize: 12, lineHeight: 1.6, color: '#555' }}>
-              <div style={{ marginBottom: 4 }}>
+              <div style={{ marginBottom: 5 }}>
                 <strong>GSTIN:</strong>{' '}
                 <span style={{ fontFamily: 'monospace', fontWeight: 700, color: C.primary }}>
-                  33BQTPJ5275L1Z6
+                  {cfg.gstin || '33BQTPJ5275L1Z6'}
                 </span>
               </div>
-              <div style={{ marginBottom: 4 }}>
-                <strong>Branch 1:</strong> ஸ்ரீ ரெங்கா காம்ப்ளக்ஸ், கென்னடி மெடிக்கல் அருகில், சித்துராஜபுரம்
+              <div style={{ marginBottom: 5 }}>
+                <strong>Store Address:</strong> {cfg.address || 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189'}
               </div>
               <div>
-                <strong>Branch 2:</strong> சிவகாசி பஸ் நிலையம், சிவகாசி
+                <strong>Contact Phone:</strong> {cfg.phone || '+91 98765 43210'}
               </div>
             </div>
           </div>
@@ -517,7 +517,7 @@ export default function Settings() {
               Real-Time Brand Sync
             </div>
             <div style={{ fontSize: 12.5, opacity: 0.88, lineHeight: 1.55 }}>
-              நீங்கள் Settings-ல் Logo மாற்றினாலோ அல்லது கடை விவரங்களை மாற்றினாலோ, அவை உடனுக்குடன் Storefront மற்றும் Admin இரண்டிலும் sync செய்யப்படும்.
+              Any changes made to your store logo, shop name, or address are immediately synchronized in real time across the Storefront, Mobile View, Invoice Engine, and Admin Portal.
             </div>
           </div>
         </div>

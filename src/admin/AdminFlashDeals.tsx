@@ -4,7 +4,7 @@ import { useStore } from '../store';
 import Icon from '../components/Icon';
 import ProductArt from '../components/ProductArt';
 import { Btn, Pill } from '../site/ui';
-import { FillBar } from '../components/anim';
+import { FillBar, useCountdown } from '../components/anim';
 import type { Category, FlashDealItem } from '../types';
 
 export default function AdminFlashDeals() {
@@ -15,7 +15,34 @@ export default function AdminFlashDeals() {
   const [title, setTitle] = useState(flashDeal.title || 'Flash Deal Drop');
   const [subtitle, setSubtitle] = useState(flashDeal.subtitle || 'LIMITED STOCK LEFT');
   const [festivalName, setFestivalName] = useState(flashDeal.festivalName || 'Festival Mega Drop');
+  const [endTime, setEndTime] = useState<string>(
+    flashDeal.endTime || new Date(Date.now() + 24 * 3600 * 1000).toISOString()
+  );
   const [savedMsg, setSavedMsg] = useState(false);
+
+  // Live countdown timer driven by current endTime
+  const countdown = useCountdown(endTime);
+
+  // Helper to format ISO to datetime-local input
+  const toLocalDatetime = (isoStr: string) => {
+    try {
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return '';
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } catch {
+      return '';
+    }
+  };
+
+  // Quick preset button handler
+  const applyPresetHours = (hours: number) => {
+    const target = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+    setEndTime(target);
+    updateFlashDeal({ endTime: target });
+    setSavedMsg(true);
+    setTimeout(() => setSavedMsg(false), 3000);
+  };
 
   // New product form state
   const [activeTab, setActiveTab] = useState<'upload' | 'catalog'>('upload');
@@ -53,6 +80,7 @@ export default function AdminFlashDeals() {
       title,
       subtitle,
       festivalName,
+      endTime,
     });
     setSavedMsg(true);
     setTimeout(() => setSavedMsg(false), 3000);
@@ -206,6 +234,186 @@ export default function AdminFlashDeals() {
                   placeholder="LIMITED STOCK LEFT • 48 HOURS ONLY"
                   style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
                 />
+              </div>
+
+              {/* Campaign Countdown Timer Control */}
+              <div
+                style={{
+                  gridColumn: 'span 2',
+                  borderRadius: 14,
+                  padding: '16px 18px',
+                  background: countdown.isExpired
+                    ? '#fef2f2'
+                    : `linear-gradient(135deg, ${C.primaryDark}, ${C.primary})`,
+                  color: countdown.isExpired ? '#991b1b' : '#fff',
+                  border: countdown.isExpired ? '1px solid #fecaca' : `1px solid ${C.primary}`,
+                  boxShadow: countdown.isExpired ? 'none' : '0 6px 20px rgba(6,51,46,.18)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 12 }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase' }}>
+                      <Icon name="clock" size={15} color={countdown.isExpired ? '#ef4444' : C.accent} />
+                      <span style={{ color: countdown.isExpired ? '#991b1b' : C.accent }}>Live Flash Deal Timer</span>
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          background: countdown.isExpired ? '#ef4444' : '#22c55e',
+                          animation: 'pulseDot 1.4s infinite',
+                        }}
+                      />
+                    </div>
+                    <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
+                      {countdown.isExpired
+                        ? 'Campaign timer has expired! Choose a preset below or pick a new end time to reactivate.'
+                        : 'Timer ticks in real time on the website homepage for all shoppers'}
+                    </div>
+                  </div>
+
+                  {/* Big Live Countdown Display */}
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    {countdown.days > 0 && (
+                      <>
+                        <div style={{ textAlign: 'center' }}>
+                          <div
+                            style={{
+                              background: 'rgba(255,255,255,.16)',
+                              padding: '6px 10px',
+                              borderRadius: 8,
+                              fontWeight: 800,
+                              fontSize: 18,
+                              minWidth: 40,
+                              fontVariantNumeric: 'tabular-nums',
+                            }}
+                          >
+                            {countdown.d}
+                          </div>
+                          <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', opacity: 0.75, marginTop: 2 }}>Days</div>
+                        </div>
+                        <span style={{ fontWeight: 800, fontSize: 16 }}>:</span>
+                      </>
+                    )}
+                    <div style={{ textAlign: 'center' }}>
+                      <div
+                        style={{
+                          background: 'rgba(255,255,255,.16)',
+                          padding: '6px 10px',
+                          borderRadius: 8,
+                          fontWeight: 800,
+                          fontSize: 18,
+                          minWidth: 40,
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {countdown.days > 0 ? countdown.hh : countdown.h}
+                      </div>
+                      <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', opacity: 0.75, marginTop: 2 }}>Hours</div>
+                    </div>
+                    <span style={{ fontWeight: 800, fontSize: 16 }}>:</span>
+                    <div style={{ textAlign: 'center' }}>
+                      <div
+                        style={{
+                          background: 'rgba(255,255,255,.16)',
+                          padding: '6px 10px',
+                          borderRadius: 8,
+                          fontWeight: 800,
+                          fontSize: 18,
+                          minWidth: 40,
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {countdown.m}
+                      </div>
+                      <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', opacity: 0.75, marginTop: 2 }}>Mins</div>
+                    </div>
+                    <span style={{ fontWeight: 800, fontSize: 16 }}>:</span>
+                    <div style={{ textAlign: 'center' }}>
+                      <div
+                        style={{
+                          background: countdown.isExpired ? '#fee2e2' : C.accent,
+                          color: countdown.isExpired ? '#991b1b' : C.primaryDark,
+                          padding: '6px 10px',
+                          borderRadius: 8,
+                          fontWeight: 900,
+                          fontSize: 18,
+                          minWidth: 40,
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {countdown.s}
+                      </div>
+                      <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', opacity: 0.75, marginTop: 2 }}>Secs</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Presets & Custom Picker */}
+                <div style={{ borderTop: '1px solid rgba(255,255,255,.14)', paddingTop: 12, marginTop: 4 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.8, opacity: 0.9, marginBottom: 8 }}>
+                    Quick Timer Presets (Single Click to Set):
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                    {[
+                      { label: '+4 Hours', hrs: 4 },
+                      { label: '+8 Hours', hrs: 8 },
+                      { label: '+12 Hours', hrs: 12 },
+                      { label: '+24 Hours (1 Day)', hrs: 24 },
+                      { label: '+48 Hours (2 Days)', hrs: 48 },
+                      { label: '+7 Days (1 Week)', hrs: 168 },
+                    ].map((p) => (
+                      <button
+                        key={p.hrs}
+                        type="button"
+                        onClick={() => applyPresetHours(p.hrs)}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: 8,
+                          background: 'rgba(255,255,255,.18)',
+                          color: '#fff',
+                          border: '1px solid rgba(255,255,255,.25)',
+                          fontWeight: 700,
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          transition: 'all .15s ease',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.3)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.18)')}
+                      >
+                        ⚡ {p.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Custom End Datetime Picker */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <label style={{ fontSize: 11.5, fontWeight: 800, opacity: 0.9 }}>
+                      OR SET CUSTOM END DATE &amp; TIME:
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={toLocalDatetime(endTime)}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const d = new Date(e.target.value);
+                          if (!isNaN(d.getTime())) {
+                            setEndTime(d.toISOString());
+                          }
+                        }
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 8,
+                        border: '1.5px solid rgba(255,255,255,.4)',
+                        background: '#fff',
+                        color: C.text,
+                        fontWeight: 700,
+                        fontSize: 12.5,
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
@@ -486,10 +694,26 @@ export default function AdminFlashDeals() {
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 3 }}>
-                  <span style={{ background: C.primary, color: '#fff', fontSize: 10, fontWeight: 800, padding: '3px 5px', borderRadius: 4 }}>04</span>
+                <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                  {countdown.days > 0 && (
+                    <>
+                      <span style={{ background: C.primary, color: '#fff', fontSize: 10, fontWeight: 800, padding: '3px 5px', borderRadius: 4, minWidth: 20, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                        {countdown.d}d
+                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 800 }}>:</span>
+                    </>
+                  )}
+                  <span style={{ background: C.primary, color: '#fff', fontSize: 10, fontWeight: 800, padding: '3px 5px', borderRadius: 4, minWidth: 20, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                    {countdown.days > 0 ? countdown.hh : countdown.h}
+                  </span>
                   <span style={{ fontSize: 10, fontWeight: 800 }}>:</span>
-                  <span style={{ background: C.primary, color: '#fff', fontSize: 10, fontWeight: 800, padding: '3px 5px', borderRadius: 4 }}>58</span>
+                  <span style={{ background: C.primary, color: '#fff', fontSize: 10, fontWeight: 800, padding: '3px 5px', borderRadius: 4, minWidth: 20, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                    {countdown.m}
+                  </span>
+                  <span style={{ fontSize: 10, fontWeight: 800 }}>:</span>
+                  <span style={{ background: countdown.isExpired ? '#dc2626' : C.danger, color: '#fff', fontSize: 10, fontWeight: 800, padding: '3px 5px', borderRadius: 4, minWidth: 20, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                    {countdown.s}
+                  </span>
                 </div>
               </div>
 

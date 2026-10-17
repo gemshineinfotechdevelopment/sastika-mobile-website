@@ -160,84 +160,47 @@ export default function About() {
       </div>
 
       <div style={{ padding: '24px 18px 0' }}>
-        {/* Branches Section */}
+        {/* Store Location Section */}
         <Reveal>
           <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.4, color: C.primarySoft }}>
-            OUR BRANCHES &bull; எங்களின் கிளைகள்
+            OUR STORE LOCATION
           </div>
           <h2 style={{ margin: '4px 0 14px', fontSize: 21, fontWeight: 800, letterSpacing: -0.5 }}>
-            Visit Us in Sithurajapuram &amp; Sivakasi
+            Visit Our Showroom in Sivakasi
           </h2>
 
-          <div style={{ display: 'grid', gap: 12 }}>
-            <div
-              className="lift"
-              style={{
-                padding: 16,
-                background: '#fff',
-                borderRadius: 20,
-                border: `1.5px solid ${C.border}`,
-                boxShadow: '0 4px 14px rgba(11,74,67,.06)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <span
-                  style={{
-                    padding: '3px 8px',
-                    borderRadius: 8,
-                    background: C.primary,
-                    color: '#fff',
-                    fontSize: 11,
-                    fontWeight: 800,
-                  }}
-                >
-                  கிளை 1 (Branch 1)
-                </span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: C.primarySoft }}>Main Showroom</span>
-              </div>
-              <div style={{ fontWeight: 800, fontSize: 15, color: C.text, marginBottom: 4 }}>
-                ஸ்ரீ ரெங்கா காம்ப்ளக்ஸ், சித்துராஜபுரம்
-              </div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                கென்னடி மெடிக்கல் அருகில், சித்துராஜபுரம், தமிழ்நாடு.
-                <br />
-                (Near Kennedy Medical, Sithurajapuram)
-              </div>
+          <div
+            className="lift"
+            style={{
+              padding: 18,
+              background: '#fff',
+              borderRadius: 20,
+              border: `1.5px solid ${C.border}`,
+              boxShadow: '0 4px 14px rgba(11,74,67,.06)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span
+                style={{
+                  padding: '3px 10px',
+                  borderRadius: 8,
+                  background: C.primary,
+                  color: '#fff',
+                  fontSize: 11,
+                  fontWeight: 800,
+                }}
+              >
+                Flagship Store
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.primarySoft }}>Sales &amp; Service</span>
             </div>
-
-            <div
-              className="lift"
-              style={{
-                padding: 16,
-                background: '#fff',
-                borderRadius: 20,
-                border: `1.5px solid ${C.border}`,
-                boxShadow: '0 4px 14px rgba(11,74,67,.06)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <span
-                  style={{
-                    padding: '3px 8px',
-                    borderRadius: 8,
-                    background: C.accentDark,
-                    color: '#fff',
-                    fontSize: 11,
-                    fontWeight: 800,
-                  }}
-                >
-                  கிளை 2 (Branch 2)
-                </span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: C.accentDark }}>Express Service</span>
-              </div>
-              <div style={{ fontWeight: 800, fontSize: 15, color: C.text, marginBottom: 4 }}>
-                சிவகாசி பஸ் நிலையம், சிவகாசி
-              </div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                சிவகாசி பேருந்து நிலையம் அருகில், சிவகாசி, தமிழ்நாடு.
-                <br />
-                (Sivakasi Bus Stand, Sivakasi)
-              </div>
+            <div style={{ fontWeight: 800, fontSize: 16, color: C.text, marginBottom: 4 }}>
+              Sri Renga Complex, Sithurajapuram, Sivakasi
+            </div>
+            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5 }}>
+              Near Kennedy Medicals, Sithurajapuram, Sivakasi, Tamil Nadu - 626189.
+              <br />
+              <span style={{ fontWeight: 600, color: C.primary }}>Hours:</span> 09:30 AM – 09:30 PM (All 7 Days)
             </div>
           </div>
         </Reveal>

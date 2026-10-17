@@ -20,7 +20,6 @@ export default function AdminLayout() {
   const { pathname } = useLocation();
   const { products, orders, tickets, logo } = useStore();
   const [q, setQ] = useState('');
-  const [branch, setBranch] = useState('கிளை 1: சித்துராஜபுரம் (Sithurajapuram)');
 
   const low = products.filter((p) => p.stock <= p.reorderAt).length;
   const openOrders = orders.filter((o) => o.status === 'Placed' || o.status === 'Packed').length;
@@ -99,10 +98,10 @@ export default function AdminLayout() {
               style={{ width: '100%', padding: '10px 12px 10px 38px', borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.tint2, fontSize: 13.5 }}
             />
           </div>
-          <select value={branch} onChange={(e) => setBranch(e.target.value)} style={{ padding: '10px 12px', borderRadius: 12, border: `1.5px solid ${C.border}`, background: '#fff', fontWeight: 700, fontSize: 13 }}>
-            <option>கிளை 1: சித்துராஜபுரம் (Sithurajapuram)</option>
-            <option>கிளை 2: சிவகாசி (Sivakasi Bus Stand)</option>
-          </select>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 12, background: C.tint, color: C.primary, fontSize: 12.5, fontWeight: 700, border: `1px solid ${C.border}` }}>
+            <Icon name="pin" size={14} color={C.primary} />
+            <span>Sithurajapuram, Sivakasi</span>
+          </div>
           <div style={{ flex: 1 }} />
           <button onClick={() => nav('/admin/products?new=1')} className="tap" style={{ background: C.primary, color: '#fff', fontWeight: 700, fontSize: 13, padding: '10px 14px', borderRadius: 11, display: 'flex', gap: 6, alignItems: 'center' }}>
             <Icon name="plus" size={15} /> Product
