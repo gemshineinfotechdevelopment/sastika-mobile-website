@@ -13,7 +13,7 @@ function loadSeedProducts() {
 }
 
 // In-memory fallback storage
-let memoryProducts = loadSeedProducts();
+export let memoryProducts = loadSeedProducts();
 
 export const getProducts = async (req, res) => {
   try {

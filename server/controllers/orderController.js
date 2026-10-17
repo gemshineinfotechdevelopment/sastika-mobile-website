@@ -2,6 +2,7 @@ import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
 import { SEED_ORDERS } from '../data/seedData.js';
 import { getDbStatus } from '../config/db.js';
+import { memoryProducts } from './productController.js';
 
 let memoryOrders = [...SEED_ORDERS];
 
@@ -71,6 +72,14 @@ export const createOrder = async (req, res) => {
     }
 
     memoryOrders.unshift(newOrder);
+    if (Array.isArray(memoryProducts)) {
+      for (const item of items) {
+        const prod = memoryProducts.find((p) => p.id === item.productId);
+        if (prod) {
+          prod.stock = Math.max(0, prod.stock - (item.qty || 1));
+        }
+      }
+    }
     return res.status(201).json({ success: true, data: newOrder });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

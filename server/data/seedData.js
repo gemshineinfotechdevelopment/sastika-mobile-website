@@ -8,13 +8,12 @@ export const SEED_ORDERS = [
     id: '#SM-884220',
     customer: 'Rajesh Kumar',
     phone: '+91 98401 23456',
-    city: 'Chennai',
-    address: 'Flat 402, Lotus Residency, Anna Salai',
+    city: 'Sivakasi',
+    address: '42 Gandhi Road, Sivakasi',
     items: [
-      { productId: 'p4', name: 'OnePlus Nord CE4 5G', qty: 1, price: 24999 },
-      { productId: 'a4', name: 'Anker 65W GaN Fast Charger', qty: 1, price: 2299 }
+      { productId: 'p3', name: 'OPPO K14x 5G (6GB + 128GB) Blue', qty: 1, price: 14499 }
     ],
-    total: 27298,
+    total: 14499,
     status: 'Packed',
     payment: 'UPI',
     date: '2026-10-17'
@@ -23,12 +22,12 @@ export const SEED_ORDERS = [
     id: '#SM-884219',
     customer: 'Ananya Sundaram',
     phone: '+91 99620 11223',
-    city: 'Chennai',
-    address: 'T. Nagar, Chennai',
+    city: 'Sithurajapuram',
+    address: 'Sri Renga Complex, Sithurajapuram',
     items: [
-      { productId: 'p2', name: 'iPhone 15 Pro Max 256GB', qty: 1, price: 134900 }
+      { productId: 'p1', name: 'Redmi A7 Pro 5G (4GB + 64GB) Orange', qty: 1, price: 9999 }
     ],
-    total: 134900,
+    total: 9999,
     status: 'Shipped',
     payment: 'Credit Card',
     date: '2026-10-16'
@@ -37,12 +36,12 @@ export const SEED_ORDERS = [
     id: '#SM-884218',
     customer: 'M. Selvaraj',
     phone: '+91 97890 55677',
-    city: 'Madurai',
-    address: 'KK Nagar, Madurai',
+    city: 'Sivakasi',
+    address: 'Near Bus Stand, Sivakasi',
     items: [
-      { productId: 'p4', name: 'OnePlus Nord CE4 5G', qty: 1, price: 24999 }
+      { productId: 'p9', name: 'Nothing 4b 5G (8GB + 256GB) White', qty: 1, price: 27999 }
     ],
-    total: 24999,
+    total: 27999,
     status: 'Placed',
     payment: 'COD',
     date: '2026-10-16'
@@ -51,12 +50,12 @@ export const SEED_ORDERS = [
     id: '#SM-884217',
     customer: 'R. Priya',
     phone: '+91 90030 99881',
-    city: 'Coimbatore',
-    address: 'RS Puram, Coimbatore',
+    city: 'Sivakasi',
+    address: 'Police Station Road, Sivakasi',
     items: [
-      { productId: 'a3', name: 'Spigen Ultra Hybrid MagFit Case', qty: 2, price: 1699 }
+      { productId: 'p7', name: 'Vivo Y11 5G (4GB + 64GB) Gold', qty: 1, price: 9499 }
     ],
-    total: 3398,
+    total: 9499,
     status: 'Delivered',
     payment: 'UPI',
     date: '2026-10-15'
@@ -65,12 +64,12 @@ export const SEED_ORDERS = [
     id: '#SM-884216',
     customer: 'Karthik N.',
     phone: '+91 98945 66120',
-    city: 'Chennai',
-    address: 'OMR, Chennai',
+    city: 'Sithurajapuram',
+    address: 'Kennedy Medical Road, Sithurajapuram',
     items: [
-      { productId: 'p3', name: 'Samsung Galaxy S24 Ultra 512GB', qty: 1, price: 129999 }
+      { productId: 'p17', name: 'OPPO Reno 16c 5G (12GB + 256GB) Twilight Violet', qty: 1, price: 29999 }
     ],
-    total: 129999,
+    total: 29999,
     status: 'Delivered',
     payment: 'Net Banking',
     date: '2026-10-14'
@@ -79,14 +78,14 @@ export const SEED_ORDERS = [
     id: '#SM-884215',
     customer: 'Divya S.',
     phone: '+91 98400 44556',
-    city: 'Trichy',
-    address: 'Thillai Nagar, Trichy',
+    city: 'Sivakasi',
+    address: 'South Car Street, Sivakasi',
     items: [
-      { productId: 'a2', name: 'Sony WF-1000XM5 Earbuds', qty: 1, price: 19990 }
+      { productId: 'p14', name: 'Poco C85x 5G (4GB + 64GB) Green', qty: 1, price: 8999 }
     ],
-    total: 19990,
-    status: 'Cancelled',
-    payment: 'Credit Card',
+    total: 8999,
+    status: 'Placed',
+    payment: 'UPI',
     date: '2026-10-13'
   }
 ];

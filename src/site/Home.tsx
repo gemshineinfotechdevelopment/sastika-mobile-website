@@ -10,7 +10,6 @@ import { Btn, Pill, SectionHead, Stars } from './ui';
 import ProductCard from './ProductCard';
 import type { FlashDealConfig } from '../types';
 import heroBannerImg from '../assets/hero-banner.png';
-import logoImg from '../assets/logo.png';
 
 export default function Home() {
   const nav = useNavigate();
@@ -20,96 +19,131 @@ export default function Home() {
   const hero = products.find((p) => p.id === 'p1') ?? phones[0];
 
   return (
-    <div style={{ paddingBottom: 8 }}>
-      <Hero onShop={() => nav('/mobiles')} onGear={() => nav('/accessories')} color={hero?.color ?? C.primarySoft} />
+    <div style={{ paddingBottom: 30 }}>
+      {/* Full Width Desktop Hero */}
+      <Hero onShop={() => nav('/mobiles')} onGear={() => nav('/services')} color={hero?.color ?? C.primarySoft} />
 
-      {/* brand ticker */}
-      <section style={{ padding: '22px 0 6px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 18px 10px', fontSize: 12, fontWeight: 800, color: C.muted, letterSpacing: 0.4 }}>
-          <span>TOP CERTIFIED BRANDS</span>
-          <span style={{ color: C.success }}>100% GENUINE</span>
-        </div>
-        <Marquee>
-          {BRANDS.map((b) => (
-            <div key={b} style={{ padding: '10px 22px', borderRadius: 99, background: '#fff', border: `1px solid ${C.border}`, fontWeight: 800, fontSize: 13.5, color: C.primary }}>
-              {b}
-            </div>
-          ))}
-        </Marquee>
-      </section>
+      {/* Main Desktop Container */}
+      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 24px' }}>
+        {/* Certified Brands Ticker */}
+        <section style={{ padding: '30px 0 10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, fontSize: 13, fontWeight: 800, color: C.muted, letterSpacing: 0.6 }}>
+            <span>TOP CERTIFIED 5G BRANDS IN STOCK</span>
+            <span style={{ color: C.success }}>100% ORIGINAL & SEALED WITH WARRANTY</span>
+          </div>
+          <Marquee>
+            {BRANDS.map((b) => (
+              <div
+                key={b}
+                onClick={() => nav('/mobiles')}
+                style={{
+                  padding: '12px 32px',
+                  borderRadius: 99,
+                  background: '#fff',
+                  border: `1px solid ${C.border}`,
+                  fontWeight: 800,
+                  fontSize: 15,
+                  color: C.primary,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                }}
+              >
+                {b}
+              </div>
+            ))}
+          </Marquee>
+        </section>
 
-      {flashDeal.isActive && flashDeal.items && flashDeal.items.length > 0 && (
-        <FlashDeal deal={flashDeal} onAdd={addToCart} />
-      )}
+        {/* Flash Deals */}
+        {flashDeal.isActive && flashDeal.items && flashDeal.items.length > 0 && (
+          <FlashDeal deal={flashDeal} onAdd={addToCart} />
+        )}
 
-      <section style={{ padding: '26px 0 0' }}>
-        <Reveal>
-          <SectionHead title="Featured Phones" sub="Factory sealed with Sastika warranty" action="View all" onAction={() => nav('/mobiles')} />
-        </Reveal>
-        <div className="hide-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '4px 18px 14px' }}>
-          {phones.slice(0, 6).map((p, i) => (
-            <Reveal key={p.id} dir="right" delay={i * 90} style={{ flexShrink: 0 }}>
-              <ProductCard p={p} width={168} />
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <StatsBand />
-
-      <Categories />
-
-      <Spotlight onBuy={(id) => nav(`/product/${id}`)} />
-
-      {gear.length > 0 ? (
-        <section style={{ padding: '28px 0 0' }}>
+        {/* Featured 5G Phones (Responsive Multi-Column Grid) */}
+        <section style={{ padding: '40px 0 0' }}>
           <Reveal>
-            <SectionHead title="Original Accessories" sub="Essential companions for your smartphone" action="All" onAction={() => nav('/accessories')} />
+            <SectionHead
+              title="Featured 5G Smartphones"
+              sub="Factory sealed with official brand warranty & Sivakasi tax bill"
+              action="View All (18 Mobiles)"
+              onAction={() => nav('/mobiles')}
+            />
           </Reveal>
-          <div className="hide-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '4px 18px 14px' }}>
-            {gear.slice(0, 6).map((p, i) => (
-              <Reveal key={p.id} dir="zoom" delay={i * 80} style={{ flexShrink: 0 }}>
-                <ProductCard p={p} width={160} compact />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+              gap: 20,
+              padding: '16px 0 0',
+            }}
+          >
+            {phones.slice(0, 8).map((p, i) => (
+              <Reveal key={p.id} dir="up" delay={i * 50}>
+                <ProductCard p={p} />
               </Reveal>
             ))}
           </div>
         </section>
-      ) : (
-        <section style={{ padding: '28px 0 0' }}>
+
+        {/* Stats Band */}
+        <StatsBand />
+
+        {/* Categories Grid */}
+        <Categories />
+
+        {/* Spotlight Showcase Banner */}
+        <Spotlight onBuy={(id) => nav(`/product/${id}`)} />
+
+        {/* Secondary Popular Mobiles / Accessories Grid */}
+        <section style={{ padding: '40px 0 0' }}>
           <Reveal>
-            <SectionHead title="Popular Stock Mobiles" sub="Verified 5G smartphones in Sivakasi & Sithurajapuram" action="View All (18)" onAction={() => nav('/mobiles')} />
+            <SectionHead
+              title={gear.length > 0 ? 'Original Accessories & Audio' : 'More In-Stock Mobiles'}
+              sub={gear.length > 0 ? 'Essential companions for your smartphone' : 'Poco, Vivo, OPPO & Redmi models available for instant delivery'}
+              action="Explore All"
+              onAction={() => nav(gear.length > 0 ? '/accessories' : '/mobiles')}
+            />
           </Reveal>
-          <div className="hide-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '4px 18px 14px' }}>
-            {phones.slice(6, 16).map((p, i) => (
-              <Reveal key={p.id} dir="zoom" delay={i * 80} style={{ flexShrink: 0 }}>
-                <ProductCard p={p} width={160} compact />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+              gap: 20,
+              padding: '16px 0 0',
+            }}
+          >
+            {(gear.length > 0 ? gear : phones.slice(8, 18)).map((p, i) => (
+              <Reveal key={p.id} dir="up" delay={i * 50}>
+                <ProductCard p={p} />
               </Reveal>
             ))}
           </div>
         </section>
-      )}
 
-      <CareServices onOpen={() => nav('/services')} />
+        {/* Sastika Care & Repair Services */}
+        <CareServices onOpen={() => nav('/services')} />
 
-      <TrustShield />
+        {/* Trust & Guarantee Shield */}
+        <TrustShield />
 
-      <Testimonials />
+        {/* Customer Testimonials */}
+        <Testimonials />
 
-      <Newsletter />
-
-      <Footer />
+        {/* Newsletter / Offers */}
+        <Newsletter />
+      </div>
     </div>
   );
 }
 
 /* ---------------------------------- HERO ---------------------------------- */
 
-function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => void; color: string }) {
+function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; color: string }) {
   const orbs = [
-    { s: 120, t: '8%', l: '-6%', d: 0, c: 'rgba(246,196,69,.22)' },
-    { s: 80, t: '60%', l: '78%', d: 1.4, c: 'rgba(255,255,255,.12)' },
-    { s: 54, t: '20%', l: '70%', d: 0.7, c: 'rgba(246,196,69,.3)' },
-    { s: 36, t: '75%', l: '12%', d: 2, c: 'rgba(255,255,255,.14)' },
+    { s: 220, t: '-5%', l: '-4%', d: 0, c: 'rgba(246,196,69,.22)' },
+    { s: 180, t: '60%', l: '78%', d: 1.4, c: 'rgba(255,255,255,.12)' },
+    { s: 140, t: '15%', l: '65%', d: 0.7, c: 'rgba(246,196,69,.25)' },
+    { s: 90, t: '75%', l: '25%', d: 2, c: 'rgba(255,255,255,.14)' },
   ];
   return (
     <section
@@ -117,80 +151,172 @@ function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => voi
         position: 'relative',
         overflow: 'hidden',
         color: '#fff',
-        padding: '28px 20px 30px',
-        background: `linear-gradient(120deg, ${C.primaryDark}, ${C.primary}, ${C.primarySoft}, ${C.primaryDark})`,
-        backgroundSize: '300% 300%',
-        animation: 'gradientShift 12s ease infinite',
-        borderRadius: '0 0 32px 32px',
+        background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primary}, ${C.primarySoft})`,
+        borderRadius: '0 0 36px 36px',
+        padding: '50px 24px 60px',
       }}
     >
       {orbs.map((o, i) => (
-        <span key={i} style={{ position: 'absolute', width: o.s, height: o.s, top: o.t, left: o.l, borderRadius: '50%', background: o.c, filter: 'blur(2px)', animation: `orb ${8 + i * 2}s ease-in-out ${o.d}s infinite` }} />
+        <span
+          key={i}
+          style={{
+            position: 'absolute',
+            width: o.s,
+            height: o.s,
+            top: o.t,
+            left: o.l,
+            borderRadius: '50%',
+            background: o.c,
+            filter: 'blur(30px)',
+            animation: `orb ${8 + i * 2}s ease-in-out ${o.d}s infinite`,
+          }}
+        />
       ))}
-
-      <div style={{ position: 'relative', zIndex: 2 }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 99, background: 'rgba(255,255,255,.12)', fontSize: 11.5, fontWeight: 700, animation: 'fadeUp .6s ease both' }}>
-          <span style={{ width: 7, height: 7, borderRadius: 9, background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
-          Certified Store • Sivakasi & Sithurajapuram
-        </div>
-
-        <h1 style={{ margin: '14px 0 10px', fontSize: 38, lineHeight: 1.05, fontWeight: 800, letterSpacing: -1.2, animation: 'fadeUp .7s ease .1s both' }}>
-          Your Next
-          <br />
-          <span style={{ color: C.accent }}>
-            <Typewriter words={['Smartphone', 'Flagship', 'Upgrade']} />
-          </span>
-          <br />
-          Starts Here.
-        </h1>
-        <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: 'rgba(255,255,255,.82)', maxWidth: 230, animation: 'fadeUp .7s ease .25s both' }}>
-          Genuine devices with warranty and certified after-sales care.
-        </p>
-
-        <div style={{ display: 'flex', gap: 10, marginTop: 20, animation: 'fadeUp .7s ease .4s both' }}>
-          <button
-            className="tap"
-            onClick={onShop}
-            style={{ padding: '13px 20px', borderRadius: 14, background: C.accent, color: C.primaryDark, fontWeight: 800, fontSize: 14, animation: 'pulseRing 2.4s infinite', position: 'relative', overflow: 'hidden' }}
-          >
-            Shop Mobiles
-            <span style={{ position: 'absolute', top: 0, bottom: 0, width: 40, background: 'rgba(255,255,255,.55)', animation: 'sheen 3.2s ease-in-out infinite' }} />
-          </button>
-          <button className="tap" onClick={onGear} style={{ padding: '13px 18px', borderRadius: 14, background: 'rgba(255,255,255,.14)', color: '#fff', fontWeight: 700, fontSize: 14, border: '1px solid rgba(255,255,255,.3)' }}>
-            Explore Gear
-          </button>
-        </div>
-      </div>
 
       <div
         style={{
-          position: 'absolute',
-          right: -12,
-          top: 36,
-          zIndex: 1,
-          width: 195,
-          maxWidth: '52%',
-          filter: 'drop-shadow(0 20px 30px rgba(0,0,0,.45))',
-          pointerEvents: 'none',
+          maxWidth: 1360,
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+          alignItems: 'center',
+          gap: 40,
+          position: 'relative',
+          zIndex: 2,
         }}
       >
-        <img
-          src={heroBannerImg}
-          alt="Premium Smartphones"
-          style={{
-            width: '100%',
-            height: 'auto',
-            display: 'block',
-            objectFit: 'contain',
-          }}
-        />
-      </div>
+        <div>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 16px',
+              borderRadius: 99,
+              background: 'rgba(255,255,255,.14)',
+              backdropFilter: 'blur(10px)',
+              fontSize: 12.5,
+              fontWeight: 700,
+              animation: 'fadeUp .6s ease both',
+              marginBottom: 16,
+            }}
+          >
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
+            Authorized Multi-Brand Store • Sivakasi & Sithurajapuram
+          </div>
 
-      <div style={{ position: 'relative', zIndex: 2, marginTop: 34, padding: '11px 14px', borderRadius: 14, background: 'rgba(0,0,0,.25)', display: 'flex', alignItems: 'center', gap: 10, fontSize: 12.5, animation: 'fadeUp .7s ease .6s both' }}>
-        <Icon name="gift" size={18} color={C.accent} />
-        <span>
-          <b style={{ color: C.accent }}>FESTIVE DROP</b> · up to 46% off + ₹2,000 instant bank offer
-        </span>
+          <h1
+            style={{
+              margin: '0 0 16px',
+              fontSize: 48,
+              lineHeight: 1.1,
+              fontWeight: 900,
+              letterSpacing: -1.5,
+              animation: 'fadeUp .7s ease .1s both',
+            }}
+          >
+            Upgrade to Your Next
+            <br />
+            <span style={{ color: C.accent }}>
+              <Typewriter words={['5G Smartphone', 'Flagship Killer', 'Portrait Master']} />
+            </span>
+            <br />
+            With Trust & GST Bill.
+          </h1>
+
+          <p
+            style={{
+              margin: '0 0 26px',
+              fontSize: 16,
+              lineHeight: 1.6,
+              color: 'rgba(255,255,255,.86)',
+              maxWidth: 520,
+              animation: 'fadeUp .7s ease .2s both',
+            }}
+          >
+            Redmi, OPPO, Vivo, Nothing, Samsung & Poco — 100% factory sealed stock with 1-Year Brand Warranty, instant data transfer, and certified after-sales care.
+          </p>
+
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', animation: 'fadeUp .7s ease .3s both' }}>
+            <button
+              className="tap"
+              onClick={onShop}
+              style={{
+                padding: '15px 28px',
+                borderRadius: 16,
+                background: C.accent,
+                color: C.primaryDark,
+                fontWeight: 900,
+                fontSize: 15,
+                animation: 'pulseRing 2.4s infinite',
+                position: 'relative',
+                overflow: 'hidden',
+                cursor: 'pointer',
+              }}
+            >
+              Explore Mobiles (78 In Stock)
+              <span style={{ position: 'absolute', top: 0, bottom: 0, width: 40, background: 'rgba(255,255,255,.55)', animation: 'sheen 3.2s ease-in-out infinite' }} />
+            </button>
+            <button
+              className="tap"
+              onClick={onGear}
+              style={{
+                padding: '15px 24px',
+                borderRadius: 16,
+                background: 'rgba(255,255,255,.14)',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: 15,
+                border: '1.5px solid rgba(255,255,255,.3)',
+                cursor: 'pointer',
+              }}
+            >
+              Care & Service Desk
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 24,
+              marginTop: 30,
+              fontSize: 13,
+              color: 'rgba(255,255,255,0.85)',
+              fontWeight: 600,
+            }}
+          >
+            <span>✓ GSTIN Tax Invoice</span>
+            <span>✓ Same-Day Sivakasi Pickup</span>
+            <span>✓ Free Data Migration</span>
+          </div>
+        </div>
+
+        {/* Right side large showcase banner */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'relative',
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: 480,
+              filter: 'drop-shadow(0 25px 45px rgba(0,0,0,.5))',
+              animation: 'float 6s ease-in-out infinite',
+            }}
+          >
+            <img
+              src={heroBannerImg}
+              alt="Premium Smartphones"
+              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }}
+            />
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -202,73 +328,89 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
   const { d, h, hh, m, s, days, isExpired } = useCountdown(deal.endTime || 5);
   const nav = useNavigate();
   return (
-    <section style={{ margin: '20px 14px 0', padding: 16, borderRadius: 26, background: `linear-gradient(160deg, ${C.tint}, #fff)`, border: `1px solid ${C.border}` }}>
+    <section
+      style={{
+        margin: '30px 0 0',
+        padding: '24px 28px',
+        borderRadius: 26,
+        background: `linear-gradient(160deg, ${C.tint}, #fff)`,
+        border: `1.5px solid ${C.border}`,
+        boxShadow: '0 8px 30px rgba(11,74,67,0.06)',
+      }}
+    >
       <Reveal>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 11, background: C.danger, display: 'grid', placeItems: 'center', animation: 'wiggle 1.6s ease-in-out infinite' }}>
-              <Icon name="zap" size={18} color="#fff" fill="#fff" />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: C.danger, display: 'grid', placeItems: 'center', animation: 'wiggle 1.6s ease-in-out infinite' }}>
+              <Icon name="zap" size={22} color="#fff" fill="#fff" />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: 17 }}>{deal.title || 'Flash Deal Drop'}</div>
-              <div style={{ fontSize: 11, color: C.danger, fontWeight: 700 }}>
+              <div style={{ fontWeight: 900, fontSize: 20 }}>{deal.title || 'Flash Deal Drop'}</div>
+              <div style={{ fontSize: 12, color: C.danger, fontWeight: 800 }}>
                 {deal.festivalName ? `${deal.festivalName.toUpperCase()} • ` : ''}
-                {deal.subtitle || 'LIMITED STOCK LEFT'}
+                {deal.subtitle || 'LIMITED INVOICE STOCK'}
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginRight: 6 }}>ENDS IN:</span>
             {days > 0 && (
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 32, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 14, padding: '7px 10px', borderRadius: 8, minWidth: 36, textAlign: 'center' }}>
                   {d}d
                 </span>
                 <span style={{ fontWeight: 800, color: C.primary }}>:</span>
               </span>
             )}
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 30, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 14, padding: '7px 10px', borderRadius: 8, minWidth: 36, textAlign: 'center' }}>
                 {days > 0 ? hh : h}
               </span>
               <span style={{ fontWeight: 800, color: C.primary }}>:</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 30, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 14, padding: '7px 10px', borderRadius: 8, minWidth: 36, textAlign: 'center' }}>
                 {m}
               </span>
               <span style={{ fontWeight: 800, color: C.primary }}>:</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ background: isExpired ? '#dc2626' : C.danger, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 30, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ background: isExpired ? '#dc2626' : C.danger, color: '#fff', fontWeight: 800, fontSize: 14, padding: '7px 10px', borderRadius: 8, minWidth: 36, textAlign: 'center' }}>
                 {s}
               </span>
             </span>
           </div>
         </div>
       </Reveal>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+
+      {/* Grid for flash deal items */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
         {deal.items.map((p, i) => (
-          <Reveal key={p.id} delay={i * 120} dir="zoom">
-            <div style={{ background: '#fff', borderRadius: 18, padding: 10, border: `1px solid ${C.border}`, position: 'relative' }}>
+          <Reveal key={p.id} delay={i * 100} dir="zoom">
+            <div style={{ background: '#fff', borderRadius: 20, padding: 14, border: `1px solid ${C.border}`, position: 'relative' }}>
               {p.badge && (
-                <span style={{ position: 'absolute', top: 14, left: 14, background: C.danger, color: '#fff', fontSize: 9.5, fontWeight: 800, padding: '3px 8px', borderRadius: 99, zIndex: 2 }}>
+                <span style={{ position: 'absolute', top: 16, left: 16, background: C.danger, color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 99, zIndex: 2 }}>
                   {p.badge}
                 </span>
               )}
-              <div onClick={() => nav(`/product/${p.id}`)} style={{ cursor: 'pointer', height: 104, borderRadius: 12, background: C.tint2, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
-                <ProductArt category={p.category} color={p.color} size={84} image={p.image} alt={p.name} float />
+              <div
+                onClick={() => nav(`/product/${p.id}`)}
+                style={{ cursor: 'pointer', height: 160, borderRadius: 14, background: C.tint2, display: 'grid', placeItems: 'center', overflow: 'hidden' }}
+              >
+                <ProductArt category={p.category} color={p.color} size={130} image={p.image} alt={p.name} float />
               </div>
-              <div style={{ fontSize: 12.5, fontWeight: 700, margin: '8px 0 2px', minHeight: 32, lineHeight: 1.25 }}>{p.name}</div>
-              <div style={{ display: 'flex', gap: 5, alignItems: 'baseline' }}>
-                <b style={{ fontSize: 15 }}>{money(p.price)}</b>
-                <span style={{ fontSize: 10.5, color: C.success, fontWeight: 800 }}>{discount(p.price, p.mrp)}% off</span>
+              <div style={{ fontSize: 14, fontWeight: 800, margin: '12px 0 4px', minHeight: 38, lineHeight: 1.3 }}>{p.name}</div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                <b style={{ fontSize: 18 }}>{money(p.price)}</b>
+                <span style={{ fontSize: 12, color: C.success, fontWeight: 800 }}>{discount(p.price, p.mrp)}% off</span>
+                <span style={{ fontSize: 11, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp)}</span>
               </div>
-              <div style={{ margin: '8px 0 4px', fontSize: 10.5, color: C.muted, fontWeight: 700 }}>
-                {p.claimedPct || 65}% claimed • {p.stock} left
+              <div style={{ margin: '10px 0 6px', fontSize: 11, color: C.muted, fontWeight: 700 }}>
+                {p.claimedPct || 65}% claimed • {p.stock} units left in stock
               </div>
               <FillBar pct={p.claimedPct || 65} color={`linear-gradient(90deg, ${C.accent}, ${C.danger})`} bg={C.tint} />
-              <Btn full variant="primary" onClick={() => onAdd(p.id)} style={{ marginTop: 9, padding: '9px 0', fontSize: 12 }}>
-                Claim Now
+              <Btn full variant="primary" onClick={() => onAdd(p.id)} style={{ marginTop: 12, padding: '11px 0', fontSize: 13 }}>
+                Claim Flash Offer
               </Btn>
             </div>
           </Reveal>
@@ -282,20 +424,32 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
 
 function StatsBand() {
   const stats: { v: number; suf: string; label: string; dec?: number }[] = [
-    { v: 12, suf: '+', label: 'Years of trust' },
-    { v: 250, suf: 'K+', label: 'Happy customers' },
-    { v: 4.9, suf: '', label: 'Google rating', dec: 1 },
-    { v: 98.6, suf: '%', label: 'Same-day repairs', dec: 1 },
+    { v: 12, suf: '+', label: 'Years of trust in Sivakasi' },
+    { v: 78, suf: ' Nos', label: 'Verified inventory in stock' },
+    { v: 4.9, suf: ' / 5', label: 'Customer satisfaction rating', dec: 1 },
+    { v: 100, suf: '%', label: 'Official brand tax invoices' },
   ];
   return (
-    <section style={{ margin: '26px 14px 0', padding: '22px 14px', borderRadius: 26, background: C.primary, color: '#fff', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+    <section
+      style={{
+        margin: '40px 0 0',
+        padding: '34px 28px',
+        borderRadius: 28,
+        background: `linear-gradient(135deg, ${C.primary}, ${C.primaryDark})`,
+        color: '#fff',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 20,
+        boxShadow: '0 12px 36px rgba(11,74,67,0.18)',
+      }}
+    >
       {stats.map((s, i) => (
-        <Reveal key={s.label} delay={i * 110} dir="zoom">
+        <Reveal key={s.label} delay={i * 100} dir="zoom">
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 30, fontWeight: 800, color: C.accent, letterSpacing: -1 }}>
+            <div style={{ fontSize: 36, fontWeight: 900, color: C.accent, letterSpacing: -1 }}>
               <CountUp to={s.v} suffix={s.suf} decimals={s.dec ?? 0} />
             </div>
-            <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.75)', fontWeight: 600 }}>{s.label}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,.8)', fontWeight: 600, marginTop: 4 }}>{s.label}</div>
           </div>
         </Reveal>
       ))}
@@ -308,34 +462,50 @@ function StatsBand() {
 function Categories() {
   const nav = useNavigate();
   const cats: { icon: IconName; title: string; sub: string; to: string }[] = [
-    { icon: 'phone', title: 'Flagship 5G', sub: 'Premium range', to: '/mobiles' },
-    { icon: 'tag', title: 'Budget Friendly', sub: 'Under ₹25,000', to: '/mobiles' },
-    { icon: 'zap', title: 'Fast Chargers', sub: 'GaN & wireless', to: '/accessories' },
-    { icon: 'headphones', title: 'Wireless Audio', sub: 'ANC earbuds', to: '/accessories' },
-    { icon: 'shield', title: 'Cases & Glass', sub: 'Drop protection', to: '/accessories' },
-    { icon: 'cpu', title: 'Gaming Phones', sub: '144Hz displays', to: '/mobiles' },
+    { icon: 'phone', title: '5G Smartphones', sub: 'Redmi, OPPO, Vivo, Nothing', to: '/mobiles' },
+    { icon: 'tag', title: 'Budget Under ₹12K', sub: 'Poco & Redmi 5G', to: '/mobiles' },
+    { icon: 'cpu', title: 'High Performance', sub: 'Snapdragon & Dimensity', to: '/mobiles' },
+    { icon: 'zap', title: 'Fast Chargers', sub: '45W, 80W, 100W GaN', to: '/accessories' },
+    { icon: 'headphones', title: 'ANC Audio', sub: 'TWS Earbuds & Neckbands', to: '/accessories' },
+    { icon: 'tool', title: 'Care & Repair', sub: 'Display & Battery service', to: '/services' },
   ];
   return (
-    <section style={{ padding: '28px 0 0' }}>
+    <section style={{ padding: '40px 0 0' }}>
       <Reveal>
-        <SectionHead title="Explore Categories" sub="Carefully curated device collections" />
+        <SectionHead title="Explore by Category" sub="Find your preferred phone range and expert services" />
       </Reveal>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '0 18px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
         {cats.map((c, i) => (
-          <Reveal key={c.title} delay={(i % 2) * 90 + Math.floor(i / 2) * 70} dir={i % 2 ? 'right' : 'left'}>
-            <button
-              className="lift tap"
+          <Reveal key={c.title} delay={i * 50} dir="up">
+            <div
+              className="lift"
               onClick={() => nav(c.to)}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left', padding: 12, background: '#fff', borderRadius: 16, border: `1px solid ${C.border}` }}
+              style={{
+                background: '#fff',
+                borderRadius: 20,
+                border: `1px solid ${C.border}`,
+                padding: '20px 18px',
+                cursor: 'pointer',
+                textAlign: 'center',
+              }}
             >
-              <span style={{ width: 40, height: 40, borderRadius: 12, background: C.primary, display: 'grid', placeItems: 'center' }}>
-                <Icon name={c.icon} size={19} color={C.accent} />
-              </span>
-              <span>
-                <div style={{ fontWeight: 800, fontSize: 13 }}>{c.title}</div>
-                <div style={{ fontSize: 11, color: C.muted }}>{c.sub}</div>
-              </span>
-            </button>
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 14,
+                  background: C.tint,
+                  color: C.primary,
+                  display: 'grid',
+                  placeItems: 'center',
+                  margin: '0 auto 12px',
+                }}
+              >
+                <Icon name={c.icon} size={24} />
+              </div>
+              <div style={{ fontWeight: 800, fontSize: 15, color: C.primary }}>{c.title}</div>
+              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>{c.sub}</div>
+            </div>
           </Reveal>
         ))}
       </div>
@@ -349,31 +519,57 @@ function Spotlight({ onBuy }: { onBuy: (id: string) => void }) {
   const { getProduct, products } = useStore();
   const p = getProduct('p3') || products[0];
   if (!p) return null;
-  const highlightSpecs = p.specs?.slice(0, 3) || ['5G Enabled', 'Dual Camera', 'Fast Charging'];
+  const highlightSpecs = p.specs?.slice(0, 4) || ['5G Enabled', '50MP Dual Camera', '45W Fast Charging', '120Hz Display'];
   return (
-    <section style={{ padding: '28px 18px 0' }}>
+    <section style={{ padding: '40px 0 0' }}>
       <Reveal>
-        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 26, background: `linear-gradient(150deg, ${C.primaryDark}, ${C.primarySoft})`, color: '#fff', padding: 20 }}>
-          <span style={{ position: 'absolute', width: 180, height: 180, right: -50, top: -50, borderRadius: '50%', background: 'rgba(246,196,69,.18)', animation: 'orb 9s ease-in-out infinite' }} />
-          <Pill tone="accent">TRENDING #1 IN STORE</Pill>
-          <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
-            <div style={{ flex: 1, paddingRight: 8 }}>
-              <h3 style={{ margin: '4px 0 8px', fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>{p.name}</h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {highlightSpecs.map((t, i) => (
-                  <span key={t} style={{ fontSize: 10.5, fontWeight: 700, padding: '4px 9px', borderRadius: 99, background: 'rgba(255,255,255,.14)', animation: `bounceIn .5s ease ${0.3 + i * 0.12}s both` }}>{t}</span>
-                ))}
-              </div>
-              <div style={{ margin: '14px 0 4px', fontSize: 11, opacity: 0.75 }}>Special price • {p.stock} units left in stock</div>
-              <div style={{ fontSize: 26, fontWeight: 800 }}>{money(p.price)}</div>
+        <div
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            borderRadius: 30,
+            background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`,
+            color: '#fff',
+            padding: '36px 40px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            alignItems: 'center',
+            gap: 30,
+            boxShadow: '0 16px 40px rgba(6,51,46,0.22)',
+          }}
+        >
+          <span style={{ position: 'absolute', width: 280, height: 280, right: -60, top: -60, borderRadius: '50%', background: 'rgba(246,196,69,.15)', animation: 'orb 9s ease-in-out infinite' }} />
+
+          <div>
+            <Pill tone="accent">★ TOP RECOMMENDATION IN STORE</Pill>
+            <h3 style={{ margin: '14px 0 10px', fontSize: 32, fontWeight: 900, letterSpacing: -0.8 }}>
+              {p.name}
+            </h3>
+            <p style={{ margin: '0 0 18px', fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
+              {p.description}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+              {highlightSpecs.map((t) => (
+                <span key={t} style={{ fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 99, background: 'rgba(255,255,255,.16)' }}>
+                  ✓ {t}
+                </span>
+              ))}
             </div>
-            <div style={{ animation: 'tilt3d 7s ease-in-out infinite', filter: 'drop-shadow(0 20px 24px rgba(0,0,0,.4))' }}>
-              <ProductArt category="phone" color={p.color} size={170} image={p.image} alt={p.name} />
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 22 }}>
+              <div style={{ fontSize: 32, fontWeight: 900, color: C.accent }}>{money(p.price)}</div>
+              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', textDecoration: 'line-through' }}>{money(p.mrp)}</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#4ade80' }}>Only {p.stock} units in stock</div>
+            </div>
+            <Btn variant="accent" onClick={() => onBuy(p.id)} style={{ padding: '14px 32px', fontSize: 15, fontWeight: 800 }}>
+              Buy Now • Instant Sivakasi Delivery <Icon name="right" size={16} />
+            </Btn>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ animation: 'tilt3d 7s ease-in-out infinite', filter: 'drop-shadow(0 25px 35px rgba(0,0,0,.45))' }}>
+              <ProductArt category="phone" color={p.color} size={250} image={p.image} alt={p.name} />
             </div>
           </div>
-          <Btn variant="accent" full onClick={() => onBuy(p.id)} style={{ marginTop: 14 }}>
-            Buy Now <Icon name="right" size={16} />
-          </Btn>
         </div>
       </Reveal>
     </section>
@@ -384,30 +580,53 @@ function Spotlight({ onBuy }: { onBuy: (id: string) => void }) {
 
 function CareServices({ onOpen }: { onOpen: () => void }) {
   const items: { icon: IconName; title: string; sub: string }[] = [
-    { icon: 'phone', title: 'Same-day Screen Repair', sub: 'Original OEM display, 1-year warranty' },
-    { icon: 'refresh', title: 'Instant Trade-In', sub: 'Automated valuation for your old device' },
-    { icon: 'shield', title: 'Brand Warranty Assured', sub: 'Official manufacturer invoices on all devices' },
-    { icon: 'truck', title: 'Doorstep Pickup / Drop', sub: 'Express 2-hour collection across metro areas' },
+    { icon: 'phone', title: 'Same-day Screen Repair', sub: 'Original OEM display with 1-year Sastika warranty card' },
+    { icon: 'refresh', title: 'Safe Data Transfer', sub: 'WhatsApp chats, photos and contacts safely migrated' },
+    { icon: 'shield', title: 'Brand Warranty Guidance', sub: 'Full assistance at authorized brand service centers' },
+    { icon: 'truck', title: 'Doorstep Service Pickup', sub: 'Express collection across Sivakasi and Sithurajapuram' },
   ];
   return (
-    <section style={{ padding: '28px 0 0' }}>
+    <section style={{ padding: '40px 0 0' }}>
       <Reveal>
-        <SectionHead title="Sastika Care Services" sub="Beyond sales, comprehensive lifecycle support" action="Book" onAction={onOpen} />
+        <SectionHead title="Sastika Care & Repair Desk" sub="Certified technician support beyond mobile sales" action="Book Service" onAction={onOpen} />
       </Reveal>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '0 18px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
         {items.map((it, i) => (
-          <Reveal key={it.title} delay={i * 100}>
-            <div className="lift" style={{ background: '#fff', borderRadius: 18, padding: 14, border: `1px solid ${C.border}`, height: '100%' }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: i % 2 ? C.primary : C.accent, display: 'grid', placeItems: 'center', marginBottom: 10 }}>
-                <Icon name={it.icon} size={19} color={i % 2 ? C.accent : C.primaryDark} />
+          <Reveal key={it.title} delay={i * 80} dir="up">
+            <div
+              className="lift"
+              style={{
+                background: '#fff',
+                borderRadius: 22,
+                border: `1px solid ${C.border}`,
+                padding: '24px 20px',
+                display: 'flex',
+                gap: 16,
+                alignItems: 'flex-start',
+              }}
+            >
+              <div
+                style={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: 14,
+                  background: C.tint,
+                  color: C.primary,
+                  display: 'grid',
+                  placeItems: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name={it.icon} size={22} />
               </div>
-              <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.25 }}>{it.title}</div>
-              <div style={{ fontSize: 11, color: C.muted, marginTop: 4, lineHeight: 1.4 }}>{it.sub}</div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: C.primary }}>{it.title}</div>
+                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>{it.sub}</div>
+              </div>
             </div>
           </Reveal>
         ))}
       </div>
-      <div style={{ padding: '10px 18px 0', fontSize: 11, color: C.muted }}>{SERVICES.length} services available at every store</div>
     </section>
   );
 }
@@ -415,165 +634,151 @@ function CareServices({ onOpen }: { onOpen: () => void }) {
 /* ------------------------------- TRUST SHIELD ------------------------------- */
 
 function TrustShield() {
-  const rows = [
-    { t: '100% Genuine Sealed Products', s: 'Sourced only from authorised distributors' },
-    { t: '7-Day Hassle-Free Replacement', s: 'Defective on arrival? Replaced from our stock' },
-    { t: 'Up to 24 Months No-Cost EMI', s: 'Zero processing fees on major cards' },
-    { t: 'Free In-Store Data Migration', s: 'Our technicians transfer everything safely' },
+  const points = [
+    { icon: 'shield', t: '100% Brand Sealed', s: 'Every smartphone is genuine with unopened manufacturer seal and barcode.' },
+    { icon: 'award', t: 'Tax Invoice with GST', s: 'Official bill with GSTIN: 33BQTPJ5275L1Z6 for company warranty claim.' },
+    { icon: 'lock', t: 'Safe & Secure Pay', s: 'UPI, Credit Cards, Net Banking & Cash on Delivery supported.' },
+    { icon: 'check', t: 'Local Shop Support', s: 'Walk into our Sithurajapuram or Sivakasi branches for any support.' },
   ];
   return (
-    <section style={{ margin: '28px 14px 0', padding: 18, borderRadius: 26, background: C.tint, border: `1px solid ${C.border}` }}>
-      <Reveal>
-        <h2 style={{ margin: '0 0 14px', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Icon name="shield" size={22} color={C.primary} /> The Sastika Trust Shield
+    <section
+      style={{
+        margin: '40px 0 0',
+        padding: '36px 32px',
+        borderRadius: 28,
+        background: '#fff',
+        border: `1.5px solid ${C.border}`,
+        boxShadow: '0 8px 30px rgba(0,0,0,0.03)',
+      }}
+    >
+      <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 30px' }}>
+        <Pill tone="accent">PEACE OF MIND</Pill>
+        <h2 style={{ fontSize: 26, fontWeight: 900, margin: '8px 0 6px', color: C.primary }}>
+          Why Sivakasi Chooses Sastika Mobiles
         </h2>
-      </Reveal>
-      {rows.map((r, i) => (
-        <Reveal key={r.t} delay={i * 130} dir="left">
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center', background: '#fff', padding: 12, borderRadius: 16, marginBottom: 8 }}>
-            <span style={{ width: 30, height: 30, borderRadius: 99, background: C.success, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-              <Icon name="check" size={16} color="#fff" stroke={3} />
-            </span>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 13 }}>{r.t}</div>
-              <div style={{ fontSize: 11, color: C.muted }}>{r.s}</div>
-            </div>
-          </div>
-        </Reveal>
-      ))}
-    </section>
-  );
-}
-
-/* -------------------------------- TESTIMONIALS ------------------------------- */
-
-function Testimonials() {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    const t = window.setInterval(() => setI((n) => (n + 1) % TESTIMONIALS.length), 4200);
-    return () => window.clearInterval(t);
-  }, []);
-  const t = TESTIMONIALS[i];
-  return (
-    <section style={{ padding: '28px 18px 0' }}>
-      <Reveal>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 21, fontWeight: 800 }}>Loved by Shoppers</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 800 }}>
-            <Icon name="star" size={14} color={C.accentDark} fill={C.accent} /> 4.9/5
-          </div>
-        </div>
-        <div style={{ background: '#fff', borderRadius: 22, padding: 18, border: `1px solid ${C.border}`, minHeight: 168 }}>
-          <div key={i} style={{ animation: 'fadeUp .5s ease both' }}>
-            <Stars value={5} size={14} />
-            <p style={{ margin: '10px 0 14px', fontSize: 13.5, lineHeight: 1.6 }}>“{t.text}”</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 99, background: C.primary, color: C.accent, display: 'grid', placeItems: 'center', fontWeight: 800 }}>{t.name[0]}</div>
+        <p style={{ margin: 0, fontSize: 13.5, color: C.muted }}>
+          Our commitment to authentic technology, honest pricing, and friendly after-sales care.
+        </p>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
+        {points.map((p, i) => (
+          <Reveal key={p.t} delay={i * 80} dir="zoom">
+            <div style={{ display: 'flex', gap: 14 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: C.tint, color: C.primary, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <Icon name={p.icon as IconName} size={20} />
+              </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 13 }}>{t.name}</div>
-                <div style={{ fontSize: 11, color: C.muted }}>{t.meta}</div>
+                <div style={{ fontWeight: 800, fontSize: 15, color: C.primary }}>{p.t}</div>
+                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4, lineHeight: 1.55 }}>{p.s}</div>
               </div>
             </div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 12 }}>
-          {TESTIMONIALS.map((_, n) => (
-            <button key={n} onClick={() => setI(n)} aria-label={`Review ${n + 1}`} style={{ height: 6, width: n === i ? 22 : 6, borderRadius: 9, background: n === i ? C.primary : C.border, transition: 'all .35s ease' }} />
-          ))}
-        </div>
-      </Reveal>
+          </Reveal>
+        ))}
+      </div>
     </section>
   );
 }
 
-/* --------------------------------- NEWSLETTER -------------------------------- */
+/* ------------------------------- TESTIMONIALS ------------------------------- */
+
+function Testimonials() {
+  return (
+    <section style={{ padding: '40px 0 0' }}>
+      <Reveal>
+        <SectionHead title="Verified Customer Feedback" sub="Real experiences from buyers across Sivakasi and Sithurajapuram" />
+      </Reveal>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
+        {TESTIMONIALS.map((t, i) => (
+          <Reveal key={t.name} delay={i * 80} dir="up">
+            <div
+              className="lift"
+              style={{
+                background: '#fff',
+                borderRadius: 22,
+                border: `1px solid ${C.border}`,
+                padding: '22px 20px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div>
+                <Stars value={5} size={13} />
+                <p style={{ fontSize: 13.5, lineHeight: 1.6, color: C.text, margin: '12px 0 16px', fontStyle: 'italic' }}>
+                  "{t.text}"
+                </p>
+              </div>
+              <div style={{ borderTop: `1px solid ${C.tint2}`, paddingTop: 10 }}>
+                <div style={{ fontWeight: 800, fontSize: 14, color: C.primary }}>{t.name}</div>
+                <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>{t.meta}</div>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------- NEWSLETTER -------------------------------- */
 
 function Newsletter() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (email.includes('@')) setDone(true);
+    if (email.includes('@')) {
+      setDone(true);
+      setEmail('');
+    }
   };
   return (
-    <section style={{ margin: '28px 14px 0' }}>
-      <Reveal dir="zoom">
-        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 26, padding: 22, color: '#fff', background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primarySoft})` }}>
-          <span style={{ position: 'absolute', right: -30, bottom: -30, width: 130, height: 130, borderRadius: '50%', background: 'rgba(246,196,69,.2)', animation: 'orb 8s ease-in-out infinite' }} />
-          <Pill tone="accent">VIP CLUB</Pill>
-          <h3 style={{ margin: '10px 0 6px', fontSize: 22, fontWeight: 800 }}>Get ₹500 off your first order</h3>
-          {done ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, animation: 'bounceIn .5s ease' }}>
-              <span style={{ width: 34, height: 34, borderRadius: 99, background: C.accent, display: 'grid', placeItems: 'center' }}>
-                <Icon name="check" size={18} color={C.primaryDark} stroke={3} />
-              </span>
-              <div style={{ fontWeight: 700 }}>You're in. Check your inbox for the code.</div>
-            </div>
-          ) : (
-            <form onSubmit={submit} style={{ position: 'relative', zIndex: 1, marginTop: 14 }}>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                style={{ width: '100%', padding: '13px 14px', borderRadius: 12, border: 'none', marginBottom: 10, color: C.text }}
-              />
-              <Btn type="submit" variant="accent" full>Subscribe Now</Btn>
-            </form>
-          )}
+    <section style={{ padding: '40px 0 10px' }}>
+      <Reveal>
+        <div
+          style={{
+            borderRadius: 28,
+            padding: '36px 32px',
+            background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primary})`,
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 24,
+          }}
+        >
+          <div>
+            <Pill tone="accent">VIP SPECIAL OFFERS</Pill>
+            <h3 style={{ fontSize: 24, fontWeight: 900, margin: '10px 0 6px' }}>
+              Get Special Festival Mobile Deals via WhatsApp
+            </h3>
+            <p style={{ margin: 0, fontSize: 13.5, color: 'rgba(255,255,255,0.8)' }}>
+              Subscribe to get exclusive price drops on Redmi, OPPO, Vivo, Poco and festive accessories.
+            </p>
+          </div>
+          <form onSubmit={submit} style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 420 }}>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your phone or email…"
+              style={{
+                flex: 1,
+                padding: '13px 16px',
+                borderRadius: 14,
+                border: 'none',
+                outline: 'none',
+                fontSize: 14,
+                background: '#fff',
+                color: C.text,
+              }}
+            />
+            <Btn type="submit" variant="accent" style={{ padding: '13px 24px', fontWeight: 800 }}>
+              {done ? 'Subscribed!' : 'Get Alerts'}
+            </Btn>
+          </form>
         </div>
       </Reveal>
     </section>
-  );
-}
-
-/* ----------------------------------- FOOTER ---------------------------------- */
-
-function Footer() {
-  const nav = useNavigate();
-  const link = (label: string, to: string) => (
-    <button key={label} onClick={() => nav(to)} style={{ display: 'block', fontSize: 12.5, color: C.muted, padding: '5px 0', textAlign: 'left' }}>
-      {label}
-    </button>
-  );
-  return (
-    <footer style={{ margin: '28px 14px 10px', padding: 20, background: '#fff', borderRadius: 24, border: `1px solid ${C.border}` }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-        <img
-          src={logoImg}
-          alt="Sastika Mobiles Logo"
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: '50%',
-            objectFit: 'cover',
-            border: '1.5px solid #d4af37',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
-          }}
-        />
-        <div>
-          <div style={{ fontWeight: 900, fontSize: 16, color: C.primary, letterSpacing: -0.2 }}>SASTIKA</div>
-          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: '#b8860b' }}>MOBILES</div>
-        </div>
-      </div>
-      <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.55, margin: '6px 0 14px' }}>Tamil Nadu's trusted destination for certified smartphones, genuine accessories and expert repairs.</p>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, marginBottom: 4 }}>QUICK LINKS</div>
-          {link('Mobiles', '/mobiles')}
-          {link('Accessories', '/accessories')}
-          {link('Repair Services', '/services')}
-        </div>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, marginBottom: 4 }}>HELP</div>
-          {link('About Us', '/about')}
-          {link('Store Locator', '/contact')}
-          {link('My Orders', '/account')}
-        </div>
-      </div>
-      <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}`, fontSize: 11, color: C.muted, display: 'flex', justifyContent: 'space-between' }}>
-        <span>© 2026 Sastika Mobiles</span>
-        <button onClick={() => nav('/admin')} style={{ color: C.primary, fontWeight: 700 }}>Admin</button>
-      </div>
-    </footer>
   );
 }
