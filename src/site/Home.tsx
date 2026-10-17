@@ -160,7 +160,6 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
       ))}
 
       <div
-        className="hero-grid"
         style={{
           maxWidth: 1360,
           margin: '0 auto',
@@ -168,32 +167,43 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
           zIndex: 2,
         }}
       >
-        <div>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 16px',
-              borderRadius: 99,
-              background: 'rgba(255,255,255,.14)',
-              backdropFilter: 'blur(10px)',
-              fontSize: 12.5,
-              fontWeight: 700,
-              animation: 'fadeUp .6s ease both',
-              marginBottom: 16,
-            }}
-          >
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
-            Authorized Multi-Brand Store • Sivakasi &amp; Sithurajapuram
-          </div>
+        {/* Store Badge */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '6px 12px',
+            borderRadius: 99,
+            background: 'rgba(255,255,255,.14)',
+            backdropFilter: 'blur(10px)',
+            fontSize: 11.5,
+            fontWeight: 700,
+            marginBottom: 12,
+          }}
+        >
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
+          Authorized Multi-Brand Store • Sivakasi &amp; Sithurajapuram
+        </div>
 
+        {/* Side-by-Side: Heading on Left + Compact Phones Image on Right */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+          }}
+        >
+          {/* Heading */}
           <h1
-            className="hero-title"
             style={{
-              margin: '0 0 16px',
+              margin: 0,
+              fontSize: 'clamp(18px, 3.6vw, 36px)',
+              lineHeight: 1.2,
               fontWeight: 900,
-              animation: 'fadeUp .7s ease .1s both',
+              flex: 1,
+              letterSpacing: -0.4,
             }}
           >
             Upgrade to Your Next
@@ -205,88 +215,15 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
             With Trust &amp; GST Bill.
           </h1>
 
-          <p
-            style={{
-              margin: '0 0 24px',
-              fontSize: 15,
-              lineHeight: 1.6,
-              color: 'rgba(255,255,255,.86)',
-              maxWidth: 520,
-              animation: 'fadeUp .7s ease .2s both',
-            }}
-          >
-            Redmi, OPPO, Vivo, Nothing, Samsung &amp; Poco — 100% factory sealed stock with 1-Year Brand Warranty, instant data transfer, and certified after-sales care.
-          </p>
-
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', animation: 'fadeUp .7s ease .3s both' }}>
-            <button
-              className="tap"
-              onClick={onShop}
-              style={{
-                padding: '13px 24px',
-                borderRadius: 16,
-                background: C.accent,
-                color: C.primaryDark,
-                fontWeight: 900,
-                fontSize: 14.5,
-                animation: 'pulseRing 2.4s infinite',
-                position: 'relative',
-                overflow: 'hidden',
-                cursor: 'pointer',
-              }}
-            >
-              Explore Mobiles (78 In Stock)
-              <span style={{ position: 'absolute', top: 0, bottom: 0, width: 40, background: 'rgba(255,255,255,.55)', animation: 'sheen 3.2s ease-in-out infinite' }} />
-            </button>
-            <button
-              className="tap"
-              onClick={onGear}
-              style={{
-                padding: '13px 20px',
-                borderRadius: 16,
-                background: 'rgba(255,255,255,.14)',
-                color: '#fff',
-                fontWeight: 700,
-                fontSize: 14.5,
-                border: '1.5px solid rgba(255,255,255,.3)',
-                cursor: 'pointer',
-              }}
-            >
-              Care &amp; Service Desk
-            </button>
-          </div>
-
+          {/* Compact Phones Image beside heading */}
           <div
-            className="hero-badges-row"
             style={{
+              flexShrink: 0,
+              width: 'clamp(95px, 24vw, 240px)',
               display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
-              marginTop: 24,
-              color: 'rgba(255,255,255,0.85)',
-              fontWeight: 600,
-            }}
-          >
-            <span>✓ GSTIN Tax Invoice</span>
-            <span>✓ Same-Day Sivakasi Pickup</span>
-            <span>✓ Free Data Migration</span>
-          </div>
-        </div>
-
-        {/* Right side large showcase banner */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              maxWidth: 480,
-              filter: 'drop-shadow(0 25px 45px rgba(0,0,0,.5))',
+              filter: 'drop-shadow(0 14px 28px rgba(0,0,0,.45))',
               animation: 'float 6s ease-in-out infinite',
             }}
           >
@@ -296,6 +233,61 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }}
             />
           </div>
+        </div>
+
+        {/* Action Buttons Row */}
+        <div className="hero-actions-row" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 18 }}>
+          <button
+            className="tap hero-btn"
+            onClick={onShop}
+            style={{
+              padding: '11px 18px',
+              borderRadius: 14,
+              background: C.accent,
+              color: C.primaryDark,
+              fontWeight: 900,
+              fontSize: 13,
+              cursor: 'pointer',
+              border: 'none',
+            }}
+          >
+            Explore Mobiles (78 In Stock)
+          </button>
+          <button
+            className="tap hero-btn"
+            onClick={onGear}
+            style={{
+              padding: '11px 16px',
+              borderRadius: 14,
+              background: 'rgba(255,255,255,.14)',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: 13,
+              border: '1.5px solid rgba(255,255,255,.3)',
+              cursor: 'pointer',
+            }}
+          >
+            Care &amp; Service Desk
+          </button>
+        </div>
+
+        {/* Feature Badges Row */}
+        <div
+          className="hero-badges-row"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            flexWrap: 'wrap',
+            marginTop: 16,
+            color: 'rgba(255,255,255,0.85)',
+            fontSize: 11.5,
+            fontWeight: 600,
+          }}
+        >
+          <span>✓ GSTIN Tax Invoice</span>
+          <span>✓ Same-Day Sivakasi Pickup</span>
+          <span>✓ Free Data Migration</span>
         </div>
       </div>
     </section>
@@ -436,6 +428,7 @@ function StatsBand() {
   ];
   return (
     <section
+      className="stats-band-box"
       style={{
         margin: '40px 0 0',
         padding: '34px 28px',
@@ -479,7 +472,7 @@ function Categories() {
       <Reveal>
         <SectionHead title="Explore by Category" sub="Find your preferred phone range and expert services" />
       </Reveal>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
+      <div className="categories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
         {cats.map((c, i) => (
           <Reveal key={c.title} delay={i * 50} dir="up">
             <div
@@ -529,6 +522,7 @@ function Spotlight({ onBuy }: { onBuy: (id: string) => void }) {
     <section style={{ padding: '40px 0 0' }}>
       <Reveal>
         <div
+          className="spotlight-card"
           style={{
             position: 'relative',
             overflow: 'hidden',
@@ -647,6 +641,7 @@ function TrustShield() {
   ];
   return (
     <section
+      className="trust-shield-card"
       style={{
         margin: '40px 0 0',
         padding: '36px 32px',
@@ -741,6 +736,7 @@ function Newsletter() {
     <section style={{ padding: '40px 0 10px' }}>
       <Reveal>
         <div
+          className="newsletter-card"
           style={{
             borderRadius: 28,
             padding: '36px 32px',

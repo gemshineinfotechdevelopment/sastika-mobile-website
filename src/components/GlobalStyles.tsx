@@ -1,7 +1,7 @@
 import { C, FONT } from '../theme';
 
 const css = `
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;overflow-wrap:break-word}
 html,body,#root{margin:0;padding:0;min-height:100%}
 body{font-family:${FONT};color:${C.text};background:${C.bg};-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
@@ -64,20 +64,25 @@ html,body{overflow-x:hidden;width:100%;max-width:100%}
   .site-desktop-sidebar { display: none !important; }
   .site-desktop-header { display: none !important; }
   .site-mobile-header { display: flex !important; }
-  .site-mobile-bottom-nav { display: flex !important; }
+  .site-mobile-bottom-nav { display: none !important; }
   .mobile-hide { display: none !important; }
-  .hero-wrapper { margin: 10px 10px 0 !important; padding: 24px 14px 20px !important; border-radius: 20px !important; }
-  .hero-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
-  .hero-title { font-size: 26px !important; line-height: 1.2 !important; letter-spacing: -0.5px !important; }
-  .hero-badges-row { flex-wrap: wrap !important; gap: 8px 12px !important; font-size: 11.5px !important; }
+  .hero-wrapper { margin: 10px 8px 0 !important; padding: 20px 14px !important; border-radius: 20px !important; overflow: hidden !important; }
+  .hero-actions-row { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; }
+  .hero-actions-row .hero-btn { flex: 1 1 140px !important; text-align: center !important; justify-content: center !important; }
+  .hero-badges-row { display: flex !important; flex-wrap: wrap !important; gap: 6px 10px !important; font-size: 11px !important; }
+  .stats-band-box { grid-template-columns: repeat(2, 1fr) !important; gap: 16px 10px !important; padding: 20px 14px !important; border-radius: 20px !important; margin-top: 24px !important; }
+  .categories-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+  .spotlight-card { padding: 22px 16px !important; grid-template-columns: 1fr !important; gap: 20px !important; border-radius: 22px !important; }
+  .trust-shield-card { padding: 22px 14px !important; margin-top: 24px !important; border-radius: 20px !important; }
+  .newsletter-card { padding: 22px 16px !important; border-radius: 20px !important; }
   .product-detail-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
   .cart-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
   .checkout-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
-  .site-page-container { padding: 14px 12px 84px !important; }
+  .site-page-container { padding: 12px 8px 32px !important; }
   .product-cards-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
   .brand-ticker-head { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; font-size: 11px !important; }
   .flash-deal-box { padding: 16px 12px !important; margin: 18px 0 0 !important; border-radius: 18px !important; }
-  .desktop-footer { padding: 28px 16px 88px !important; }
+  .desktop-footer { padding: 28px 16px 36px !important; }
 }
 `;
 
