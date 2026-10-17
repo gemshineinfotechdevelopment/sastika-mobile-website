@@ -7,6 +7,7 @@ import logoImg from '../assets/logo.png';
 
 const LINKS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/admin', label: 'Overview', icon: 'chart', end: true },
+  { to: '/admin/flash-deals', label: 'Flash Deal Drop', icon: 'zap' },
   { to: '/admin/products', label: 'Products', icon: 'phone' },
   { to: '/admin/orders', label: 'Orders', icon: 'box' },
   { to: '/admin/inventory', label: 'Inventory & Stock', icon: 'grid' },

@@ -8,12 +8,13 @@ import ProductArt from '../components/ProductArt';
 import { CountUp, FillBar, Marquee, Reveal, Typewriter, useCountdown } from '../components/anim';
 import { Btn, Pill, SectionHead, Stars } from './ui';
 import ProductCard from './ProductCard';
+import type { FlashDealConfig } from '../types';
 import heroBannerImg from '../assets/hero-banner.png';
 import logoImg from '../assets/logo.png';
 
 export default function Home() {
   const nav = useNavigate();
-  const { products, addToCart } = useStore();
+  const { products, addToCart, flashDeal } = useStore();
   const phones = products.filter((p) => p.category === 'phone');
   const gear = products.filter((p) => p.category !== 'phone');
   const hero = products.find((p) => p.id === 'p1') ?? phones[0];
@@ -37,7 +38,9 @@ export default function Home() {
         </Marquee>
       </section>
 
-      <FlashDeal items={phones.slice(3, 5)} onAdd={addToCart} />
+      {flashDeal.isActive && flashDeal.items && flashDeal.items.length > 0 && (
+        <FlashDeal deal={flashDeal} onAdd={addToCart} />
+      )}
 
       <section style={{ padding: '26px 0 0' }}>
         <Reveal>
@@ -180,10 +183,9 @@ function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => voi
 
 /* -------------------------------- FLASH DEAL ------------------------------- */
 
-function FlashDeal({ items, onAdd }: { items: ReturnType<typeof useStore>['products']; onAdd: (id: string) => void }) {
+function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string) => void }) {
   const { h, m, s } = useCountdown(5);
   const nav = useNavigate();
-  const claimed = [72, 58];
   return (
     <section style={{ margin: '20px 14px 0', padding: 16, borderRadius: 26, background: `linear-gradient(160deg, ${C.tint}, #fff)`, border: `1px solid ${C.border}` }}>
       <Reveal>
@@ -193,8 +195,11 @@ function FlashDeal({ items, onAdd }: { items: ReturnType<typeof useStore>['produ
               <Icon name="zap" size={18} color="#fff" fill="#fff" />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: 17 }}>Flash Deal Drop</div>
-              <div style={{ fontSize: 11, color: C.danger, fontWeight: 700 }}>LIMITED STOCK LEFT</div>
+              <div style={{ fontWeight: 800, fontSize: 17 }}>{deal.title || 'Flash Deal Drop'}</div>
+              <div style={{ fontSize: 11, color: C.danger, fontWeight: 700 }}>
+                {deal.festivalName ? `${deal.festivalName.toUpperCase()} • ` : ''}
+                {deal.subtitle || 'LIMITED STOCK LEFT'}
+              </div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -208,19 +213,30 @@ function FlashDeal({ items, onAdd }: { items: ReturnType<typeof useStore>['produ
         </div>
       </Reveal>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        {items.map((p, i) => (
+        {deal.items.map((p, i) => (
           <Reveal key={p.id} delay={i * 120} dir="zoom">
-            <div style={{ background: '#fff', borderRadius: 18, padding: 10, border: `1px solid ${C.border}` }}>
-              <div onClick={() => nav(`/product/${p.id}`)} style={{ cursor: 'pointer', height: 96, borderRadius: 12, background: C.tint2, display: 'grid', placeItems: 'center' }}>
-                <ProductArt category={p.category} color={p.color} size={84} float />
+            <div style={{ background: '#fff', borderRadius: 18, padding: 10, border: `1px solid ${C.border}`, position: 'relative' }}>
+              {p.badge && (
+                <span style={{ position: 'absolute', top: 14, left: 14, background: C.danger, color: '#fff', fontSize: 9.5, fontWeight: 800, padding: '3px 8px', borderRadius: 99, zIndex: 2 }}>
+                  {p.badge}
+                </span>
+              )}
+              <div onClick={() => nav(`/product/${p.id}`)} style={{ cursor: 'pointer', height: 104, borderRadius: 12, background: C.tint2, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
+                {p.image ? (
+                  <img src={p.image} alt={p.name} style={{ maxHeight: 90, maxWidth: '90%', objectFit: 'contain' }} />
+                ) : (
+                  <ProductArt category={p.category} color={p.color} size={84} float />
+                )}
               </div>
               <div style={{ fontSize: 12.5, fontWeight: 700, margin: '8px 0 2px', minHeight: 32, lineHeight: 1.25 }}>{p.name}</div>
               <div style={{ display: 'flex', gap: 5, alignItems: 'baseline' }}>
                 <b style={{ fontSize: 15 }}>{money(p.price)}</b>
                 <span style={{ fontSize: 10.5, color: C.success, fontWeight: 800 }}>{discount(p.price, p.mrp)}% off</span>
               </div>
-              <div style={{ margin: '8px 0 4px', fontSize: 10.5, color: C.muted, fontWeight: 700 }}>{claimed[i % 2]}% claimed</div>
-              <FillBar pct={claimed[i % 2]} color={`linear-gradient(90deg, ${C.accent}, ${C.danger})`} bg={C.tint} />
+              <div style={{ margin: '8px 0 4px', fontSize: 10.5, color: C.muted, fontWeight: 700 }}>
+                {p.claimedPct || 65}% claimed • {p.stock} left
+              </div>
+              <FillBar pct={p.claimedPct || 65} color={`linear-gradient(90deg, ${C.accent}, ${C.danger})`} bg={C.tint} />
               <Btn full variant="primary" onClick={() => onAdd(p.id)} style={{ marginTop: 9, padding: '9px 0', fontSize: 12 }}>
                 Claim Now
               </Btn>

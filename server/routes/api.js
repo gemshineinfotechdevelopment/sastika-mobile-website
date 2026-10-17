@@ -3,6 +3,7 @@ import productRoutes from './productRoutes.js';
 import orderRoutes from './orderRoutes.js';
 import ticketRoutes from './ticketRoutes.js';
 import authRoutes from './authRoutes.js';
+import flashDealRoutes from './flashDealRoutes.js';
 import { getDbStatus } from '../config/db.js';
 
 const router = Router();
@@ -22,5 +23,6 @@ router.use('/products', productRoutes);
 router.use('/orders', orderRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/auth', authRoutes);
+router.use('/flash-deals', flashDealRoutes);
 
 export default router;

@@ -65,3 +65,28 @@ export interface Testimonial {
   meta: string;
   text: string;
 }
+
+export interface FlashDealItem {
+  id: string;
+  name: string;
+  brand: string;
+  category: Category;
+  price: number;
+  mrp: number;
+  color: string;
+  image?: string;
+  badge?: string;
+  stock: number;
+  claimedPct: number;
+  description?: string;
+}
+
+export interface FlashDealConfig {
+  isActive: boolean;
+  title: string;
+  subtitle: string;
+  festivalName: string;
+  endTime?: string;
+  items: FlashDealItem[];
+}
+

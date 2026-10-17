@@ -1,8 +1,45 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { PRODUCTS, SEED_ORDERS, SEED_TICKETS } from './data';
-import type { CartLine, Order, OrderStatus, Product, Ticket, TicketStatus } from './types';
+import type { CartLine, FlashDealConfig, FlashDealItem, Order, OrderStatus, Product, Ticket, TicketStatus } from './types';
 import { api } from './api';
+import { apiGetFlashDeal, apiUpdateFlashDeal, apiAddFlashDealItem, apiDeleteFlashDealItem } from './services/api';
 import defaultLogo from './assets/logo.png';
+
+const DEFAULT_FLASH_DEAL: FlashDealConfig = {
+  isActive: true,
+  title: 'Flash Deal Drop',
+  subtitle: 'LIMITED STOCK LEFT',
+  festivalName: 'Festive Mega Drop',
+  endTime: new Date(Date.now() + 5 * 3600 * 1000).toISOString(),
+  items: [
+    {
+      id: 'fd1',
+      name: 'OnePlus Nord CE4 5G',
+      brand: 'OnePlus',
+      category: 'phone',
+      price: 21999,
+      mrp: 26999,
+      color: '#4b6b5a',
+      badge: 'Festive Offer',
+      stock: 14,
+      claimedPct: 74,
+      description: 'Festival special drop with bank discount included.',
+    },
+    {
+      id: 'fd2',
+      name: 'Redmi Note 13 Pro+ 5G',
+      brand: 'Xiaomi',
+      category: 'phone',
+      price: 27999,
+      mrp: 33999,
+      color: '#3a4a7a',
+      badge: 'Mega Saver',
+      stock: 8,
+      claimedPct: 62,
+      description: 'Exclusive festival pricing with free tempered glass.',
+    },
+  ],
+};
 
 function useLocalState<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState<T>(() => {
@@ -61,6 +98,11 @@ interface StoreShape {
   setLogo: (logo: string) => void;
 
   serverOnline: boolean;
+
+  flashDeal: FlashDealConfig;
+  updateFlashDeal: (patch: Partial<FlashDealConfig>) => void;
+  addFlashDealItem: (item: Omit<FlashDealItem, 'id'>) => void;
+  removeFlashDealItem: (id: string) => void;
 }
 
 const Ctx = createContext<StoreShape | null>(null);
@@ -74,6 +116,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
+  const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal', DEFAULT_FLASH_DEAL);
 
   // Sync with backend API on mount
   useEffect(() => {
@@ -81,21 +124,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     async function syncBackend() {
       try {
-        const health = await api.checkHealth();
+        const health = await api.checkHealth().catch(() => null);
         if (health && mounted) {
           setServerOnline(true);
         }
 
-        const [serverProducts, serverOrders, serverTickets] = await Promise.all([
+        const [serverProducts, serverOrders, serverTickets, serverFlashDeal] = await Promise.all([
           api.getProducts().catch(() => null),
           api.getOrders().catch(() => null),
           api.getTickets().catch(() => null),
+          apiGetFlashDeal().catch(() => null),
         ]);
 
         if (mounted) {
           if (serverProducts && serverProducts.length > 0) setProducts(serverProducts);
           if (serverOrders && serverOrders.length > 0) setOrders(serverOrders);
           if (serverTickets && serverTickets.length > 0) setTickets(serverTickets);
+          if (serverFlashDeal && serverFlashDeal.items) setFlashDeal(serverFlashDeal);
         }
       } catch {
         if (mounted) {
@@ -108,9 +153,49 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, [setProducts, setOrders, setTickets]);
+  }, [setProducts, setOrders, setTickets, setFlashDeal]);
 
-  const getProduct = useCallback((id: string) => products.find((p) => p.id === id), [products]);
+  const updateFlashDeal = useCallback(
+    (patch: Partial<FlashDealConfig>) => {
+      setFlashDeal((prev) => {
+        const updated = { ...prev, ...patch };
+        apiUpdateFlashDeal(updated).catch(() => {});
+        return updated;
+      });
+    },
+    [setFlashDeal],
+  );
+
+  const addFlashDealItem = useCallback(
+    (item: Omit<FlashDealItem, 'id'>) => {
+      const newItem: FlashDealItem = {
+        ...item,
+        id: 'fd_' + Date.now().toString(36),
+      };
+      setFlashDeal((prev) => {
+        const updated = { ...prev, items: [newItem, ...(prev.items || [])] };
+        apiAddFlashDealItem(newItem).catch(() => {});
+        return updated;
+      });
+    },
+    [setFlashDeal],
+  );
+
+  const removeFlashDealItem = useCallback(
+    (id: string) => {
+      setFlashDeal((prev) => {
+        const updated = { ...prev, items: (prev.items || []).filter((it) => it.id !== id) };
+        apiDeleteFlashDealItem(id).catch(() => {});
+        return updated;
+      });
+    },
+    [setFlashDeal],
+  );
+
+  const getProduct = useCallback(
+    (id: string) => products.find((p) => p.id === id) || (flashDeal.items?.find((x) => x.id === id) as unknown as Product | undefined),
+    [products, flashDeal.items],
+  );
 
   const addProduct = useCallback(
     (p: Omit<Product, 'id'>) => {
@@ -118,124 +203,74 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const newProduct: Product = { ...p, id: tempId };
       setProducts((prev) => [newProduct, ...prev]);
 
-      api.createProduct(p)
-        .then((saved) => {
-          setProducts((prev) => prev.map((item) => (item.id === tempId ? saved : item)));
-        })
-        .catch((err) => console.warn('Could not sync product to server:', err));
+      api.createProduct(p).then((created) => {
+        if (created) {
+          setProducts((prev) => prev.map((item) => (item.id === tempId ? created : item)));
+        }
+      }).catch(() => {});
     },
-    [setProducts]
+    [setProducts],
   );
 
   const updateProduct = useCallback(
     (id: string, patch: Partial<Product>) => {
       setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
-      api.updateProduct(id, patch).catch((err) =>
-        console.warn('Could not sync update to server:', err)
-      );
+      api.updateProduct(id, patch).catch(() => {});
     },
-    [setProducts]
+    [setProducts],
   );
 
   const deleteProduct = useCallback(
     (id: string) => {
       setProducts((prev) => prev.filter((p) => p.id !== id));
-      api.deleteProduct(id).catch((err) =>
-        console.warn('Could not sync deletion to server:', err)
-      );
+      api.deleteProduct(id).catch(() => {});
     },
-    [setProducts]
-  );
-
-  const updateOrderStatus = useCallback(
-    (id: string, status: OrderStatus) => {
-      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
-      api.updateOrderStatus(id, status).catch((err) =>
-        console.warn('Could not sync order status to server:', err)
-      );
-    },
-    [setOrders]
-  );
-
-  const setTicketStatus = useCallback(
-    (id: string, status: TicketStatus) => {
-      setTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
-      api.updateTicketStatus(id, status).catch((err) =>
-        console.warn('Could not sync ticket status to server:', err)
-      );
-    },
-    [setTickets]
+    [setProducts],
   );
 
   const addTicket = useCallback(
     (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'>) => {
-      const id = 'SR-' + String(5522 + tickets.length);
+      const tempId = 'SR-' + String(5522 + tickets.length);
       const newTicket: Ticket = {
         ...t,
-        id,
+        id: tempId,
         status: 'Open',
         tech: 'Unassigned',
         eta: 'Within 24h',
       };
       setTickets((prev) => [newTicket, ...prev]);
 
-      api.createTicket(t)
-        .then((saved) => {
-          setTickets((prev) => prev.map((item) => (item.id === id ? saved : item)));
-        })
-        .catch((err) => console.warn('Could not sync ticket to server:', err));
+      api.createTicket({
+        customer: t.customer,
+        phone: t.phone,
+        device: t.device,
+        issue: t.issue,
+        cost: t.cost,
+      }).then((created) => {
+        if (created) {
+          setTickets((prev) => prev.map((item) => (item.id === tempId ? created : item)));
+        }
+      }).catch(() => {});
 
-      return id;
+      return tempId;
     },
-    [tickets.length, setTickets]
+    [tickets.length, setTickets],
   );
 
-  const placeOrder = useCallback(
-    (info: CheckoutInfo) => {
-      const items = cart
-        .map((l) => {
-          const p = products.find((x) => x.id === l.id);
-          return p ? { productId: p.id, name: p.name, qty: l.qty, price: p.price } : null;
-        })
-        .filter((x): x is NonNullable<typeof x> => x !== null);
-      const subtotal = items.reduce((n, i) => n + i.price * i.qty, 0);
-      const id = '#SM-' + String(Math.floor(100000 + Math.random() * 899999));
-      const order: Order = {
-        id,
-        customer: info.name,
-        phone: info.phone,
-        city: info.city,
-        address: info.address,
-        items,
-        total: Math.max(0, subtotal - info.discount),
-        status: 'Placed',
-        payment: info.payment,
-        date: new Date().toISOString().slice(0, 10),
-      };
-
-      setOrders((prev) => [order, ...prev]);
-      setProducts((prev) =>
-        prev.map((p) => {
-          const line = items.find((i) => i.productId === p.id);
-          return line ? { ...p, stock: Math.max(0, p.stock - line.qty) } : p;
-        })
-      );
-      setCart([]);
-      setCoupon('');
-
-      api.createOrder({
-        customer: info.name,
-        phone: info.phone,
-        city: info.city,
-        address: info.address,
-        items,
-        total: Math.max(0, subtotal - info.discount),
-        payment: info.payment,
-      }).catch((err) => console.warn('Could not sync order to server:', err));
-
-      return id;
+  const setTicketStatus = useCallback(
+    (id: string, status: TicketStatus) => {
+      setTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
+      api.updateTicketStatus(id, status).catch(() => {});
     },
-    [cart, products, setOrders, setProducts, setCart, setCoupon]
+    [setTickets],
+  );
+
+  const updateOrderStatus = useCallback(
+    (id: string, status: OrderStatus) => {
+      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+      api.updateOrderStatus(id, status).catch(() => {});
+    },
+    [setOrders],
   );
 
   const value = useMemo<StoreShape>(
@@ -256,9 +291,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             : [...prev, { id, qty }];
         }),
       setQty: (id, qty) =>
-        setCart((prev) =>
-          qty <= 0 ? prev.filter((l) => l.id !== id) : prev.map((l) => (l.id === id ? { ...l, qty } : l))
-        ),
+        setCart((prev) => (qty <= 0 ? prev.filter((l) => l.id !== id) : prev.map((l) => (l.id === id ? { ...l, qty } : l)))),
       removeFromCart: (id) => setCart((prev) => prev.filter((l) => l.id !== id)),
       wishlist,
       toggleWish: (id) =>
@@ -267,7 +300,54 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setCoupon,
 
       orders,
-      placeOrder,
+      placeOrder: (info) => {
+        const items = cart
+          .map((l) => {
+            const p = products.find((x) => x.id === l.id) || flashDeal.items?.find((x) => x.id === l.id);
+            return p ? { productId: p.id, name: p.name, qty: l.qty, price: p.price } : null;
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null);
+        const subtotal = items.reduce((n, i) => n + i.price * i.qty, 0);
+        const id = '#SM-' + String(Math.floor(100000 + Math.random() * 899999));
+        const order: Order = {
+          id,
+          customer: info.name,
+          phone: info.phone,
+          city: info.city,
+          address: info.address,
+          items,
+          total: Math.max(0, subtotal - info.discount),
+          status: 'Placed',
+          payment: info.payment,
+          date: new Date().toISOString().slice(0, 10),
+        };
+        setOrders((prev) => [order, ...prev]);
+        setProducts((prev) =>
+          prev.map((p) => {
+            const line = items.find((i) => i.productId === p.id);
+            return line ? { ...p, stock: Math.max(0, p.stock - line.qty) } : p;
+          }),
+        );
+        setCart([]);
+        setCoupon('');
+
+        api.createOrder({
+          customer: info.name,
+          phone: info.phone,
+          city: info.city,
+          address: info.address,
+          items: items.map((item) => ({
+            productId: item.productId,
+            name: item.name,
+            qty: item.qty,
+            price: item.price,
+          })),
+          total: Math.max(0, subtotal - info.discount),
+          payment: info.payment,
+        }).catch(() => {});
+
+        return id;
+      },
       updateOrderStatus,
 
       tickets,
@@ -278,6 +358,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setLogo,
 
       serverOnline,
+
+      flashDeal,
+      updateFlashDeal,
+      addFlashDealItem,
+      removeFlashDealItem,
     }),
     [
       products,
@@ -289,7 +374,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       wishlist,
       coupon,
       orders,
-      placeOrder,
       updateOrderStatus,
       tickets,
       addTicket,
@@ -297,10 +381,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       logo,
       setLogo,
       serverOnline,
+      flashDeal,
+      updateFlashDeal,
+      addFlashDealItem,
+      removeFlashDealItem,
       setCart,
       setWishlist,
       setCoupon,
-    ]
+      setOrders,
+      setProducts,
+    ],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
