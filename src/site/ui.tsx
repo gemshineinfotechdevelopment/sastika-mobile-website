@@ -13,7 +13,7 @@ export function Btn({
   type = 'button',
 }: {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   variant?: 'primary' | 'accent' | 'ghost' | 'light';
   full?: boolean;
   style?: CSSProperties;

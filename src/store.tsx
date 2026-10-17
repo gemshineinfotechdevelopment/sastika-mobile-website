@@ -201,9 +201,44 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [setFlashDeal],
   );
 
+  const flashDealItemToProduct = useCallback((item: FlashDealItem): Product => {
+    return {
+      id: item.id,
+      name: item.name,
+      brand: item.brand || 'Featured Brand',
+      category: item.category || 'phone',
+      price: item.price,
+      mrp: item.mrp || item.price,
+      rating: 4.8,
+      reviews: 148,
+      color: item.color || '#2f7d6d',
+      badge: item.badge || 'Flash Deal',
+      specs: [
+        'Official Festival Special Deal with authentic manufacturer warranty',
+        '100% Original sealed pack with all inbox accessories',
+        'Instant billing & warranty registered at Sastika Mobiles',
+        'Free same-day doorstep express delivery across Sivakasi & Tamil Nadu',
+      ],
+      stock: item.stock || 10,
+      reorderAt: 2,
+      sku: `FD-${item.id.toUpperCase()}`,
+      description:
+        item.description ||
+        `${item.name} is available on exclusive Flash Deal Drop at Sastika Mobiles. Grab festival special pricing with authentic store guarantee.`,
+      image: item.image,
+      storage: item.category === 'phone' ? ['128GB', '256GB'] : undefined,
+    };
+  }, []);
+
   const getProduct = useCallback(
-    (id: string) => products.find((p) => p.id === id) || (flashDeal.items?.find((x) => x.id === id) as unknown as Product | undefined),
-    [products, flashDeal.items],
+    (id: string): Product | undefined => {
+      const p = products.find((x) => x.id === id);
+      if (p) return p;
+      const deal = flashDeal.items?.find((x) => x.id === id);
+      if (deal) return flashDealItemToProduct(deal);
+      return undefined;
+    },
+    [products, flashDeal.items, flashDealItemToProduct],
   );
 
   const addProduct = useCallback(

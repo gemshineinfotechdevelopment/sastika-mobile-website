@@ -387,7 +387,18 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
         {deal.items.map((p, i) => (
           <Reveal key={p.id} delay={i * 100} dir="zoom">
-            <div style={{ background: '#fff', borderRadius: 20, padding: 14, border: `1px solid ${C.border}`, position: 'relative' }}>
+            <div
+              className="lift"
+              style={{
+                background: '#fff',
+                borderRadius: 20,
+                padding: 16,
+                border: `1px solid ${C.border}`,
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
               {p.badge && (
                 <span style={{ position: 'absolute', top: 16, left: 16, background: C.danger, color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 99, zIndex: 2 }}>
                   {p.badge}
@@ -399,7 +410,12 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
               >
                 <ProductArt category={p.category} color={p.color} size={130} image={p.image} alt={p.name} float />
               </div>
-              <div style={{ fontSize: 14, fontWeight: 800, margin: '12px 0 4px', minHeight: 38, lineHeight: 1.3 }}>{p.name}</div>
+              <div
+                onClick={() => nav(`/product/${p.id}`)}
+                style={{ fontSize: 14, fontWeight: 800, margin: '12px 0 4px', minHeight: 38, lineHeight: 1.3, cursor: 'pointer' }}
+              >
+                {p.name}
+              </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
                 <b style={{ fontSize: 18 }}>{money(p.price)}</b>
                 <span style={{ fontSize: 12, color: C.success, fontWeight: 800 }}>{discount(p.price, p.mrp)}% off</span>
@@ -409,7 +425,15 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
                 {p.claimedPct || 65}% claimed • {p.stock} units left in stock
               </div>
               <FillBar pct={p.claimedPct || 65} color={`linear-gradient(90deg, ${C.accent}, ${C.danger})`} bg={C.tint} />
-              <Btn full variant="primary" onClick={() => onAdd(p.id)} style={{ marginTop: 12, padding: '11px 0', fontSize: 13 }}>
+              <Btn
+                full
+                variant="primary"
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  onAdd(p.id);
+                }}
+                style={{ marginTop: 12, padding: '11px 0', fontSize: 13 }}
+              >
                 Claim Flash Offer
               </Btn>
             </div>
