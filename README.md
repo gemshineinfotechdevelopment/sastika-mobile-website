@@ -1,50 +1,89 @@
 # Sastika Mobiles
 
-React + TypeScript + Vite. All styling is inline CSS (keyframes are injected once by `GlobalStyles.tsx`).
+Full-stack application featuring a React + TypeScript + Vite frontend and an Express Node.js backend.
 
-- **Storefront** (mobile view, centred 430px frame on desktop): `/#/`
-- **Admin panel** (desktop view): `/#/admin`
+- **Storefront** (mobile view): `http://localhost:5173/#/`
+- **Admin panel** (desktop view): `http://localhost:5173/#/admin`
+- **Backend API Server**: `http://localhost:5000/api`
 
-## Run
+---
 
+## Architecture & Ports
+
+| Component | Directory | Port | Environment File | Run Command |
+|---|---|---|---|---|
+| **Frontend** | `/` (code in `src/`) | **5173** | `src/.env` | `npm run client` or `npm run dev:frontend` |
+| **Backend** | `server/` | **5000** | `server/.env` | `npm run server` or `npm run dev:backend` |
+| **Both Together** | Root | Both | Respective `.env` | `npm run dev` |
+
+---
+
+## Environment Configuration
+
+### Frontend (`src/.env`)
+```env
+VITE_PORT=5173
+VITE_API_URL=http://localhost:5000/api
+```
+
+### Backend (`server/.env`)
+```env
+PORT=5000
+NODE_ENV=development
+CLIENT_URL=http://localhost:5173
+```
+
+---
+
+## How to Run
+
+### 1. Run Both (Frontend + Backend Concurrently)
 ```bash
-npm install
-npm run dev        # http://localhost:5173
-npm run build      # type-check + production build
+npm run dev
 ```
 
-## Structure
+### 2. Or Run Separately
 
-```
-src/
-  main.tsx, App.tsx        router (HashRouter)
-  theme.ts                 colours, fonts, money() helper
-  data.ts, types.ts        seed products, orders, tickets
-  store.tsx                shared state, persisted in localStorage
-  components/              Icon, ProductArt (SVG), animation helpers, GlobalStyles
-  site/                    Home, Catalog, ProductDetail, Cart, Checkout,
-                           Confirmation, Account, Services, About, Contact
-  admin/                   Dashboard, AdminProducts, AdminOrders,
-                           Inventory, ServiceDesk, Settings
+**Frontend (Port 5173):**
+```bash
+npm run client
 ```
 
-## How the two sides connect
+**Backend (Port 5000):**
+```bash
+npm run server
+```
 
-Storefront and admin share one store. Adding a product in admin shows on the
-storefront; placing an order reduces stock and appears in admin Orders;
-booking a repair on the storefront creates a ticket in the Service Desk.
-Data lives in the browser's localStorage. Admin → Settings → "Reset Demo Data"
-restores the defaults.
+---
 
-## Home page animations
+## Project Structure
 
-Typing headline, floating phones, drifting orbs, animated gradient, pulsing
-CTA with sheen, brand marquee, live flash-deal countdown, claim bars,
-scroll-reveal sections, count-up stats, 3D-tilting spotlight phone,
-auto-rotating testimonials, and a scroll progress bar in the header.
-
-## Notes
-
-- Product images are drawn in SVG (`ProductArt.tsx`) so no assets are needed.
-  Swap in real photos by replacing that component.
-- There is no backend or login. The admin route is open; add auth before deploying.
+```
+sastika-mobile-website/
+├── index.html
+├── package.json          # Root scripts & frontend dependencies
+├── tsconfig.json
+├── vite.config.ts        # Vite configured with envDir: './src' and port 5173
+├── src/                  # Complete Frontend Code
+│   ├── .env              # Frontend environment configuration
+│   ├── .env.example
+│   ├── api.ts            # REST API Client for backend communication
+│   ├── store.tsx         # Unified state (syncs with backend API + local fallback)
+│   ├── types.ts          # TypeScript interfaces
+│   ├── data.ts           # Initial demo dataset
+│   ├── theme.ts          # Styling constants & colors
+│   ├── components/       # Global styles, SVG illustrations, UI icons
+│   ├── site/             # Storefront pages (Home, Catalog, Cart, Checkout, etc.)
+│   └── admin/            # Admin pages (Dashboard, Inventory, Orders, Services)
+└── server/               # Complete Backend Server
+    ├── .env              # Backend environment configuration (Port 5000)
+    ├── .env.example
+    ├── package.json      # Express, CORS, Dotenv
+    ├── server.js         # Main Express entry point with health check & routes
+    ├── dataHelper.js     # JSON file persistence reader/writer
+    ├── data/             # Persistent JSON database (products, orders, tickets)
+    └── routes/           # REST API route handlers
+        ├── products.js   # GET, POST, PUT, DELETE /api/products
+        ├── orders.js     # GET, POST, PATCH /api/orders
+        └── tickets.js    # GET, POST, PATCH /api/tickets
+```

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { PRODUCTS, SEED_ORDERS, SEED_TICKETS } from './data';
 import type { CartLine, Order, OrderStatus, Product, Ticket, TicketStatus } from './types';
+import { api } from './api';
 
 function useLocalState<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState<T>(() => {
@@ -54,6 +55,8 @@ interface StoreShape {
   tickets: Ticket[];
   addTicket: (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'>) => string;
   setTicketStatus: (id: string, status: TicketStatus) => void;
+
+  serverOnline: boolean;
 }
 
 const Ctx = createContext<StoreShape | null>(null);
@@ -65,18 +68,178 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [coupon, setCoupon] = useLocalState<string>('coupon', '');
   const [orders, setOrders] = useLocalState<Order[]>('orders', SEED_ORDERS);
   const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
+  const [serverOnline, setServerOnline] = useState<boolean>(false);
+
+  // Sync with backend API on mount
+  useEffect(() => {
+    let mounted = true;
+
+    async function syncBackend() {
+      try {
+        const health = await api.checkHealth();
+        if (health && mounted) {
+          setServerOnline(true);
+        }
+
+        const [serverProducts, serverOrders, serverTickets] = await Promise.all([
+          api.getProducts().catch(() => null),
+          api.getOrders().catch(() => null),
+          api.getTickets().catch(() => null),
+        ]);
+
+        if (mounted) {
+          if (serverProducts && serverProducts.length > 0) setProducts(serverProducts);
+          if (serverOrders && serverOrders.length > 0) setOrders(serverOrders);
+          if (serverTickets && serverTickets.length > 0) setTickets(serverTickets);
+        }
+      } catch {
+        if (mounted) {
+          setServerOnline(false);
+        }
+      }
+    }
+
+    syncBackend();
+    return () => {
+      mounted = false;
+    };
+  }, [setProducts, setOrders, setTickets]);
 
   const getProduct = useCallback((id: string) => products.find((p) => p.id === id), [products]);
+
+  const addProduct = useCallback(
+    (p: Omit<Product, 'id'>) => {
+      const tempId = 'n' + Date.now().toString(36);
+      const newProduct: Product = { ...p, id: tempId };
+      setProducts((prev) => [newProduct, ...prev]);
+
+      api.createProduct(p)
+        .then((saved) => {
+          setProducts((prev) => prev.map((item) => (item.id === tempId ? saved : item)));
+        })
+        .catch((err) => console.warn('Could not sync product to server:', err));
+    },
+    [setProducts]
+  );
+
+  const updateProduct = useCallback(
+    (id: string, patch: Partial<Product>) => {
+      setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+      api.updateProduct(id, patch).catch((err) =>
+        console.warn('Could not sync update to server:', err)
+      );
+    },
+    [setProducts]
+  );
+
+  const deleteProduct = useCallback(
+    (id: string) => {
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      api.deleteProduct(id).catch((err) =>
+        console.warn('Could not sync deletion to server:', err)
+      );
+    },
+    [setProducts]
+  );
+
+  const updateOrderStatus = useCallback(
+    (id: string, status: OrderStatus) => {
+      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+      api.updateOrderStatus(id, status).catch((err) =>
+        console.warn('Could not sync order status to server:', err)
+      );
+    },
+    [setOrders]
+  );
+
+  const setTicketStatus = useCallback(
+    (id: string, status: TicketStatus) => {
+      setTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
+      api.updateTicketStatus(id, status).catch((err) =>
+        console.warn('Could not sync ticket status to server:', err)
+      );
+    },
+    [setTickets]
+  );
+
+  const addTicket = useCallback(
+    (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'>) => {
+      const id = 'SR-' + String(5522 + tickets.length);
+      const newTicket: Ticket = {
+        ...t,
+        id,
+        status: 'Open',
+        tech: 'Unassigned',
+        eta: 'Within 24h',
+      };
+      setTickets((prev) => [newTicket, ...prev]);
+
+      api.createTicket(t)
+        .then((saved) => {
+          setTickets((prev) => prev.map((item) => (item.id === id ? saved : item)));
+        })
+        .catch((err) => console.warn('Could not sync ticket to server:', err));
+
+      return id;
+    },
+    [tickets.length, setTickets]
+  );
+
+  const placeOrder = useCallback(
+    (info: CheckoutInfo) => {
+      const items = cart
+        .map((l) => {
+          const p = products.find((x) => x.id === l.id);
+          return p ? { productId: p.id, name: p.name, qty: l.qty, price: p.price } : null;
+        })
+        .filter((x): x is NonNullable<typeof x> => x !== null);
+      const subtotal = items.reduce((n, i) => n + i.price * i.qty, 0);
+      const id = '#SM-' + String(Math.floor(100000 + Math.random() * 899999));
+      const order: Order = {
+        id,
+        customer: info.name,
+        phone: info.phone,
+        city: info.city,
+        address: info.address,
+        items,
+        total: Math.max(0, subtotal - info.discount),
+        status: 'Placed',
+        payment: info.payment,
+        date: new Date().toISOString().slice(0, 10),
+      };
+
+      setOrders((prev) => [order, ...prev]);
+      setProducts((prev) =>
+        prev.map((p) => {
+          const line = items.find((i) => i.productId === p.id);
+          return line ? { ...p, stock: Math.max(0, p.stock - line.qty) } : p;
+        })
+      );
+      setCart([]);
+      setCoupon('');
+
+      api.createOrder({
+        customer: info.name,
+        phone: info.phone,
+        city: info.city,
+        address: info.address,
+        items,
+        total: Math.max(0, subtotal - info.discount),
+        payment: info.payment,
+      }).catch((err) => console.warn('Could not sync order to server:', err));
+
+      return id;
+    },
+    [cart, products, setOrders, setProducts, setCart, setCoupon]
+  );
 
   const value = useMemo<StoreShape>(
     () => ({
       products,
       getProduct,
-      addProduct: (p) =>
-        setProducts((prev) => [{ ...p, id: 'n' + Date.now().toString(36) }, ...prev]),
-      updateProduct: (id, patch) =>
-        setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p))),
-      deleteProduct: (id) => setProducts((prev) => prev.filter((p) => p.id !== id)),
+      addProduct,
+      updateProduct,
+      deleteProduct,
 
       cart,
       cartCount: cart.reduce((n, l) => n + l.qty, 0),
@@ -88,7 +251,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             : [...prev, { id, qty }];
         }),
       setQty: (id, qty) =>
-        setCart((prev) => (qty <= 0 ? prev.filter((l) => l.id !== id) : prev.map((l) => (l.id === id ? { ...l, qty } : l)))),
+        setCart((prev) =>
+          qty <= 0 ? prev.filter((l) => l.id !== id) : prev.map((l) => (l.id === id ? { ...l, qty } : l))
+        ),
       removeFromCart: (id) => setCart((prev) => prev.filter((l) => l.id !== id)),
       wishlist,
       toggleWish: (id) =>
@@ -97,51 +262,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setCoupon,
 
       orders,
-      placeOrder: (info) => {
-        const items = cart
-          .map((l) => {
-            const p = products.find((x) => x.id === l.id);
-            return p ? { productId: p.id, name: p.name, qty: l.qty, price: p.price } : null;
-          })
-          .filter((x): x is NonNullable<typeof x> => x !== null);
-        const subtotal = items.reduce((n, i) => n + i.price * i.qty, 0);
-        const id = '#SM-' + String(Math.floor(100000 + Math.random() * 899999));
-        const order: Order = {
-          id,
-          customer: info.name,
-          phone: info.phone,
-          city: info.city,
-          address: info.address,
-          items,
-          total: Math.max(0, subtotal - info.discount),
-          status: 'Placed',
-          payment: info.payment,
-          date: new Date().toISOString().slice(0, 10),
-        };
-        setOrders((prev) => [order, ...prev]);
-        setProducts((prev) =>
-          prev.map((p) => {
-            const line = items.find((i) => i.productId === p.id);
-            return line ? { ...p, stock: Math.max(0, p.stock - line.qty) } : p;
-          }),
-        );
-        setCart([]);
-        setCoupon('');
-        return id;
-      },
-      updateOrderStatus: (id, status) =>
-        setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o))),
+      placeOrder,
+      updateOrderStatus,
 
       tickets,
-      addTicket: (t) => {
-        const id = 'SR-' + String(5522 + tickets.length);
-        setTickets((prev) => [{ ...t, id, status: 'Open', tech: 'Unassigned', eta: 'Within 24h' }, ...prev]);
-        return id;
-      },
-      setTicketStatus: (id, status) =>
-        setTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t))),
+      addTicket,
+      setTicketStatus,
+
+      serverOnline,
     }),
-    [products, cart, wishlist, coupon, orders, tickets, getProduct, setProducts, setCart, setWishlist, setCoupon, setOrders, setTickets],
+    [
+      products,
+      getProduct,
+      addProduct,
+      updateProduct,
+      deleteProduct,
+      cart,
+      wishlist,
+      coupon,
+      orders,
+      placeOrder,
+      updateOrderStatus,
+      tickets,
+      addTicket,
+      setTicketStatus,
+      serverOnline,
+      setCart,
+      setWishlist,
+      setCoupon,
+    ]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
