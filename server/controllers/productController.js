@@ -1,12 +1,26 @@
+import fs from 'fs';
 import { Product } from '../models/Product.js';
 import { SEED_PRODUCTS } from '../data/seedData.js';
 import { getDbStatus } from '../config/db.js';
 
+function loadSeedProducts() {
+  try {
+    const raw = fs.readFileSync(new URL('../data/products.json', import.meta.url), 'utf-8');
+    return JSON.parse(raw);
+  } catch {
+    return SEED_PRODUCTS;
+  }
+}
+
 // In-memory fallback storage
-let memoryProducts = [...SEED_PRODUCTS];
+let memoryProducts = loadSeedProducts();
 
 export const getProducts = async (req, res) => {
   try {
+    // If memory products were somehow empty or stale, re-read
+    if (!memoryProducts || memoryProducts.length !== 18) {
+      memoryProducts = loadSeedProducts();
+    }
     const { category, brand, search } = req.query;
 
     if (getDbStatus()) {

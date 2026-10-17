@@ -13,30 +13,32 @@ const DEFAULT_FLASH_DEAL: FlashDealConfig = {
   endTime: new Date(Date.now() + 5 * 3600 * 1000).toISOString(),
   items: [
     {
-      id: 'fd1',
-      name: 'OnePlus Nord CE4 5G',
-      brand: 'OnePlus',
+      id: 'p3',
+      name: 'OPPO K14x 5G (6GB + 128GB) Blue',
+      brand: 'OPPO',
       category: 'phone',
-      price: 21999,
-      mrp: 26999,
-      color: '#4b6b5a',
+      price: 13999,
+      mrp: 17999,
+      color: '#0284c7',
       badge: 'Festive Offer',
-      stock: 14,
+      stock: 2,
       claimedPct: 74,
-      description: 'Festival special drop with bank discount included.',
+      image: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=600&q=80',
+      description: 'Festival special drop on OPPO K14x 5G Prism Blue with 45W fast charge.',
     },
     {
-      id: 'fd2',
-      name: 'Redmi Note 13 Pro+ 5G',
-      brand: 'Xiaomi',
+      id: 'p1',
+      name: 'Redmi A7 Pro 5G (4GB + 64GB) Orange',
+      brand: 'Redmi',
       category: 'phone',
-      price: 27999,
-      mrp: 33999,
-      color: '#3a4a7a',
+      price: 9499,
+      mrp: 12999,
+      color: '#ea580c',
       badge: 'Mega Saver',
-      stock: 8,
+      stock: 6,
       claimedPct: 62,
-      description: 'Exclusive festival pricing with free tempered glass.',
+      image: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?auto=format&fit=crop&w=600&q=80',
+      description: 'Exclusive festival pricing on Redmi A7 Pro 5G in vibrant Orange.',
     },
   ],
 };
@@ -108,7 +110,7 @@ interface StoreShape {
 const Ctx = createContext<StoreShape | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useLocalState<Product[]>('products', PRODUCTS);
+  const [products, setProducts] = useLocalState<Product[]>('products_v4', PRODUCTS);
   const [cart, setCart] = useLocalState<CartLine[]>('cart', []);
   const [wishlist, setWishlist] = useLocalState<string[]>('wishlist', ['p1']);
   const [coupon, setCoupon] = useLocalState<string>('coupon', '');
@@ -116,7 +118,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
-  const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal', DEFAULT_FLASH_DEAL);
+  const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v2', DEFAULT_FLASH_DEAL);
+
+  // Auto-migrate from any legacy dummy products
+  useEffect(() => {
+    if (!products || products.length !== 18 || !products.some((p) => p.name.includes('Redmi A7 Pro'))) {
+      setProducts(PRODUCTS);
+    }
+  }, [products, setProducts]);
 
   // Sync with backend API on mount
   useEffect(() => {

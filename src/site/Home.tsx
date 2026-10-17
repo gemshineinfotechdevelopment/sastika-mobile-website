@@ -61,18 +61,33 @@ export default function Home() {
 
       <Spotlight onBuy={(id) => nav(`/product/${id}`)} />
 
-      <section style={{ padding: '28px 0 0' }}>
-        <Reveal>
-          <SectionHead title="Original Accessories" sub="Essential companions for your smartphone" action="All" onAction={() => nav('/accessories')} />
-        </Reveal>
-        <div className="hide-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '4px 18px 14px' }}>
-          {gear.slice(0, 6).map((p, i) => (
-            <Reveal key={p.id} dir="zoom" delay={i * 80} style={{ flexShrink: 0 }}>
-              <ProductCard p={p} width={160} compact />
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      {gear.length > 0 ? (
+        <section style={{ padding: '28px 0 0' }}>
+          <Reveal>
+            <SectionHead title="Original Accessories" sub="Essential companions for your smartphone" action="All" onAction={() => nav('/accessories')} />
+          </Reveal>
+          <div className="hide-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '4px 18px 14px' }}>
+            {gear.slice(0, 6).map((p, i) => (
+              <Reveal key={p.id} dir="zoom" delay={i * 80} style={{ flexShrink: 0 }}>
+                <ProductCard p={p} width={160} compact />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section style={{ padding: '28px 0 0' }}>
+          <Reveal>
+            <SectionHead title="Popular Stock Mobiles" sub="Verified 5G smartphones in Sivakasi & Sithurajapuram" action="View All (18)" onAction={() => nav('/mobiles')} />
+          </Reveal>
+          <div className="hide-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '4px 18px 14px' }}>
+            {phones.slice(6, 16).map((p, i) => (
+              <Reveal key={p.id} dir="zoom" delay={i * 80} style={{ flexShrink: 0 }}>
+                <ProductCard p={p} width={160} compact />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       <CareServices onOpen={() => nav('/services')} />
 
@@ -312,24 +327,25 @@ function Categories() {
 /* --------------------------------- SPOTLIGHT -------------------------------- */
 
 function Spotlight({ onBuy }: { onBuy: (id: string) => void }) {
-  const { getProduct } = useStore();
-  const p = getProduct('p4');
+  const { getProduct, products } = useStore();
+  const p = getProduct('p3') || products[0];
   if (!p) return null;
+  const highlightSpecs = p.specs?.slice(0, 3) || ['5G Enabled', 'Dual Camera', 'Fast Charging'];
   return (
     <section style={{ padding: '28px 18px 0' }}>
       <Reveal>
         <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 26, background: `linear-gradient(150deg, ${C.primaryDark}, ${C.primarySoft})`, color: '#fff', padding: 20 }}>
           <span style={{ position: 'absolute', width: 180, height: 180, right: -50, top: -50, borderRadius: '50%', background: 'rgba(246,196,69,.18)', animation: 'orb 9s ease-in-out infinite' }} />
-          <Pill tone="accent">TRENDING #1</Pill>
+          <Pill tone="accent">TRENDING #1 IN STORE</Pill>
           <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
             <div style={{ flex: 1, paddingRight: 8 }}>
               <h3 style={{ margin: '4px 0 8px', fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>{p.name}</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {['120Hz AMOLED', '5500mAh', '100W'].map((t, i) => (
+                {highlightSpecs.map((t, i) => (
                   <span key={t} style={{ fontSize: 10.5, fontWeight: 700, padding: '4px 9px', borderRadius: 99, background: 'rgba(255,255,255,.14)', animation: `bounceIn .5s ease ${0.3 + i * 0.12}s both` }}>{t}</span>
                 ))}
               </div>
-              <div style={{ margin: '14px 0 4px', fontSize: 11, opacity: 0.75 }}>Special price</div>
+              <div style={{ margin: '14px 0 4px', fontSize: 11, opacity: 0.75 }}>Special price • {p.stock} units left in stock</div>
               <div style={{ fontSize: 26, fontWeight: 800 }}>{money(p.price)}</div>
             </div>
             <div style={{ animation: 'tilt3d 7s ease-in-out infinite', filter: 'drop-shadow(0 20px 24px rgba(0,0,0,.4))' }}>
