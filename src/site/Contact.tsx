@@ -22,19 +22,19 @@ export default function Contact() {
   };
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '16px 24px 60px' }}>
-      <div style={{ padding: '32px 28px', borderRadius: 28, color: '#fff', background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`, position: 'relative', overflow: 'hidden', boxShadow: '0 8px 30px rgba(11,74,67,0.15)' }}>
+    <div className="site-page-container" style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ padding: '24px 20px', borderRadius: 24, color: '#fff', background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`, position: 'relative', overflow: 'hidden', boxShadow: '0 8px 30px rgba(11,74,67,0.15)' }}>
         <span style={{ position: 'absolute', width: 150, height: 150, right: -40, top: -40, borderRadius: '50%', background: 'rgba(246,196,69,.2)', animation: 'orb 9s ease-in-out infinite' }} />
         <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.4, color: C.accent }}>CONTACT</div>
-        <h1 style={{ margin: '8px 0 8px', fontSize: 29, lineHeight: 1.1, fontWeight: 800, letterSpacing: -0.8 }}>Get in Touch with Our Tech Specialists</h1>
-        <p style={{ margin: 0, fontSize: 12.5, opacity: 0.85 }}>Ask about availability, book a repair or visit us in store — open 7 days a week.</p>
+        <h1 style={{ margin: '8px 0 8px', fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: -0.6 }}>Get in Touch with Our Tech Specialists</h1>
+        <p style={{ margin: 0, fontSize: 13, opacity: 0.88 }}>Ask about availability, book a repair or visit us in store — open 7 days a week.</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, fontSize: 12, fontWeight: 700 }}>
           <span style={{ width: 8, height: 8, borderRadius: 9, background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
           3 specialists currently online
         </div>
       </div>
 
-      <div style={{ padding: '22px 18px 0' }}>
+      <div style={{ padding: '22px 0 0' }}>
         <h2 style={{ margin: '0 0 12px', fontSize: 20, fontWeight: 800 }}>Our Store Location</h2>
         {STORES.length > 1 && (
           <div className="hide-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12 }}>

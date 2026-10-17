@@ -59,7 +59,7 @@ export default function ProductDetail() {
   };
 
   return (
-    <div style={{ maxWidth: 1240, margin: '0 auto', padding: '24px 28px 60px' }}>
+    <div className="site-page-container" style={{ maxWidth: 1240, margin: '0 auto' }}>
       {/* Top back button & breadcrumbs */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <button
@@ -374,14 +374,7 @@ export default function ProductDetail() {
       {similar.length > 0 && (
         <section style={{ paddingTop: 40 }}>
           <SectionHead title="Similar 5G Smartphones in Stock" sub="Explore alternative models from top brands" />
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-              gap: 20,
-              paddingTop: 16,
-            }}
-          >
+          <div className="product-cards-grid" style={{ paddingTop: 16 }}>
             {similar.map((s) => (
               <ProductCard key={s.id} p={s} />
             ))}

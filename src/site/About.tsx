@@ -62,7 +62,7 @@ export default function About() {
   const { logo } = useStore();
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '16px 24px 60px' }}>
+    <div className="site-page-container" style={{ maxWidth: 1100, margin: '0 auto' }}>
       {/* Devotional Invocations Banner from original bill */}
       <div
         style={{
@@ -74,6 +74,7 @@ export default function About() {
           fontWeight: 800,
           color: '#995c00',
           letterSpacing: 0.3,
+          borderRadius: 12,
         }}
       >
         Sri Bala Murugan Thunai &bull; Sri Kottai Karuppasamy Thunai &bull; Sri Guruvammal Thunai
@@ -82,9 +83,9 @@ export default function About() {
       {/* Hero Card */}
       <div
         style={{
-          margin: '14px 14px 0',
+          margin: '14px 0 0',
           padding: '24px 20px',
-          borderRadius: 28,
+          borderRadius: 24,
           color: '#fff',
           background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`,
           position: 'relative',

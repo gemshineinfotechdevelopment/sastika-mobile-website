@@ -39,15 +39,15 @@ export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
   ];
 
   return (
-    <div style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 28px 40px' }}>
+    <div className="site-page-container" style={{ maxWidth: 1280, margin: '0 auto' }}>
       <div style={{ marginBottom: 18 }}>
         <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, color: C.primarySoft }}>
           {kind === 'phones' ? 'INVENTORY MOBILES CATALOGUE' : 'ACCESSORIES & AUDIO'}
         </div>
-        <h1 style={{ margin: '6px 0 8px', fontSize: 32, fontWeight: 800, letterSpacing: -0.8 }}>
+        <h1 style={{ margin: '6px 0 8px', fontSize: 28, fontWeight: 800, letterSpacing: -0.6 }}>
           {kind === 'phones' ? 'Available 5G Smartphones' : 'Original Accessories & Audio'}
         </h1>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
           <Pill tone="success">{list.length} IN STOCK</Pill>
           <Pill>100% BRAND WARRANTY</Pill>
           <Pill tone="accent">SIVAKASI TAX INVOICE</Pill>
@@ -77,10 +77,10 @@ export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
               setLimit(18);
             }}
             style={{
-              padding: '8px 18px',
+              padding: '7px 16px',
               borderRadius: 99,
               fontWeight: 700,
-              fontSize: 13,
+              fontSize: 12.5,
               background: brand === b ? C.primary : '#fff',
               color: brand === b ? '#fff' : C.text,
               border: `1.5px solid ${brand === b ? C.primary : C.border}`,
@@ -124,13 +124,7 @@ export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
           <div style={{ fontSize: 13, marginTop: 4 }}>Try clearing the search query or selecting a different brand</div>
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: 20,
-          }}
-        >
+        <div className="product-cards-grid">
           {list.slice(0, limit).map((p, i) => (
             <Reveal key={p.id + brand + sort} delay={(i % 4) * 60} dir="up">
               <ProductCard p={p} />

@@ -23,13 +23,13 @@ export default function Home() {
       {/* Full Width Desktop Hero */}
       <Hero onShop={() => nav('/mobiles')} onGear={() => nav('/services')} color={hero?.color ?? C.primarySoft} />
 
-      {/* Main Desktop Container */}
-      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 24px' }}>
+      {/* Main Container */}
+      <div className="site-page-container" style={{ maxWidth: 1360, margin: '0 auto' }}>
         {/* Certified Brands Ticker */}
-        <section style={{ padding: '30px 0 10px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, fontSize: 13, fontWeight: 800, color: C.muted, letterSpacing: 0.6 }}>
+        <section style={{ padding: '20px 0 10px' }}>
+          <div className="brand-ticker-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, fontSize: 13, fontWeight: 800, color: C.muted, letterSpacing: 0.6 }}>
             <span>TOP CERTIFIED 5G BRANDS IN STOCK</span>
-            <span style={{ color: C.success }}>100% ORIGINAL & SEALED WITH WARRANTY</span>
+            <span style={{ color: C.success }}>100% ORIGINAL &amp; SEALED WITH WARRANTY</span>
           </div>
           <Marquee>
             {BRANDS.map((b) => (
@@ -37,12 +37,12 @@ export default function Home() {
                 key={b}
                 onClick={() => nav('/mobiles')}
                 style={{
-                  padding: '12px 32px',
+                  padding: '10px 24px',
                   borderRadius: 99,
                   background: '#fff',
                   border: `1px solid ${C.border}`,
                   fontWeight: 800,
-                  fontSize: 15,
+                  fontSize: 14,
                   color: C.primary,
                   cursor: 'pointer',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
@@ -60,7 +60,7 @@ export default function Home() {
         )}
 
         {/* Featured 5G Phones (Responsive Multi-Column Grid) */}
-        <section style={{ padding: '40px 0 0' }}>
+        <section style={{ padding: '36px 0 0' }}>
           <Reveal>
             <SectionHead
               title="Featured 5G Smartphones"
@@ -69,14 +69,7 @@ export default function Home() {
               onAction={() => nav('/mobiles')}
             />
           </Reveal>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: 20,
-              padding: '16px 0 0',
-            }}
-          >
+          <div className="product-cards-grid" style={{ padding: '16px 0 0' }}>
             {phones.slice(0, 8).map((p, i) => (
               <Reveal key={p.id} dir="up" delay={i * 50}>
                 <ProductCard p={p} />
@@ -104,14 +97,7 @@ export default function Home() {
               onAction={() => nav(gear.length > 0 ? '/accessories' : '/mobiles')}
             />
           </Reveal>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: 20,
-              padding: '16px 0 0',
-            }}
-          >
+          <div className="product-cards-grid" style={{ padding: '16px 0 0' }}>
             {(gear.length > 0 ? gear : phones.slice(8, 18)).map((p, i) => (
               <Reveal key={p.id} dir="up" delay={i * 50}>
                 <ProductCard p={p} />
@@ -147,14 +133,12 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
   ];
   return (
     <section
+      className="hero-wrapper"
       style={{
-        margin: '20px 24px 0',
-        borderRadius: 28,
         position: 'relative',
         overflow: 'hidden',
         color: '#fff',
         background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primary}, ${C.primarySoft})`,
-        padding: '44px 36px 48px',
         boxShadow: '0 12px 36px rgba(11,74,67,0.18)',
       }}
     >
@@ -176,13 +160,10 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
       ))}
 
       <div
+        className="hero-grid"
         style={{
           maxWidth: 1360,
           margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-          alignItems: 'center',
-          gap: 40,
           position: 'relative',
           zIndex: 2,
         }}
@@ -204,16 +185,14 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
             }}
           >
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
-            Authorized Multi-Brand Store • Sivakasi & Sithurajapuram
+            Authorized Multi-Brand Store • Sivakasi &amp; Sithurajapuram
           </div>
 
           <h1
+            className="hero-title"
             style={{
               margin: '0 0 16px',
-              fontSize: 48,
-              lineHeight: 1.1,
               fontWeight: 900,
-              letterSpacing: -1.5,
               animation: 'fadeUp .7s ease .1s both',
             }}
           >
@@ -223,33 +202,33 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               <Typewriter words={['5G Smartphone', 'Flagship Killer', 'Portrait Master']} />
             </span>
             <br />
-            With Trust & GST Bill.
+            With Trust &amp; GST Bill.
           </h1>
 
           <p
             style={{
-              margin: '0 0 26px',
-              fontSize: 16,
+              margin: '0 0 24px',
+              fontSize: 15,
               lineHeight: 1.6,
               color: 'rgba(255,255,255,.86)',
               maxWidth: 520,
               animation: 'fadeUp .7s ease .2s both',
             }}
           >
-            Redmi, OPPO, Vivo, Nothing, Samsung & Poco — 100% factory sealed stock with 1-Year Brand Warranty, instant data transfer, and certified after-sales care.
+            Redmi, OPPO, Vivo, Nothing, Samsung &amp; Poco — 100% factory sealed stock with 1-Year Brand Warranty, instant data transfer, and certified after-sales care.
           </p>
 
-          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', animation: 'fadeUp .7s ease .3s both' }}>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', animation: 'fadeUp .7s ease .3s both' }}>
             <button
               className="tap"
               onClick={onShop}
               style={{
-                padding: '15px 28px',
+                padding: '13px 24px',
                 borderRadius: 16,
                 background: C.accent,
                 color: C.primaryDark,
                 fontWeight: 900,
-                fontSize: 15,
+                fontSize: 14.5,
                 animation: 'pulseRing 2.4s infinite',
                 position: 'relative',
                 overflow: 'hidden',
@@ -263,27 +242,26 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               className="tap"
               onClick={onGear}
               style={{
-                padding: '15px 24px',
+                padding: '13px 20px',
                 borderRadius: 16,
                 background: 'rgba(255,255,255,.14)',
                 color: '#fff',
                 fontWeight: 700,
-                fontSize: 15,
+                fontSize: 14.5,
                 border: '1.5px solid rgba(255,255,255,.3)',
                 cursor: 'pointer',
               }}
             >
-              Care & Service Desk
+              Care &amp; Service Desk
             </button>
           </div>
 
           <div
+            className="hero-badges-row"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 24,
-              marginTop: 30,
-              fontSize: 13,
+              marginTop: 24,
               color: 'rgba(255,255,255,0.85)',
               fontWeight: 600,
             }}
@@ -331,6 +309,7 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
   const nav = useNavigate();
   return (
     <section
+      className="flash-deal-box"
       style={{
         margin: '30px 0 0',
         padding: '24px 28px',
@@ -354,30 +333,30 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginRight: 6 }}>ENDS IN:</span>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginRight: 4 }}>ENDS IN:</span>
             {days > 0 && (
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 14, padding: '7px 10px', borderRadius: 8, minWidth: 36, textAlign: 'center' }}>
+                <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 8px', borderRadius: 8, minWidth: 32, textAlign: 'center' }}>
                   {d}d
                 </span>
                 <span style={{ fontWeight: 800, color: C.primary }}>:</span>
               </span>
             )}
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 14, padding: '7px 10px', borderRadius: 8, minWidth: 36, textAlign: 'center' }}>
+              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 8px', borderRadius: 8, minWidth: 32, textAlign: 'center' }}>
                 {days > 0 ? hh : h}
               </span>
               <span style={{ fontWeight: 800, color: C.primary }}>:</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 14, padding: '7px 10px', borderRadius: 8, minWidth: 36, textAlign: 'center' }}>
+              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 8px', borderRadius: 8, minWidth: 32, textAlign: 'center' }}>
                 {m}
               </span>
               <span style={{ fontWeight: 800, color: C.primary }}>:</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ background: isExpired ? '#dc2626' : C.danger, color: '#fff', fontWeight: 800, fontSize: 14, padding: '7px 10px', borderRadius: 8, minWidth: 36, textAlign: 'center' }}>
+              <span style={{ background: isExpired ? '#dc2626' : C.danger, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 8px', borderRadius: 8, minWidth: 32, textAlign: 'center' }}>
                 {s}
               </span>
             </span>
@@ -386,7 +365,7 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
       </Reveal>
 
       {/* Grid for flash deal items */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 16 }}>
         {deal.items.map((p, i) => (
           <Reveal key={p.id} delay={i * 100} dir="zoom">
             <div

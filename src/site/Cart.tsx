@@ -48,7 +48,7 @@ export default function Cart() {
   }
 
   return (
-    <div style={{ maxWidth: 1160, margin: '0 auto', padding: '24px 28px 60px' }}>
+    <div className="site-page-container" style={{ maxWidth: 1160, margin: '0 auto' }}>
       <PageHead title={`Shopping Cart (${t.lines.length} items)`} />
 
       <div className="cart-grid" style={{ marginTop: 16 }}>

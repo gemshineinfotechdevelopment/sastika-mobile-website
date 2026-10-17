@@ -59,16 +59,16 @@ export default function Services() {
   }
 
   return (
-    <div style={{ maxWidth: 1160, margin: '0 auto', padding: '16px 24px 60px' }}>
-      <div style={{ padding: '32px 30px', borderRadius: 28, color: '#fff', position: 'relative', overflow: 'hidden', background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`, boxShadow: '0 8px 30px rgba(11,74,67,0.14)' }}>
+    <div className="site-page-container" style={{ maxWidth: 1160, margin: '0 auto' }}>
+      <div style={{ padding: '24px 20px', borderRadius: 24, color: '#fff', position: 'relative', overflow: 'hidden', background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`, boxShadow: '0 8px 30px rgba(11,74,67,0.14)' }}>
         <span style={{ position: 'absolute', width: 200, height: 200, right: -40, top: -40, borderRadius: '50%', background: 'rgba(246,196,69,.22)', animation: 'orb 9s ease-in-out infinite' }} />
         <div style={{ position: 'absolute', right: 28, top: 28, animation: 'wiggle 3s ease-in-out infinite' }}>
           <Icon name="tool" size={54} color={C.accent} />
         </div>
         <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, color: C.accent }}>CERTIFIED TECH CARE &amp; SERVICE</div>
-        <h1 style={{ margin: '8px 0 8px', fontSize: 32, lineHeight: 1.15, fontWeight: 800, letterSpacing: -0.8, maxWidth: 440 }}>Expert Mobile Repairs &amp; Tech Services</h1>
-        <p style={{ margin: 0, fontSize: 14, opacity: 0.9, maxWidth: 480 }}>OEM parts, 1-year brand warranty and express repairs in Sivakasi &amp; Sithurajapuram.</p>
-        <div style={{ display: 'flex', gap: 20, marginTop: 18, fontSize: 13, fontWeight: 700 }}>
+        <h1 style={{ margin: '8px 0 8px', fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: -0.6, maxWidth: 440 }}>Expert Mobile Repairs &amp; Tech Services</h1>
+        <p style={{ margin: 0, fontSize: 13.5, opacity: 0.9, maxWidth: 480 }}>OEM parts, 1-year brand warranty and express repairs in Sivakasi &amp; Sithurajapuram.</p>
+        <div style={{ display: 'flex', gap: 14, marginTop: 18, fontSize: 12.5, fontWeight: 700, flexWrap: 'wrap' }}>
           {['100% Genuine Parts', '90-min Express Service', 'No Fix, No Fee Guarantee'].map((t, i) => (
             <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, animation: `fadeUp .5s ease ${0.3 + i * 0.12}s both` }}>
               <Icon name="check" size={15} color={C.accent} stroke={3} />

@@ -57,7 +57,7 @@ export default function Checkout() {
   };
 
   return (
-    <div style={{ maxWidth: 840, margin: '0 auto', padding: '24px 24px 60px' }}>
+    <div className="site-page-container" style={{ maxWidth: 840, margin: '0 auto' }}>
       <PageHead title="Secure Checkout" sub="Encrypted · Sastika Protected · Sivakasi & Sithurajapuram" />
 
       {/* stepper */}

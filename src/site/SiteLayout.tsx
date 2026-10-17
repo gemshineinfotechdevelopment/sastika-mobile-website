@@ -22,6 +22,7 @@ export default function SiteLayout() {
   const { cart, cartCount, wishlist, products, logo } = useStore();
   const [drawer, setDrawer] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [mobileSearch, setMobileSearch] = useState(false);
   const [q, setQ] = useState('');
   const [bump, setBump] = useState(false);
   const prevCount = useRef(cartCount);
@@ -32,6 +33,7 @@ export default function SiteLayout() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setDrawer(false);
     setSearching(false);
+    setMobileSearch(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -339,7 +341,7 @@ export default function SiteLayout() {
             zIndex: 50,
             background: `linear-gradient(90deg, ${C.primaryDark}, ${C.primary})`,
             color: '#fff',
-            padding: '12px 16px',
+            padding: '10px 14px',
             alignItems: 'center',
             justifyContent: 'space-between',
             boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
@@ -348,18 +350,39 @@ export default function SiteLayout() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
               onClick={() => setDrawer(true)}
-              style={{ color: '#fff', padding: 4 }}
+              style={{ color: '#fff', padding: 4, display: 'grid', placeItems: 'center' }}
               aria-label="Open menu"
             >
               <Icon name="menu" size={24} />
             </button>
             <div onClick={() => nav('/')} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <img src={logo || logoImg} alt="Sastika Mobiles" style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #d4af37' }} />
-              <div style={{ fontWeight: 900, fontSize: 16 }}>SASTIKA MOBILES</div>
+              <img
+                src={logo || logoImg}
+                alt="Sastika Mobiles"
+                style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #d4af37', background: '#fff' }}
+              />
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 15, letterSpacing: 0.3, lineHeight: 1.1 }}>SASTIKA MOBILES</div>
+                <div style={{ fontSize: 8.5, letterSpacing: 1.4, color: C.accent, fontWeight: 800 }}>SALES &amp; SERVICE</div>
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              onClick={() => setMobileSearch(!mobileSearch)}
+              style={{
+                color: '#fff',
+                padding: '6px 8px',
+                borderRadius: 8,
+                background: mobileSearch ? 'rgba(255,255,255,0.2)' : 'transparent',
+                display: 'grid',
+                placeItems: 'center',
+              }}
+              aria-label="Search"
+            >
+              <Icon name={mobileSearch ? 'x' : 'search'} size={19} color="#fff" />
+            </button>
             <button
               onClick={() => nav('/cart')}
               style={{
@@ -381,8 +404,102 @@ export default function SiteLayout() {
           </div>
         </header>
 
-        {/* Desktop Sticky Top Utility Bar */}
+        {/* Mobile Search Dropdown Bar */}
+        {mobileSearch && (
+          <div
+            className="site-mobile-header"
+            style={{
+              padding: '10px 14px',
+              background: '#fff',
+              borderBottom: `1px solid ${C.border}`,
+              position: 'sticky',
+              top: 54,
+              zIndex: 49,
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', background: C.tint2, borderRadius: 12, padding: '0 12px' }}>
+              <Icon name="search" size={16} color={C.muted} />
+              <input
+                autoFocus
+                value={q}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setSearching(true);
+                }}
+                placeholder="Search phone models (Redmi, Vivo, OPPO...)"
+                style={{
+                  width: '100%',
+                  padding: '10px 8px',
+                  border: 'none',
+                  background: 'transparent',
+                  outline: 'none',
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              />
+              {q && (
+                <button
+                  onClick={() => {
+                    setQ('');
+                    setSearching(false);
+                  }}
+                  style={{ color: C.muted, padding: 4 }}
+                >
+                  <Icon name="x" size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Mobile Search Results list */}
+            {searching && q.trim().length > 0 && (
+              <div style={{ marginTop: 8, maxHeight: 260, overflowY: 'auto' }}>
+                {results.length === 0 ? (
+                  <div style={{ padding: '12px', textAlign: 'center', fontSize: 12.5, color: C.muted }}>
+                    No mobiles found for "{q}"
+                  </div>
+                ) : (
+                  results.map((p) => (
+                    <div
+                      key={p.id}
+                      onClick={() => {
+                        nav(`/product/${p.id}`);
+                        setMobileSearch(false);
+                        setSearching(false);
+                        setQ('');
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '8px 4px',
+                        borderBottom: `1px solid ${C.tint2}`,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <img src={p.image} alt={p.name} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: C.muted }}>
+                          {money(p.price)} · {p.brand}
+                        </div>
+                      </div>
+                      <Icon name="right" size={14} color={C.muted} />
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Desktop Sticky Top Utility Bar (Hidden on Mobile) */}
         <header
+          className="site-desktop-header"
           style={{
             position: 'sticky',
             top: 0,
@@ -541,8 +658,9 @@ export default function SiteLayout() {
           <Outlet />
         </main>
 
-        {/* Desktop Footer */}
+        {/* Desktop / Mobile Responsive Footer */}
         <footer
+          className="desktop-footer"
           style={{
             background: `linear-gradient(170deg, ${C.primaryDark}, #052622)`,
             color: '#fff',
@@ -763,6 +881,80 @@ export default function SiteLayout() {
           </aside>
         </>
       )}
+
+      {/* -------------------- MOBILE BOTTOM NAVIGATION BAR -------------------- */}
+      <nav
+        className="site-mobile-bottom-nav"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 45,
+          background: 'rgba(255, 255, 255, 0.96)',
+          backdropFilter: 'blur(16px)',
+          borderTop: `1px solid ${C.border}`,
+          boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          padding: '6px 4px 8px',
+        }}
+      >
+        {[
+          { to: '/', label: 'Home', icon: 'home' as const },
+          { to: '/mobiles', label: 'Mobiles', icon: 'phone' as const },
+          { to: '/services', label: 'Care', icon: 'tool' as const },
+          { to: '/cart', label: 'Cart', icon: 'cart' as const, badge: cartCount },
+          { label: 'Menu', icon: 'menu' as const, onClick: () => setDrawer(true) },
+        ].map((item, idx) => {
+          const isActive = item.to ? pathname === item.to : false;
+          return (
+            <button
+              key={idx}
+              onClick={item.onClick ? item.onClick : () => item.to && nav(item.to)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 3,
+                flex: 1,
+                padding: '4px 2px',
+                color: isActive ? C.primary : C.muted,
+                position: 'relative',
+                fontWeight: isActive ? 800 : 600,
+                fontSize: 10.5,
+              }}
+            >
+              <div style={{ position: 'relative' }}>
+                <Icon name={item.icon} size={20} color={isActive ? C.primary : C.muted} />
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: -5,
+                      right: -8,
+                      background: C.danger,
+                      color: '#fff',
+                      fontSize: 9,
+                      fontWeight: 800,
+                      borderRadius: 99,
+                      minWidth: 15,
+                      height: 15,
+                      display: 'grid',
+                      placeItems: 'center',
+                      padding: '0 3px',
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
