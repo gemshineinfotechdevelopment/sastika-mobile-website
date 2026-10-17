@@ -1,13 +1,22 @@
 import type { Order, Product, Ticket } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getDefaultApiUrl = () => {
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return '/api';
+  }
+  return 'http://localhost:5020/api';
+};
+
+const RAW_API_BASE_URL = (import.meta.env.VITE_API_URL as string) || getDefaultApiUrl();
+const API_BASE_URL = RAW_API_BASE_URL.endsWith('/') ? RAW_API_BASE_URL.slice(0, -1) : RAW_API_BASE_URL;
 
 /**
  * Helper to fetch from API with automatic error handling and fallback support
  */
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const res = await fetch(`${API_BASE_URL}${formattedEndpoint}`, {
       headers: {
         'Content-Type': 'application/json',
         ...(options?.headers || {}),

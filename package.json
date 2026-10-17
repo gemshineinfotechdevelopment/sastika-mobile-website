@@ -13,7 +13,12 @@
     "dev:backend": "npm --prefix server run dev",
     "dev:all": "concurrently -n \"frontend,backend\" -c \"cyan,green\" \"npm run frontend\" \"npm run backend\"",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "seed": "npm --prefix server run seed",
+    "pm2:start": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:reload": "pm2 reload ecosystem.config.cjs --env production",
+    "pm2:stop": "pm2 stop ecosystem.config.cjs",
+    "pm2:logs": "pm2 logs sastika-backend"
   },
   "dependencies": {
     "react": "^18.3.1",

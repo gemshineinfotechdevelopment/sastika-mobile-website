@@ -16,19 +16,38 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config(); // fallback to root if any
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const PORT = process.env.PORT || 5020;
+const CLIENT_URL = process.env.CLIENT_URL || 'https://sastika-mobiles.gemshine.tech';
+
+// Allowed origins for CORS
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5000',
+  'http://localhost:5020',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5000',
+  'http://127.0.0.1:5020',
+  'https://sastika-mobiles.gemshine.tech',
+  'http://sastika-mobiles.gemshine.tech',
+  CLIENT_URL,
+].filter(Boolean);
 
 // Middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, postman) or localhost origins
-      if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === CLIENT_URL) {
-        callback(null, true);
-      } else {
-        callback(null, true); // Permissive during development
+      // Allow requests with no origin (like mobile apps, curl, postman, server-to-server)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1') ||
+        origin.endsWith('.gemshine.tech') ||
+        origin === 'https://gemshine.tech'
+      ) {
+        return callback(null, true);
       }
+      return callback(null, true); // Permissive fallback
     },
     credentials: true,
   })
@@ -48,7 +67,8 @@ app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to Sastika Mobiles API Server',
     health: '/api/health',
-    documentation: 'See /api/products, /api/orders, /api/tickets, /api/auth',
+    documentation: 'See /api/products, /api/orders, /api/tickets, /api/auth, /api/flash-deals',
+    port: PORT,
   });
 });
 
@@ -60,20 +80,23 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Start Server and Connect DB
+let serverInstance;
 const startServer = async () => {
   await connectDB();
-  const server = app.listen(PORT, () => {
+  serverInstance = app.listen(PORT, '0.0.0.0', () => {
     console.log(`===============================================`);
     console.log(`🚀 Sastika Mobiles Server is running on port ${PORT}`);
-    console.log(`📡 API Base:   http://localhost:${PORT}/api`);
-    console.log(`🩺 Health:     http://localhost:${PORT}/api/health`);
-    console.log(`🛒 Products:   http://localhost:${PORT}/api/products`);
-    console.log(`📦 Orders:     http://localhost:${PORT}/api/orders`);
-    console.log(`🔧 Tickets:    http://localhost:${PORT}/api/tickets`);
+    console.log(`📡 API Base:   http://0.0.0.0:${PORT}/api`);
+    console.log(`🩺 Health:     http://0.0.0.0:${PORT}/api/health`);
+    console.log(`🛒 Products:   http://0.0.0.0:${PORT}/api/products`);
+    console.log(`📦 Orders:     http://0.0.0.0:${PORT}/api/orders`);
+    console.log(`🔧 Tickets:    http://0.0.0.0:${PORT}/api/tickets`);
+    console.log(`⚡ Flash:      http://0.0.0.0:${PORT}/api/flash-deals`);
+    console.log(`🌐 Subdomain:  https://sastika-mobiles.gemshine.tech`);
     console.log(`===============================================`);
   });
 
-  server.on('error', (err) => {
+  serverInstance.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
       console.error(`❌ Port ${PORT} is already in use by another process.`);
       console.error(`👉 Run in PowerShell to free it: Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force`);
@@ -81,17 +104,22 @@ const startServer = async () => {
       console.error('❌ Server startup error:', err);
     }
   });
+};
 
-  const shutdown = () => {
-    console.log('\n🛑 Shutting down server gracefully...');
-    server.close(() => {
-      console.log('✅ Port 5000 released.');
+// Graceful shutdown handling for PM2 and Docker
+const handleShutdown = (signal) => {
+  console.log(`\n🛑 [${signal}] Graceful shutdown initiated...`);
+  if (serverInstance) {
+    serverInstance.close(() => {
+      console.log('✅ HTTP server closed.');
       process.exit(0);
     });
-  };
-
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
+  } else {
+    process.exit(0);
+  }
 };
+
+process.on('SIGINT', () => handleShutdown('SIGINT'));
+process.on('SIGTERM', () => handleShutdown('SIGTERM'));
 
 startServer();
