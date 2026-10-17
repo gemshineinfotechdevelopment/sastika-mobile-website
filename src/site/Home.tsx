@@ -212,7 +212,7 @@ function FlashDeal({ items, onAdd }: { items: ReturnType<typeof useStore>['produ
           <Reveal key={p.id} delay={i * 120} dir="zoom">
             <div style={{ background: '#fff', borderRadius: 18, padding: 10, border: `1px solid ${C.border}` }}>
               <div onClick={() => nav(`/product/${p.id}`)} style={{ cursor: 'pointer', height: 96, borderRadius: 12, background: C.tint2, display: 'grid', placeItems: 'center' }}>
-                <ProductArt category={p.category} color={p.color} size={84} float />
+                <ProductArt category={p.category} color={p.color} size={84} image={p.image} alt={p.name} float />
               </div>
               <div style={{ fontSize: 12.5, fontWeight: 700, margin: '8px 0 2px', minHeight: 32, lineHeight: 1.25 }}>{p.name}</div>
               <div style={{ display: 'flex', gap: 5, alignItems: 'baseline' }}>
@@ -321,7 +321,7 @@ function Spotlight({ onBuy }: { onBuy: (id: string) => void }) {
               <div style={{ fontSize: 26, fontWeight: 800 }}>{money(p.price)}</div>
             </div>
             <div style={{ animation: 'tilt3d 7s ease-in-out infinite', filter: 'drop-shadow(0 20px 24px rgba(0,0,0,.4))' }}>
-              <ProductArt category="phone" color={p.color} size={170} />
+              <ProductArt category="phone" color={p.color} size={170} image={p.image} alt={p.name} />
             </div>
           </div>
           <Btn variant="accent" full onClick={() => onBuy(p.id)} style={{ marginTop: 14 }}>

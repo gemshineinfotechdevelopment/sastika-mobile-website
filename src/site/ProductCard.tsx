@@ -55,7 +55,7 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
 
       <div onClick={() => nav(`/product/${p.id}`)} style={{ cursor: 'pointer' }}>
         <div style={{ height: compact ? 110 : 140, borderRadius: 14, background: `linear-gradient(160deg, ${C.tint2}, ${C.tint})`, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
-          <ProductArt category={p.category} color={p.color} size={compact ? 92 : 118} />
+          <ProductArt category={p.category} color={p.color} size={compact ? 92 : 118} image={p.image} alt={p.name} />
         </div>
         <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, marginTop: 10 }}>{p.brand.toUpperCase()}</div>
         <div style={{ fontSize: 13.5, fontWeight: 700, lineHeight: 1.25, minHeight: 34, marginTop: 2 }}>{p.name}</div>

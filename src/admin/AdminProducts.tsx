@@ -18,9 +18,23 @@ type Draft = {
   color: string;
   description: string;
   specs: string;
+  image: string;
 };
 
-const EMPTY: Draft = { name: '', brand: '', category: 'phone', price: '', mrp: '', stock: '', reorderAt: '10', sku: '', color: '#2f7d6d', description: '', specs: '' };
+const EMPTY: Draft = {
+  name: '',
+  brand: '',
+  category: 'phone',
+  price: '',
+  mrp: '',
+  stock: '',
+  reorderAt: '10',
+  sku: '',
+  color: '#2f7d6d',
+  description: '',
+  specs: '',
+  image: '',
+};
 
 export default function AdminProducts() {
   const { products, addProduct, updateProduct, deleteProduct } = useStore();
@@ -85,8 +99,8 @@ export default function AdminProducts() {
               <tr key={p.id} className="row-hover" style={{ animation: `fadeUp .35s ease ${Math.min(i, 10) * 30}ms both` }}>
                 <td style={td}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 11, background: C.tint, display: 'grid', placeItems: 'center' }}>
-                      <ProductArt category={p.category} color={p.color} size={36} />
+                    <div style={{ width: 46, height: 46, borderRadius: 11, background: C.tint, display: 'grid', placeItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                      <ProductArt category={p.category} color={p.color} size={40} image={p.image} alt={p.name} />
                     </div>
                     <div style={{ fontWeight: 700, maxWidth: 260 }}>{p.name}</div>
                   </div>
@@ -137,6 +151,7 @@ export default function AdminProducts() {
             color: editing.color,
             description: editing.description,
             specs: editing.specs.join('\n'),
+            image: editing.image || '',
           }}
           submitLabel="Save Changes"
           onClose={close}
@@ -148,13 +163,21 @@ export default function AdminProducts() {
         />
       )}
       {confirmDel && (
-        <Modal title="Delete product?" onClose={() => setConfirmDel(null)} width={440}>
-          <p style={{ marginTop: 0, color: C.muted, fontSize: 14 }}>
-            <b style={{ color: C.text }}>{confirmDel.name}</b> will be removed from the catalogue and the storefront.
+        <Modal title="Confirm deletion" onClose={() => setConfirmDel(null)} width={420}>
+          <p style={{ margin: '0 0 16px', fontSize: 14 }}>
+            Are you sure you want to delete <strong>{confirmDel.name}</strong>? This removes it from the store catalog.
           </p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
             <AButton variant="ghost" onClick={() => setConfirmDel(null)}>Cancel</AButton>
-            <AButton variant="danger" onClick={() => { deleteProduct(confirmDel.id); setConfirmDel(null); }}>Delete</AButton>
+            <AButton
+              variant="danger"
+              onClick={() => {
+                deleteProduct(confirmDel.id);
+                setConfirmDel(null);
+              }}
+            >
+              Delete
+            </AButton>
           </div>
         </Modal>
       )}
@@ -179,6 +202,7 @@ function toProduct(d: Draft): Omit<Product, 'id'> {
     reorderAt: Number(d.reorderAt) || 0,
     sku: d.sku.trim() || 'SKU-' + Date.now().toString(36).toUpperCase(),
     description: d.description.trim() || 'Genuine product with Sastika warranty.',
+    image: d.image.trim() || undefined,
   };
 }
 
@@ -199,6 +223,22 @@ function ProductForm({
   const [error, setError] = useState('');
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((x) => ({ ...x, [k]: v }));
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (PNG, JPG, WebP)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        set('image', reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const submit = () => {
     if (d.name.trim().length < 3) return setError('Product name is required');
     if (!(Number(d.price) > 0)) return setError('Enter a valid selling price');
@@ -207,40 +247,129 @@ function ProductForm({
   };
 
   return (
-    <Modal title={title} onClose={onClose} width={700}>
+    <Modal title={title} onClose={onClose} width={740}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
         <div style={{ gridColumn: '1 / -1' }}>
-          <FieldRow label="PRODUCT NAME"><input style={field} value={d.name} onChange={(e) => set('name', e.target.value)} placeholder="e.g. OnePlus 12 5G (16GB + 512GB)" /></FieldRow>
+          <FieldRow label="PRODUCT NAME (பொருளின் பெயர்)">
+            <input style={field} value={d.name} onChange={(e) => set('name', e.target.value)} placeholder="e.g. OnePlus 12 5G (16GB + 512GB)" />
+          </FieldRow>
         </div>
-        <FieldRow label="BRAND"><input style={field} value={d.brand} onChange={(e) => set('brand', e.target.value)} placeholder="OnePlus" /></FieldRow>
-        <FieldRow label="CATEGORY">
+
+        {/* Product Photo Upload Section */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <FieldRow label="PRODUCT PHOTO / PICTURE (மொபைல் படம்)">
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center', background: C.tint2, padding: 12, borderRadius: 14, border: `1px solid ${C.border}` }}>
+              <div
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 12,
+                  background: '#fff',
+                  border: `1.5px dashed ${C.border}`,
+                  display: 'grid',
+                  placeItems: 'center',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                }}
+              >
+                <ProductArt category={d.category} color={d.color} size={64} image={d.image} alt={d.name} />
+              </div>
+
+              <div style={{ flex: 1, minWidth: 240, display: 'grid', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <label
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '8px 14px',
+                      borderRadius: 10,
+                      background: C.primary,
+                      color: '#fff',
+                      fontSize: 12.5,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    📁 Choose Photo
+                    <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
+                  </label>
+                  {d.image && (
+                    <AButton small variant="ghost" onClick={() => set('image', '')}>
+                      ✕ Remove
+                    </AButton>
+                  )}
+                  <span style={{ fontSize: 11.5, color: C.muted }}>PNG, JPG or WebP</span>
+                </div>
+
+                <input
+                  style={{ ...field, fontSize: 12.5, padding: '7px 11px' }}
+                  value={d.image}
+                  onChange={(e) => set('image', e.target.value)}
+                  placeholder="Or paste direct image URL (https://...)"
+                />
+              </div>
+            </div>
+          </FieldRow>
+        </div>
+
+        <FieldRow label="BRAND (பிராண்ட்)">
+          <input style={field} value={d.brand} onChange={(e) => set('brand', e.target.value)} placeholder="OnePlus, Apple, Samsung..." />
+        </FieldRow>
+
+        <FieldRow label="CATEGORY (வகை)">
           <select style={field} value={d.category} onChange={(e) => set('category', e.target.value as Category)}>
             <option value="phone">Smartphone</option>
             <option value="accessory">Accessory</option>
             <option value="audio">Audio</option>
           </select>
         </FieldRow>
-        <FieldRow label="SELLING PRICE (₹)"><input style={field} type="number" min={0} value={d.price} onChange={(e) => set('price', e.target.value)} /></FieldRow>
-        <FieldRow label="MRP (₹)"><input style={field} type="number" min={0} value={d.mrp} onChange={(e) => set('mrp', e.target.value)} /></FieldRow>
-        <FieldRow label="OPENING STOCK"><input style={field} type="number" min={0} value={d.stock} onChange={(e) => set('stock', e.target.value)} /></FieldRow>
-        <FieldRow label="REORDER LEVEL"><input style={field} type="number" min={0} value={d.reorderAt} onChange={(e) => set('reorderAt', e.target.value)} /></FieldRow>
-        <FieldRow label="SKU"><input style={field} value={d.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto-generated if empty" /></FieldRow>
+
+        <FieldRow label="SELLING PRICE (விற்பனை விலை ₹)">
+          <input style={field} type="number" min={0} value={d.price} onChange={(e) => set('price', e.target.value)} />
+        </FieldRow>
+
+        <FieldRow label="MRP (எம்.ஆர்.பி ₹)">
+          <input style={field} type="number" min={0} value={d.mrp} onChange={(e) => set('mrp', e.target.value)} />
+        </FieldRow>
+
+        <FieldRow label="OPENING STOCK (இருப்பு)">
+          <input style={field} type="number" min={0} value={d.stock} onChange={(e) => set('stock', e.target.value)} />
+        </FieldRow>
+
+        <FieldRow label="REORDER LEVEL (எச்சரிக்கை இருப்பு)">
+          <input style={field} type="number" min={0} value={d.reorderAt} onChange={(e) => set('reorderAt', e.target.value)} />
+        </FieldRow>
+
+        <FieldRow label="SKU / MODEL CODE">
+          <input style={field} value={d.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto-generated if empty" />
+        </FieldRow>
+
         <FieldRow label="FINISH COLOUR">
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <input type="color" value={d.color} onChange={(e) => set('color', e.target.value)} style={{ width: 52, height: 42, border: 'none', background: 'none', padding: 0 }} />
             <div style={{ width: 52, height: 42, display: 'grid', placeItems: 'center', background: C.tint, borderRadius: 10 }}>
-              <ProductArt category={d.category} color={d.color} size={34} />
+              <ProductArt category={d.category} color={d.color} size={34} image={d.image} />
             </div>
           </div>
         </FieldRow>
+
         <div style={{ gridColumn: '1 / -1' }}>
-          <FieldRow label="KEY SPECS (one per line)"><textarea style={{ ...field, minHeight: 84, resize: 'vertical' }} value={d.specs} onChange={(e) => set('specs', e.target.value)} placeholder={'Snapdragon 8 Gen 3\n5400mAh • 100W'} /></FieldRow>
+          <FieldRow label="KEY SPECS (one per line)">
+            <textarea style={{ ...field, minHeight: 74, resize: 'vertical' }} value={d.specs} onChange={(e) => set('specs', e.target.value)} placeholder={'Snapdragon 8 Gen 3\n50MP OIS Camera\n5400mAh • 100W Charging'} />
+          </FieldRow>
         </div>
+
         <div style={{ gridColumn: '1 / -1' }}>
-          <FieldRow label="DESCRIPTION"><textarea style={{ ...field, minHeight: 64, resize: 'vertical' }} value={d.description} onChange={(e) => set('description', e.target.value)} /></FieldRow>
+          <FieldRow label="DESCRIPTION (விவரம்)">
+            <textarea style={{ ...field, minHeight: 58, resize: 'vertical' }} value={d.description} onChange={(e) => set('description', e.target.value)} />
+          </FieldRow>
         </div>
       </div>
+
       {error && <div style={{ color: C.danger, fontWeight: 700, fontSize: 13, marginTop: 12 }}>{error}</div>}
+
       <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 18 }}>
         <AButton variant="ghost" onClick={onClose}>Discard</AButton>
         <AButton onClick={submit}>{submitLabel}</AButton>

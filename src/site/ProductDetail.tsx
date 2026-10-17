@@ -63,7 +63,7 @@ export default function ProductDetail() {
       <div style={{ margin: '6px 18px 0', height: 280, borderRadius: 28, background: `radial-gradient(circle at 50% 40%, #fff, ${C.tint})`, display: 'grid', placeItems: 'center', position: 'relative', overflow: 'hidden', border: `1px solid ${C.border}` }}>
         <span style={{ position: 'absolute', width: 220, height: 220, borderRadius: '50%', background: art, opacity: 0.18, filter: 'blur(30px)', transition: 'background .5s ease', animation: 'orb 9s ease-in-out infinite' }} />
         <div key={art} style={{ animation: 'bounceIn .6s ease both', filter: 'drop-shadow(0 22px 22px rgba(0,0,0,.25))' }}>
-          <ProductArt category={p.category} color={art} size={p.category === 'phone' ? 230 : 190} float />
+          <ProductArt category={p.category} color={art} size={p.category === 'phone' ? 230 : 190} image={p.image} alt={p.name} float />
         </div>
         <div style={{ position: 'absolute', top: 14, left: 14, display: 'flex', gap: 6 }}>
           {off > 0 && <Pill tone="accent">{off}% OFF</Pill>}

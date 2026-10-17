@@ -17,6 +17,7 @@ export interface Product {
   sku: string;
   description: string;
   storage?: string[];
+  image?: string;
 }
 
 export interface CartLine {

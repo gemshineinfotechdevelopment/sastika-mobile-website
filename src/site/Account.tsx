@@ -73,7 +73,7 @@ export default function Account() {
               <div key={o.id} style={{ background: '#fff', borderRadius: 20, border: `1px solid ${C.border}`, marginBottom: 10, overflow: 'hidden', animation: `fadeUp .4s ease ${idx * 60}ms both` }}>
                 <button onClick={() => setOpen(isOpen ? null : o.id)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: 14, textAlign: 'left' }}>
                   <div style={{ width: 52, height: 52, borderRadius: 14, background: C.tint, display: 'grid', placeItems: 'center' }}>
-                    {first && <ProductArt category={first.category} color={first.color} size={44} />}
+                    {first && <ProductArt category={first.category} color={first.color} size={44} image={first.image} alt={first.name} />}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 800, fontSize: 13.5 }}>{o.id}</div>
