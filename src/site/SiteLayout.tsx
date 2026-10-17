@@ -20,7 +20,7 @@ const DRAWER: { to: string; label: string; icon: IconName }[] = [
 export default function SiteLayout() {
   const { pathname } = useLocation();
   const nav = useNavigate();
-  const { cartCount, wishlist, products } = useStore();
+  const { cartCount, wishlist, products, logo } = useStore();
   const [drawer, setDrawer] = useState(false);
   const [searching, setSearching] = useState(false);
   const [q, setQ] = useState('');
@@ -84,7 +84,7 @@ export default function SiteLayout() {
             </button>
             <div onClick={() => nav('/')} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer' }}>
               <img
-                src={logoImg}
+                src={logo || logoImg}
                 alt="Sastika Mobiles Logo"
                 style={{
                   width: 38,
@@ -146,7 +146,7 @@ export default function SiteLayout() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
                 <div onClick={() => { setDrawer(false); nav('/'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                   <img
-                    src={logoImg}
+                    src={logo || logoImg}
                     alt="Sastika Mobiles Logo"
                     style={{
                       width: 44,

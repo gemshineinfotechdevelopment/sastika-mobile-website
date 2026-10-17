@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { PRODUCTS, SEED_ORDERS, SEED_TICKETS } from './data';
 import type { CartLine, Order, OrderStatus, Product, Ticket, TicketStatus } from './types';
 import { api } from './api';
+import defaultLogo from './assets/logo.png';
 
 function useLocalState<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState<T>(() => {
@@ -56,6 +57,9 @@ interface StoreShape {
   addTicket: (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'>) => string;
   setTicketStatus: (id: string, status: TicketStatus) => void;
 
+  logo: string;
+  setLogo: (logo: string) => void;
+
   serverOnline: boolean;
 }
 
@@ -68,6 +72,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [coupon, setCoupon] = useLocalState<string>('coupon', '');
   const [orders, setOrders] = useLocalState<Order[]>('orders', SEED_ORDERS);
   const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
+  const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
 
   // Sync with backend API on mount
@@ -269,6 +274,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addTicket,
       setTicketStatus,
 
+      logo,
+      setLogo,
+
       serverOnline,
     }),
     [
@@ -286,6 +294,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       tickets,
       addTicket,
       setTicketStatus,
+      logo,
+      setLogo,
       serverOnline,
       setCart,
       setWishlist,

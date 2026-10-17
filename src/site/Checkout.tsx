@@ -19,7 +19,7 @@ export default function Checkout() {
   const nav = useNavigate();
   const { cart, products, coupon, placeOrder } = useStore();
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: 'Chennai', pin: '', payment: 'UPI' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: 'Sivakasi', pin: '', payment: 'UPI' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const t = computeTotals(cart, products, coupon);

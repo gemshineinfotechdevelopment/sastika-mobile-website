@@ -17,9 +17,9 @@ const LINKS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
 export default function AdminLayout() {
   const nav = useNavigate();
   const { pathname } = useLocation();
-  const { products, orders, tickets } = useStore();
+  const { products, orders, tickets, logo } = useStore();
   const [q, setQ] = useState('');
-  const [branch, setBranch] = useState('Chennai · T. Nagar Flagship');
+  const [branch, setBranch] = useState('கிளை 1: சித்துராஜபுரம் (Sithurajapuram)');
 
   const low = products.filter((p) => p.stock <= p.reorderAt).length;
   const openOrders = orders.filter((o) => o.status === 'Placed' || o.status === 'Packed').length;
@@ -36,7 +36,7 @@ export default function AdminLayout() {
       <aside style={{ width: 252, background: C.primary, color: '#fff', padding: '22px 14px', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '0 8px 22px' }}>
           <img
-            src={logoImg}
+            src={logo || logoImg}
             alt="Sastika Mobiles Logo"
             style={{
               width: 40,
@@ -99,9 +99,8 @@ export default function AdminLayout() {
             />
           </div>
           <select value={branch} onChange={(e) => setBranch(e.target.value)} style={{ padding: '10px 12px', borderRadius: 12, border: `1.5px solid ${C.border}`, background: '#fff', fontWeight: 700, fontSize: 13 }}>
-            <option>Chennai · T. Nagar Flagship</option>
-            <option>Chennai · OMR Tech Hub</option>
-            <option>Chennai · Anna Nagar</option>
+            <option>கிளை 1: சித்துராஜபுரம் (Sithurajapuram)</option>
+            <option>கிளை 2: சிவகாசி (Sivakasi Bus Stand)</option>
           </select>
           <div style={{ flex: 1 }} />
           <button onClick={() => nav('/admin/products?new=1')} className="tap" style={{ background: C.primary, color: '#fff', fontWeight: 700, fontSize: 13, padding: '10px 14px', borderRadius: 11, display: 'flex', gap: 6, alignItems: 'center' }}>

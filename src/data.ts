@@ -143,9 +143,18 @@ export const SERVICES = [
 ] as const;
 
 export const STORES = [
-  { name: 'T. Nagar Flagship', addr: 'Usman Road, T. Nagar, Chennai 600017', hours: '10:00 AM – 09:30 PM', tag: 'Flagship Experience' },
-  { name: 'OMR Tech Hub', addr: 'Sholinganallur, OMR, Chennai 600119', hours: '10:00 AM – 09:00 PM', tag: 'Service Lab' },
-  { name: 'Anna Nagar', addr: '2nd Avenue, Anna Nagar, Chennai 600040', hours: '10:30 AM – 09:00 PM', tag: 'Express Lounge' },
+  {
+    name: 'கிளை 1 (Branch 1) - Sithurajapuram',
+    addr: 'ஸ்ரீ ரெங்கா காம்ப்ளக்ஸ், கென்னடி மெடிக்கல் அருகில், சித்துராஜபுரம் (Sri Renga Complex, Near Kennedy Medical, Sithurajapuram)',
+    hours: '09:30 AM – 09:30 PM',
+    tag: 'Main Store & Sales',
+  },
+  {
+    name: 'கிளை 2 (Branch 2) - Sivakasi Bus Stand',
+    addr: 'சிவகாசி பஸ் நிலையம், சிவகாசி (Sivakasi Bus Stand, Sivakasi)',
+    hours: '09:30 AM – 09:30 PM',
+    tag: 'Express Service & Accessories',
+  },
 ];
 
 export const REVENUE_SERIES = [

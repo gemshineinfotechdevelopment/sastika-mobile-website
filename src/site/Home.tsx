@@ -113,7 +113,7 @@ function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => voi
       <div style={{ position: 'relative', zIndex: 2 }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 99, background: 'rgba(255,255,255,.12)', fontSize: 11.5, fontWeight: 700, animation: 'fadeUp .6s ease both' }}>
           <span style={{ width: 7, height: 7, borderRadius: 9, background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
-          Certified Store • Chennai
+          Certified Store • Sivakasi & Sithurajapuram
         </div>
 
         <h1 style={{ margin: '14px 0 10px', fontSize: 38, lineHeight: 1.05, fontWeight: 800, letterSpacing: -1.2, animation: 'fadeUp .7s ease .1s both' }}>

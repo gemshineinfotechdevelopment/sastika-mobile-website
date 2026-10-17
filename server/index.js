@@ -5,8 +5,15 @@ import { connectDB } from './config/db.js';
 import apiRouter from './routes/api.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
-// Load environment variables
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from server/.env
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config(); // fallback to root if any
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,7 +62,7 @@ app.use(errorHandler);
 // Start Server and Connect DB
 const startServer = async () => {
   await connectDB();
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`===============================================`);
     console.log(`🚀 Sastika Mobiles Server is running on port ${PORT}`);
     console.log(`📡 API Base:   http://localhost:${PORT}/api`);
@@ -64,6 +71,14 @@ const startServer = async () => {
     console.log(`📦 Orders:     http://localhost:${PORT}/api/orders`);
     console.log(`🔧 Tickets:    http://localhost:${PORT}/api/tickets`);
     console.log(`===============================================`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use by another process. Run: Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force`);
+    } else {
+      console.error('❌ Server startup error:', err);
+    }
   });
 };
 
