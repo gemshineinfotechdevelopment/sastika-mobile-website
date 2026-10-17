@@ -4,13 +4,7 @@ import { C } from '../theme';
 import { useStore } from '../store';
 import Icon, { type IconName } from '../components/Icon';
 
-const NAV: { to: string; label: string; icon: IconName }[] = [
-  { to: '/', label: 'Home', icon: 'home' },
-  { to: '/mobiles', label: 'Mobiles', icon: 'phone' },
-  { to: '/services', label: 'Services', icon: 'tool' },
-  { to: '/cart', label: 'Cart', icon: 'cart' },
-  { to: '/account', label: 'Account', icon: 'user' },
-];
+
 
 const DRAWER: { to: string; label: string; icon: IconName }[] = [
   { to: '/', label: 'Home', icon: 'home' },
@@ -59,8 +53,6 @@ export default function SiteLayout() {
   const results = q.trim()
     ? products.filter((p) => (p.name + p.brand).toLowerCase().includes(q.toLowerCase())).slice(0, 5)
     : [];
-
-  const hideNav = pathname.startsWith('/checkout') || pathname.startsWith('/confirmation') || pathname.startsWith('/product/');
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#d7ebe6,#eef7f5)', display: 'flex', justifyContent: 'center' }}>
@@ -129,30 +121,11 @@ export default function SiteLayout() {
         </header>
 
         {/* routed page */}
-        <div ref={scroller} onScroll={onScroll} className="hide-scroll" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: hideNav ? 0 : 76 }}>
+        <div ref={scroller} onScroll={onScroll} className="hide-scroll" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 0 }}>
           <div key={pathname} style={{ animation: 'fadeUp .5s ease both' }}>
             <Outlet />
           </div>
         </div>
-
-        {/* bottom nav */}
-        {!hideNav && (
-          <nav style={{ position: 'absolute', left: 0, right: 0, bottom: 0, background: '#fff', borderTop: `1px solid ${C.border}`, display: 'flex', padding: '8px 6px 12px', zIndex: 15 }}>
-            {NAV.map((n) => (
-              <NavLink key={n.to} to={n.to} end={n.to === '/'} style={{ flex: 1 }}>
-                {({ isActive }) => (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, color: isActive ? C.primary : C.muted, fontSize: 10.5, fontWeight: 700, position: 'relative' }}>
-                    <div style={{ width: 44, height: 28, borderRadius: 14, background: isActive ? C.tint : 'transparent', display: 'grid', placeItems: 'center', transition: 'background .25s ease, transform .25s ease', transform: isActive ? 'translateY(-2px)' : 'none', position: 'relative' }}>
-                      <Icon name={n.icon} size={19} />
-                      {n.to === '/cart' && cartCount > 0 && <Badge n={cartCount} tone="dark" small />}
-                    </div>
-                    {n.label}
-                  </div>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-        )}
 
         {/* drawer */}
         {drawer && (

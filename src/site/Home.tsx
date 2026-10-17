@@ -142,11 +142,29 @@ function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => voi
         </div>
       </div>
 
-      <div style={{ position: 'absolute', right: -6, top: 64, zIndex: 1, animation: 'float 6s ease-in-out infinite', filter: 'drop-shadow(0 24px 30px rgba(0,0,0,.4))' }}>
-        <ProductArt category="phone" color={color} size={210} />
-      </div>
-      <div style={{ position: 'absolute', right: 108, top: 150, zIndex: 1, opacity: 0.85, animation: 'float 7s ease-in-out .8s infinite', filter: 'drop-shadow(0 18px 24px rgba(0,0,0,.35))' }}>
-        <ProductArt category="phone" color="#8b8f96" size={130} />
+      <div
+        style={{
+          position: 'absolute',
+          right: -12,
+          top: 36,
+          zIndex: 1,
+          width: 195,
+          maxWidth: '52%',
+          animation: 'float 6s ease-in-out infinite',
+          filter: 'drop-shadow(0 20px 30px rgba(0,0,0,.45))',
+          pointerEvents: 'none',
+        }}
+      >
+        <img
+          src="/hero-mobiles.png"
+          alt="Premium Smartphones"
+          style={{
+            width: '100%',
+            height: 'auto',
+            display: 'block',
+            objectFit: 'contain',
+          }}
+        />
       </div>
 
       <div style={{ position: 'relative', zIndex: 2, marginTop: 34, padding: '11px 14px', borderRadius: 14, background: 'rgba(0,0,0,.25)', display: 'flex', alignItems: 'center', gap: 10, fontSize: 12.5, animation: 'fadeUp .7s ease .6s both' }}>
