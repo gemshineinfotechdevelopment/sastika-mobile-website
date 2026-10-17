@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { C } from '../theme';
 import Icon from '../components/Icon';
 import { AButton, FieldRow, PageTitle, Tag, Toggle, field, panel } from './ui';
-import { useStore } from '../store';
 import defaultLogo from '../assets/logo.png';
 
 interface Cfg {
@@ -37,17 +36,7 @@ const DEFAULT: Cfg = {
   freeShipAbove: '0',
 };
 
-const STAFF = [
-  { n: 'Mahesh', r: 'Senior Technician', c: C.primary },
-  { n: 'Imran', r: 'Repair Technician', c: C.primarySoft },
-  { n: 'Divya', r: 'Store Manager', c: C.accentDark },
-  { n: 'Karthik', r: 'Inventory Lead', c: C.info },
-];
-
 export default function Settings() {
-  const { logo, setLogo } = useStore();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [cfg, setCfg] = useState<Cfg>(() => {
     try {
       const raw = localStorage.getItem('sastika:settings');
@@ -64,8 +53,6 @@ export default function Settings() {
     }
   });
 
-  const [logoUrlInput, setLogoUrlInput] = useState('');
-  const [logoMsg, setLogoMsg] = useState('');
   const [saved, setSaved] = useState(false);
   const [dirty, setDirty] = useState(false);
 
@@ -75,53 +62,9 @@ export default function Settings() {
     return () => window.clearTimeout(t);
   }, [saved]);
 
-  useEffect(() => {
-    if (!logoMsg) return;
-    const t = window.setTimeout(() => setLogoMsg(''), 2500);
-    return () => window.clearTimeout(t);
-  }, [logoMsg]);
-
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) => {
     setCfg((c) => ({ ...c, [k]: v }));
     setDirty(true);
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload a valid image file (PNG, JPG, SVG, WebP)');
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Image size is too large. Please select an image under 2MB.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setLogo(reader.result);
-        setLogoMsg('✓ Logo uploaded & updated across Storefront and Admin!');
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const applyLogoUrl = () => {
-    if (!logoUrlInput.trim()) return;
-    setLogo(logoUrlInput.trim());
-    setLogoUrlInput('');
-    setLogoMsg('✓ Logo URL applied successfully!');
-  };
-
-  const resetLogo = () => {
-    if (window.confirm('Reset logo back to default Sastika Mobiles logo?')) {
-      setLogo(defaultLogo);
-      setLogoMsg('✓ Logo reset to default.');
-    }
   };
 
   const save = () => {
@@ -156,7 +99,7 @@ export default function Settings() {
     <div>
       <PageTitle
         title="Enterprise Retail Settings"
-        sub="Configure brand logo, shop details, GSTIN tax credentials, store address, and retail controls."
+        sub="Configure shop details, GSTIN tax credentials, store address, and retail controls."
         actions={
           <>
             <AButton variant="danger" onClick={reset}>
@@ -171,41 +114,21 @@ export default function Settings() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, alignItems: 'start' }}>
         <div style={{ display: 'grid', gap: 16 }}>
-          {/* Logo Management Card */}
+          {/* Static Brand Logo Display */}
           <div style={{ ...panel, animation: 'fadeUp .5s ease .05s both' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
                 <div style={{ fontWeight: 800, fontSize: 17 }}>Brand Logo &amp; Identity</div>
                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>
-                  Upload your store logo. It updates automatically across the Storefront Header, Mobile Drawer, and Admin Portal.
+                  Official store logo permanently configured for Sastika Mobiles.
                 </div>
               </div>
-              <Tag tone="green">Active</Tag>
+              <Tag tone="green">Static Logo Active</Tag>
             </div>
-
-            {logoMsg && (
-              <div
-                style={{
-                  background: C.successSoft,
-                  color: C.success,
-                  padding: '10px 14px',
-                  borderRadius: 10,
-                  fontSize: 13,
-                  fontWeight: 700,
-                  marginBottom: 16,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                <Icon name="check" size={16} />
-                {logoMsg}
-              </div>
-            )}
 
             <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
               {/* Previews */}
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div
                     style={{
@@ -222,8 +145,8 @@ export default function Settings() {
                     }}
                   >
                     <img
-                      src={logo || defaultLogo}
-                      alt="Current Logo"
+                      src={defaultLogo}
+                      alt="Official Logo Light"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
@@ -246,8 +169,8 @@ export default function Settings() {
                     }}
                   >
                     <img
-                      src={logo || defaultLogo}
-                      alt="Current Logo Dark"
+                      src={defaultLogo}
+                      alt="Official Logo Dark"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
@@ -255,39 +178,16 @@ export default function Settings() {
                 </div>
               </div>
 
-              {/* Upload Controls */}
-              <div style={{ flex: 1, minWidth: 240, display: 'grid', gap: 10 }}>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
-                  style={{ display: 'none' }}
-                />
-
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <AButton variant="primary" onClick={() => fileInputRef.current?.click()}>
-                    📁 Upload Logo Image
-                  </AButton>
-                  <AButton variant="ghost" onClick={resetLogo}>
-                    🔄 Reset Default
-                  </AButton>
+              {/* Static Asset Note */}
+              <div style={{ flex: 1, minWidth: 240, paddingLeft: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ padding: '3px 9px', borderRadius: 6, background: '#e8f5e9', color: '#2e7d32', fontWeight: 800, fontSize: 11.5 }}>
+                    ✓ Static Brand Asset
+                  </span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: C.muted }}>assets/logo.png</span>
                 </div>
-
-                <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                  <input
-                    style={{ ...field, fontSize: 12.5, padding: '8px 11px' }}
-                    placeholder="Or paste image URL (https://...)"
-                    value={logoUrlInput}
-                    onChange={(e) => setLogoUrlInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && applyLogoUrl()}
-                  />
-                  <AButton small variant="accent" onClick={applyLogoUrl} disabled={!logoUrlInput.trim()}>
-                    Apply
-                  </AButton>
-                </div>
-                <div style={{ fontSize: 11, color: C.muted }}>
-                  Recommended: Square PNG/JPG (at least 200x200px) with transparent or light background. Max 2MB.
+                <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.6 }}>
+                  The logo is permanently loaded from <strong style={{ color: C.primary }}>src/assets/logo.png</strong> and displayed across the storefront header, mobile navigation drawer, tax invoice receipts, and admin portal.
                 </div>
               </div>
             </div>
@@ -447,47 +347,6 @@ export default function Settings() {
             </div>
           </div>
 
-          {/* Staff Accounts */}
-          <div style={{ ...panel, animation: 'fadeUp .5s ease .15s both' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div style={{ fontWeight: 800, fontSize: 17 }}>Staff &amp; Tech Team</div>
-              <Tag tone="gray">{STAFF.length} members</Tag>
-            </div>
-            {STAFF.map((s, i) => (
-              <div
-                key={s.n}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '10px 0',
-                  borderBottom: i < STAFF.length - 1 ? `1px solid ${C.border}` : 'none',
-                  animation: `fadeUp .4s ease ${i * 70}ms both`,
-                }}
-              >
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 99,
-                    background: s.c,
-                    color: '#fff',
-                    display: 'grid',
-                    placeItems: 'center',
-                    fontWeight: 800,
-                  }}
-                >
-                  {s.n[0]}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 13.5 }}>{s.n}</div>
-                  <div style={{ fontSize: 12, color: C.muted }}>{s.r}</div>
-                </div>
-                <Tag tone="green">Active</Tag>
-              </div>
-            ))}
-          </div>
-
           {/* Storage & Sync Card */}
           <div
             style={{
@@ -495,7 +354,7 @@ export default function Settings() {
               background: C.primary,
               color: '#fff',
               border: 'none',
-              animation: 'fadeUp .5s ease .25s both',
+              animation: 'fadeUp .5s ease .15s both',
               position: 'relative',
               overflow: 'hidden',
             }}
@@ -517,7 +376,7 @@ export default function Settings() {
               Real-Time Brand Sync
             </div>
             <div style={{ fontSize: 12.5, opacity: 0.88, lineHeight: 1.55 }}>
-              Any changes made to your store logo, shop name, or address are immediately synchronized in real time across the Storefront, Mobile View, Invoice Engine, and Admin Portal.
+              Any changes made to your store name, address, or contact details are immediately synchronized in real time across the Storefront, Mobile View, Invoice Engine, and Admin Portal.
             </div>
           </div>
         </div>
