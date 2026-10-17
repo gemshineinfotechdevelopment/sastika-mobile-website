@@ -8,6 +8,8 @@ import ProductArt from '../components/ProductArt';
 import { CountUp, FillBar, Marquee, Reveal, Typewriter, useCountdown } from '../components/anim';
 import { Btn, Pill, SectionHead, Stars } from './ui';
 import ProductCard from './ProductCard';
+import heroBannerImg from '../assets/hero-banner.png';
+import logoImg from '../assets/logo.png';
 
 export default function Home() {
   const nav = useNavigate();
@@ -142,11 +144,28 @@ function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => voi
         </div>
       </div>
 
-      <div style={{ position: 'absolute', right: -6, top: 64, zIndex: 1, animation: 'float 6s ease-in-out infinite', filter: 'drop-shadow(0 24px 30px rgba(0,0,0,.4))' }}>
-        <ProductArt category="phone" color={color} size={210} />
-      </div>
-      <div style={{ position: 'absolute', right: 108, top: 150, zIndex: 1, opacity: 0.85, animation: 'float 7s ease-in-out .8s infinite', filter: 'drop-shadow(0 18px 24px rgba(0,0,0,.35))' }}>
-        <ProductArt category="phone" color="#8b8f96" size={130} />
+      <div
+        style={{
+          position: 'absolute',
+          right: -12,
+          top: 36,
+          zIndex: 1,
+          width: 195,
+          maxWidth: '52%',
+          filter: 'drop-shadow(0 20px 30px rgba(0,0,0,.45))',
+          pointerEvents: 'none',
+        }}
+      >
+        <img
+          src={heroBannerImg}
+          alt="Premium Smartphones"
+          style={{
+            width: '100%',
+            height: 'auto',
+            display: 'block',
+            objectFit: 'contain',
+          }}
+        />
       </div>
 
       <div style={{ position: 'relative', zIndex: 2, marginTop: 34, padding: '11px 14px', borderRadius: 14, background: 'rgba(0,0,0,.25)', display: 'flex', alignItems: 'center', gap: 10, fontSize: 12.5, animation: 'fadeUp .7s ease .6s both' }}>
@@ -471,7 +490,24 @@ function Footer() {
   );
   return (
     <footer style={{ margin: '28px 14px 10px', padding: 20, background: '#fff', borderRadius: 24, border: `1px solid ${C.border}` }}>
-      <div style={{ fontWeight: 800, fontSize: 16, color: C.primary }}>SASTIKA MOBILES</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <img
+          src={logoImg}
+          alt="Sastika Mobiles Logo"
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '50%',
+            objectFit: 'cover',
+            border: '1.5px solid #d4af37',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+          }}
+        />
+        <div>
+          <div style={{ fontWeight: 900, fontSize: 16, color: C.primary, letterSpacing: -0.2 }}>SASTIKA</div>
+          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: '#b8860b' }}>MOBILES</div>
+        </div>
+      </div>
       <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.55, margin: '6px 0 14px' }}>Tamil Nadu's trusted destination for certified smartphones, genuine accessories and expert repairs.</p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <div>

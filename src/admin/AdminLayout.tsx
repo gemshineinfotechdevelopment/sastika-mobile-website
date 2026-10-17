@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { C } from '../theme';
 import { useStore } from '../store';
 import Icon, { type IconName } from '../components/Icon';
+import logoImg from '../assets/logo.png';
 
 const LINKS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/admin', label: 'Overview', icon: 'chart', end: true },
@@ -33,13 +34,22 @@ export default function AdminLayout() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: C.bg, minWidth: 1100 }}>
       <aside style={{ width: 252, background: C.primary, color: '#fff', padding: '22px 14px', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 8px 22px' }}>
-          <div style={{ width: 38, height: 38, borderRadius: 11, background: C.accent, display: 'grid', placeItems: 'center' }}>
-            <Icon name="phone" size={20} color={C.primaryDark} />
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '0 8px 22px' }}>
+          <img
+            src={logoImg}
+            alt="Sastika Mobiles Logo"
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '2px solid #d4af37',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            }}
+          />
           <div style={{ lineHeight: 1.1 }}>
-            <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: 0.2 }}>SASTIKA</div>
-            <div style={{ fontSize: 9.5, letterSpacing: 2, opacity: 0.7, fontWeight: 700 }}>ADMIN PORTAL</div>
+            <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 0.2 }}>SASTIKA</div>
+            <div style={{ fontSize: 9.5, letterSpacing: 2, color: C.accent, fontWeight: 800 }}>ADMIN PORTAL</div>
           </div>
         </div>
 
