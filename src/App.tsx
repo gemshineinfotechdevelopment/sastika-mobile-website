@@ -18,6 +18,7 @@ import AdminOrders from './admin/AdminOrders';
 import Inventory from './admin/Inventory';
 import ServiceDesk from './admin/ServiceDesk';
 import Settings from './admin/Settings';
+import AdminFlashDeals from './admin/AdminFlashDeals';
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
       {/* Admin — desktop view */}
       <Route path="admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
+        <Route path="flash-deals" element={<AdminFlashDeals />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="inventory" element={<Inventory />} />

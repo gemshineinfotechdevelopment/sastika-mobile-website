@@ -52,5 +52,14 @@ export const apiCreateTicket = (data: Partial<Ticket>) =>
 export const apiUpdateTicket = (id: string, patch: Partial<Ticket>) =>
   apiFetch<Ticket>(`/tickets/${id}`, { method: 'PUT', body: JSON.stringify(patch) });
 
+// Flash Deal API
+export const apiGetFlashDeal = () => apiFetch<any>('/flash-deals');
+export const apiUpdateFlashDeal = (data: any) =>
+  apiFetch<any>('/flash-deals', { method: 'PUT', body: JSON.stringify(data) });
+export const apiAddFlashDealItem = (data: any) =>
+  apiFetch<any>('/flash-deals/items', { method: 'POST', body: JSON.stringify(data) });
+export const apiDeleteFlashDealItem = (id: string) =>
+  apiFetch<any>(`/flash-deals/items/${id}`, { method: 'DELETE' });
+
 // Health Check
 export const apiCheckHealth = () => apiFetch<{ status: string; database: string }>('/health');
