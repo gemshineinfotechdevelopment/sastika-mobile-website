@@ -168,8 +168,8 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
           zIndex: 2,
         }}
       >
-        {/* Left Content Column */}
-        <div className="hero-content-col" style={{ position: 'relative', zIndex: 2 }}>
+        {/* Content Column */}
+        <div className="hero-content-col" style={{ position: 'relative', zIndex: 2, width: '100%' }}>
           {/* Heading */}
           <h1
             className="hero-main-title"
@@ -179,6 +179,7 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               lineHeight: 1.2,
               fontWeight: 900,
               letterSpacing: -0.4,
+              maxWidth: '65%',
             }}
           >
             Upgrade to Your Next
@@ -190,13 +191,25 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
             With Trust &amp; GST Bill.
           </h1>
 
-          {/* Action Buttons Row - Compact & Sleek */}
-          <div className="hero-actions-row" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
+          {/* Action Buttons Row - Side-by-Side (Left & Right) */}
+          <div
+            className="hero-actions-row"
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 8,
+              marginTop: 14,
+              position: 'relative',
+              zIndex: 3,
+            }}
+          >
             <button
               className="tap hero-btn hero-btn-primary"
               onClick={onShop}
               style={{
-                padding: '7px 13px',
+                flex: '1 1 50%',
+                minWidth: 0,
+                padding: '8px 10px',
                 borderRadius: 10,
                 background: C.accent,
                 color: C.primaryDark,
@@ -204,7 +217,9 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
                 fontSize: 11.5,
                 cursor: 'pointer',
                 border: 'none',
-                boxShadow: '0 4px 12px rgba(246,196,69,0.3)',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.22)',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
               }}
             >
               Explore Mobiles (78 In Stock)
@@ -213,15 +228,19 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               className="tap hero-btn hero-btn-secondary"
               onClick={onGear}
               style={{
-                padding: '7px 12px',
+                flex: '1 1 50%',
+                minWidth: 0,
+                padding: '8px 10px',
                 borderRadius: 10,
-                background: 'rgba(255,255,255,.14)',
+                background: 'rgba(11,74,67,0.7)',
                 color: '#fff',
                 fontWeight: 700,
                 fontSize: 11.5,
                 border: '1.2px solid rgba(255,255,255,.3)',
                 cursor: 'pointer',
                 backdropFilter: 'blur(8px)',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
               }}
             >
               Care &amp; Service Desk
@@ -240,6 +259,8 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               color: 'rgba(255,255,255,0.85)',
               fontSize: 11,
               fontWeight: 600,
+              position: 'relative',
+              zIndex: 3,
             }}
           >
             <span>✓ GSTIN Tax Invoice</span>
@@ -248,20 +269,19 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
           </div>
         </div>
 
-        {/* Larger Phone Image - Positioned behind buttons / right side */}
+        {/* Larger Static Phone Image - Positioned behind buttons / right side */}
         <div
           className="hero-phones-img-wrapper"
           style={{
             position: 'absolute',
-            right: 0,
-            bottom: -10,
-            width: 'clamp(145px, 42vw, 360px)',
+            right: -10,
+            bottom: -15,
+            width: 'clamp(185px, 52vw, 420px)',
             zIndex: 1,
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'flex-end',
-            filter: 'drop-shadow(0 16px 32px rgba(0,0,0,.5))',
-            animation: 'float 6s ease-in-out infinite',
+            filter: 'drop-shadow(0 16px 36px rgba(0,0,0,.55))',
             pointerEvents: 'none',
           }}
         >

@@ -69,12 +69,13 @@ html,body{overflow-x:hidden;width:100%;max-width:100%}
   .site-mobile-bottom-nav { display: none !important; }
   .mobile-hide { display: none !important; }
   .hero-wrapper { margin: 10px 8px 0 !important; padding: 22px 14px 18px !important; border-radius: 20px !important; overflow: hidden !important; position: relative !important; }
-  .hero-inner-container { position: relative !important; min-height: 190px !important; }
-  .hero-content-col { max-width: 63% !important; position: relative !important; z-index: 2 !important; }
-  .hero-phones-img-wrapper { position: absolute !important; right: -8px !important; bottom: -12px !important; width: clamp(145px, 42vw, 240px) !important; z-index: 1 !important; pointer-events: none !important; }
-  .hero-actions-row { display: flex !important; gap: 6px !important; flex-wrap: wrap !important; margin-top: 12px !important; }
-  .hero-actions-row .hero-btn { padding: 6px 11px !important; font-size: 11px !important; border-radius: 8px !important; flex: 0 1 auto !important; }
-  .hero-badges-row { display: flex !important; flex-wrap: wrap !important; gap: 4px 8px !important; font-size: 10.5px !important; margin-top: 10px !important; }
+  .hero-inner-container { position: relative !important; min-height: 200px !important; }
+  .hero-content-col { width: 100% !important; max-width: 100% !important; position: relative !important; z-index: 2 !important; }
+  .hero-main-title { max-width: 65% !important; }
+  .hero-actions-row { display: flex !important; flex-direction: row !important; gap: 8px !important; flex-wrap: nowrap !important; margin-top: 14px !important; position: relative !important; z-index: 3 !important; }
+  .hero-actions-row .hero-btn { flex: 1 1 50% !important; min-width: 0 !important; padding: 8px 6px !important; font-size: 11px !important; border-radius: 9px !important; text-align: center !important; }
+  .hero-phones-img-wrapper { position: absolute !important; right: -12px !important; bottom: -15px !important; width: clamp(190px, 54vw, 360px) !important; z-index: 1 !important; pointer-events: none !important; animation: none !important; transform: none !important; }
+  .hero-badges-row { display: flex !important; flex-wrap: wrap !important; gap: 4px 8px !important; font-size: 10.5px !important; margin-top: 12px !important; position: relative !important; z-index: 3 !important; }
   .stats-band-box { grid-template-columns: repeat(2, 1fr) !important; gap: 16px 10px !important; padding: 20px 14px !important; border-radius: 20px !important; margin-top: 24px !important; }
   .categories-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
   .spotlight-card { padding: 22px 16px !important; grid-template-columns: 1fr !important; gap: 20px !important; border-radius: 22px !important; }
