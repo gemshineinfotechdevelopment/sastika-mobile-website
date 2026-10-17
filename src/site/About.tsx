@@ -10,22 +10,22 @@ const PILLARS: { icon: IconName; t: string; s: string }[] = [
   {
     icon: 'award',
     t: '100% Original Sealed Mobiles',
-    s: 'அனைத்து புதிய மொபைல்களுக்கும் நிறுவனத்தின் 1 வருட அதிகாரப்பூர்வ வாரண்டி மற்றும் ஜிஎஸ்டி பில் (GSTIN: 33BQTPJ5275L1Z6) உண்டு.',
+    s: 'Every smartphone is 100% brand new, factory sealed with official 1-year brand warranty and authentic GST Tax Invoice (GSTIN: 33BQTPJ5275L1Z6).',
   },
   {
     icon: 'tool',
     t: 'Multi-Brand Sales & Expert Service',
-    s: 'சேல்ஸ் மற்றும் சர்வீஸ் இரண்டும் ஒரே இடத்தில். அனுபவம் வாய்ந்த டெக்னீஷியன்கள் மூலம் சிறந்த முறையில் பழுது நீக்கம்.',
+    s: 'Sales and certified service under one roof. Our experienced technicians provide trusted diagnostic and repair support.',
   },
   {
     icon: 'tag',
     t: 'Best Price Guarantee in Sivakasi',
-    s: 'சிவகாசி மற்றும் சுற்றுவட்டாரப் பகுதியில் சிறந்த விலை மற்றும் சிறப்பு சலுகைகளுடன் முன்னணி பிராண்ட் மொபைல்கள்.',
+    s: 'Direct distributor pricing with exclusive exchange offers and discounts on top smartphone brands in Sivakasi and Sithurajapuram.',
   },
   {
     icon: 'shield',
     t: 'Authorized Company Service Support',
-    s: 'ஏதேனும் பழுது ஏற்பட்டால் அந்தந்த நிறுவனத்தின் அங்கீகரிக்கப்பட்ட சர்வீஸ் சென்டரில் தடையின்றி சர்வீஸ் பெற முழு வழிகாட்டுதல்.',
+    s: 'Comprehensive assistance and documentation to ensure prompt, smooth servicing at official brand service centers.',
   },
 ];
 
@@ -33,27 +33,27 @@ const RULES = [
   {
     no: '1',
     title: '1 Year Brand Warranty',
-    desc: 'அனைத்து புதிய மொபைல்களுக்கும் 1 வருடம் கம்பெனி வாரண்டி உண்டு.',
+    desc: 'All brand new smartphones come with 1 year official manufacturer warranty.',
   },
   {
     no: '2',
     title: 'Company Service Center Assistance',
-    desc: 'ஏதேனும் பழுது ஏற்பட்டால் அந்தந்த கம்பெனி சர்வீஸ் சென்டரில் விரைவாக சர்வீஸ் செய்து கொள்ளலாம்.',
+    desc: 'Full assistance provided for quick service and repairs at authorized brand centers.',
   },
   {
     no: '3',
     title: 'Genuine Accessories & Care',
-    desc: 'அசல் உதிரி பாகங்கள், உயர்தர சார்ஜர்கள், கவர்கள் மற்றும் டெம்பர்டு கிளாஸ் கிடைக்கும்.',
+    desc: 'Original accessories, certified fast chargers, premium cases, and tempered glass available.',
   },
   {
     no: '4',
     title: 'Transparent GST Billing',
-    desc: 'ஒவ்வொரு விற்பனைக்கும் முறையான GST Tax Invoice (GSTIN: 33BQTPJ5275L1Z6) வழங்கப்படும்.',
+    desc: 'Official GST Tax Invoice (GSTIN: 33BQTPJ5275L1Z6) generated and provided with every device.',
   },
   {
     no: '5',
     title: 'Friendly After-Sales Support',
-    desc: 'மொபைல் டேட்டா மாற்றம் மற்றும் புதிய போன் செட்டிங்ஸ் செய்ய எங்களின் பணியாளர்கள் எப்போதும் உதவுவார்கள்.',
+    desc: 'Our staff will gladly assist you with initial setup, contacts transfer, and WhatsApp data migration.',
   },
 ];
 
@@ -76,7 +76,7 @@ export default function About() {
           letterSpacing: 0.3,
         }}
       >
-        ஸ்ரீ பால முருகன் துணை &bull; ஸ்ரீ கோட்டை கருப்பசாமி துணை &bull; ஸ்ரீ குருவம்மாள் துணை
+        Sri Bala Murugan Thunai &bull; Sri Kottai Karuppasamy Thunai &bull; Sri Guruvammal Thunai
       </div>
 
       {/* Hero Card */}
@@ -131,30 +131,30 @@ export default function About() {
                 letterSpacing: -0.5,
               }}
             >
-              சஷ்டிகா மொபைல்ஸ்
+              Sastika Mobiles
             </h1>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#e4f3ef', letterSpacing: 0.5 }}>
-              SASTIKA MOBILES &bull; சேல்ஸ் &amp; சர்வீஸ்
+              SASTIKA MOBILES &bull; SALES &amp; SERVICE
             </div>
           </div>
         </div>
 
         <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
-          சித்துராஜபுரம் மற்றும் சிவகாசியில் அமைந்துள்ள முன்னணி மல்டி பிராண்ட் மொபைல் ஷோரூம் மற்றும் சர்வீஸ் மையம்.
+          Premier multi-brand smartphone showroom and service center situated in Sithurajapuram and Sivakasi.
         </p>
 
         <div style={{ display: 'flex', gap: 24, marginTop: 18 }}>
           <div>
             <div style={{ fontSize: 26, fontWeight: 800, color: C.accent }}>
-              <CountUp to={2} suffix=" கிளைகள்" />
+              <CountUp to={2} suffix=" Branches" />
             </div>
-            <div style={{ fontSize: 11, opacity: 0.85 }}>சித்துராஜபுரம் & சிவகாசி</div>
+            <div style={{ fontSize: 11, opacity: 0.85 }}>Sithurajapuram & Sivakasi</div>
           </div>
           <div>
             <div style={{ fontSize: 26, fontWeight: 800, color: C.accent }}>
               <CountUp to={10} suffix="K+" />
             </div>
-            <div style={{ fontSize: 11, opacity: 0.85 }}>நம்பகமான வாடிக்கையாளர்கள்</div>
+            <div style={{ fontSize: 11, opacity: 0.85 }}>Satisfied Customers</div>
           </div>
         </div>
       </div>
@@ -207,7 +207,7 @@ export default function About() {
 
         {/* 4 Pillars of Trust */}
         <h2 style={{ margin: '28px 0 12px', fontSize: 21, fontWeight: 800 }}>
-          எங்களின் சிறப்பு நன்மைகள் (Our Highlights)
+          Our Key Highlights &amp; Advantages
         </h2>
         {PILLARS.map((p, i) => (
           <Reveal key={p.t} delay={i * 90}>
@@ -249,10 +249,10 @@ export default function About() {
         {/* Customer Guidelines from Invoice */}
         <div style={{ marginTop: 26 }}>
           <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.4, color: C.primarySoft }}>
-            CUSTOMER TERMS &bull; வாடிக்கையாளர் குறிப்புகள்
+            CUSTOMER TERMS &bull; SERVICE GUIDELINES
           </div>
           <h2 style={{ margin: '4px 0 12px', fontSize: 20, fontWeight: 800 }}>
-            Service &amp; Warranty Guidelines
+            Warranty &amp; Service Policy
           </h2>
 
           <div style={{ display: 'grid', gap: 9 }}>
@@ -297,10 +297,10 @@ export default function About() {
         <Reveal>
           <div style={{ marginTop: 24, padding: 20, borderRadius: 24, background: C.primary, color: '#fff' }}>
             <h3 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 800 }}>
-              மொபைல் வாங்க அல்லது சர்வீஸ் செய்ய தொடர்பு கொள்ளுங்கள்
+              Looking to Buy a Smartphone or Book a Repair?
             </h3>
             <p style={{ margin: '0 0 14px', fontSize: 12.5, opacity: 0.88 }}>
-              எங்கள் இரண்டு கிளைகளிலும் உங்களுக்கு உதவ எங்கள் நிபுணர்கள் தயாராக உள்ளனர்.
+              Our expert team across both branches in Sivakasi and Sithurajapuram is ready to assist you.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <Btn variant="accent" onClick={() => nav('/services')} style={{ flex: 1 }}>

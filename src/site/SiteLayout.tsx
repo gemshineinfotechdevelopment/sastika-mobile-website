@@ -75,7 +75,7 @@ export default function SiteLayout() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
-              <b>சஷ்டிகா மொபைல்ஸ் (Sastika Mobiles)</b> • Sivakasi & Sithurajapuram
+              <b>Sastika Mobiles</b> • Sivakasi & Sithurajapuram
             </span>
             <span style={{ opacity: 0.5 }}>|</span>
             <span style={{ color: C.accent, fontWeight: 700 }}>100% Original Sealed Devices • 1-Year Brand Warranty • GST Tax Invoice</span>
@@ -438,17 +438,17 @@ export default function SiteLayout() {
                 }}
               />
               <div>
-                <div style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>சஷ்டிகா மொபைல்ஸ்</div>
-                <div style={{ fontSize: 10, letterSpacing: 2, color: C.accent, fontWeight: 800 }}>SASTIKA MOBILES</div>
+                <div style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>Sastika Mobiles</div>
+                <div style={{ fontSize: 10, letterSpacing: 2, color: C.accent, fontWeight: 800 }}>SALES & SERVICE</div>
               </div>
             </div>
             <p style={{ fontSize: 13, lineHeight: 1.6, color: 'rgba(255,255,255,0.75)', margin: '0 0 16px' }}>
-              சிவகாசி மற்றும் சித்துராஜபுரத்தில் முன்னணி மல்டி-பிராண்ட் ஸ்மார்ட்போன்கள், ஒரிஜினல் உதிரிபாகங்கள் மற்றும் உடனடி பழுதுநீக்கம் (Repair & Service).
+              Leading multi-brand smartphone showroom, genuine accessories, and instant repair service in Sivakasi and Sithurajapuram.
             </p>
             <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'rgba(255,255,255,0.9)' }}>
-              <div>📍 <b>கிளை 1:</b> ஸ்ரீ ரெங்கா காம்ப்ளக்ஸ், கென்னடி மெடிக்கல் அருகில், சித்துராஜபுரம்.</div>
-              <div>📍 <b>கிளை 2:</b> சிவகாசி பஸ் நிலையம், சிவகாசி.</div>
-              <div>📞 <b>தொலைபேசி / WhatsApp:</b> +91 95434 34344</div>
+              <div>📍 <b>Branch 1:</b> Sri Renga Complex, Near Kennedy Medical, Sithurajapuram.</div>
+              <div>📍 <b>Branch 2:</b> Sivakasi Bus Stand, Sivakasi.</div>
+              <div>📞 <b>Phone / WhatsApp:</b> +91 95434 34344</div>
               <div>📄 <b>GSTIN:</b> 33BQTPJ5275L1Z6</div>
             </div>
           </div>
@@ -513,9 +513,9 @@ export default function SiteLayout() {
               INVOICE WARRANTY POLICY
             </div>
             <div style={{ fontSize: 12.5, lineHeight: 1.7, color: 'rgba(255,255,255,0.75)' }}>
-              <div>✓ அனைத்து புதிய மொபைல்களுக்கும் 1 வருடம் கம்பெனி வாரண்டி உண்டு.</div>
-              <div>✓ கம்பெனி சர்வீஸ் சென்டரில் விரைவான உதவிக்கு முழு வழிகாட்டுதல்.</div>
-              <div>✓ முறையான GST Tax Invoice உடன் மட்டுமே விற்பனை செய்யப்படும்.</div>
+              <div>✓ 1-Year official brand warranty on all new smartphones.</div>
+              <div>✓ Complete guidance for quick service at authorized brand centers.</div>
+              <div>✓ Official GST Tax Invoice provided with every device purchase.</div>
               <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 12, background: 'rgba(246,196,69,0.12)', border: '1px solid rgba(246,196,69,0.3)' }}>
                 <b style={{ color: C.accent }}>Store Timings:</b>
                 <div style={{ fontSize: 12, color: '#fff' }}>09:30 AM – 09:30 PM (All 7 Days)</div>
@@ -540,7 +540,7 @@ export default function SiteLayout() {
           }}
         >
           <div>
-            © 2026 <b>Sastika Mobiles</b> (சஷ்டிகா மொபைல்ஸ்). All Rights Reserved. Sivakasi & Sithurajapuram, Tamil Nadu.
+            © 2026 <b>Sastika Mobiles</b>. All Rights Reserved. Sivakasi & Sithurajapuram, Tamil Nadu.
           </div>
           <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
             <span style={{ color: C.accent }}>● 100% Secure Checkout</span>

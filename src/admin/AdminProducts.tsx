@@ -250,14 +250,14 @@ function ProductForm({
     <Modal title={title} onClose={onClose} width={740}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
         <div style={{ gridColumn: '1 / -1' }}>
-          <FieldRow label="PRODUCT NAME (பொருளின் பெயர்)">
+          <FieldRow label="PRODUCT NAME">
             <input style={field} value={d.name} onChange={(e) => set('name', e.target.value)} placeholder="e.g. OnePlus 12 5G (16GB + 512GB)" />
           </FieldRow>
         </div>
 
         {/* Product Photo Upload Section */}
         <div style={{ gridColumn: '1 / -1' }}>
-          <FieldRow label="PRODUCT PHOTO / PICTURE (மொபைல் படம்)">
+          <FieldRow label="PRODUCT PHOTO / PICTURE">
             <div style={{ display: 'flex', gap: 16, alignItems: 'center', background: C.tint2, padding: 12, borderRadius: 14, border: `1px solid ${C.border}` }}>
               <div
                 style={{
@@ -314,11 +314,11 @@ function ProductForm({
           </FieldRow>
         </div>
 
-        <FieldRow label="BRAND (பிராண்ட்)">
+        <FieldRow label="BRAND">
           <input style={field} value={d.brand} onChange={(e) => set('brand', e.target.value)} placeholder="OnePlus, Apple, Samsung..." />
         </FieldRow>
 
-        <FieldRow label="CATEGORY (வகை)">
+        <FieldRow label="CATEGORY">
           <select style={field} value={d.category} onChange={(e) => set('category', e.target.value as Category)}>
             <option value="phone">Smartphone</option>
             <option value="accessory">Accessory</option>
@@ -326,19 +326,19 @@ function ProductForm({
           </select>
         </FieldRow>
 
-        <FieldRow label="SELLING PRICE (விற்பனை விலை ₹)">
+        <FieldRow label="SELLING PRICE (₹)">
           <input style={field} type="number" min={0} value={d.price} onChange={(e) => set('price', e.target.value)} />
         </FieldRow>
 
-        <FieldRow label="MRP (எம்.ஆர்.பி ₹)">
+        <FieldRow label="MRP (₹)">
           <input style={field} type="number" min={0} value={d.mrp} onChange={(e) => set('mrp', e.target.value)} />
         </FieldRow>
 
-        <FieldRow label="OPENING STOCK (இருப்பு)">
+        <FieldRow label="OPENING STOCK">
           <input style={field} type="number" min={0} value={d.stock} onChange={(e) => set('stock', e.target.value)} />
         </FieldRow>
 
-        <FieldRow label="REORDER LEVEL (எச்சரிக்கை இருப்பு)">
+        <FieldRow label="REORDER LEVEL">
           <input style={field} type="number" min={0} value={d.reorderAt} onChange={(e) => set('reorderAt', e.target.value)} />
         </FieldRow>
 
@@ -362,7 +362,7 @@ function ProductForm({
         </div>
 
         <div style={{ gridColumn: '1 / -1' }}>
-          <FieldRow label="DESCRIPTION (விவரம்)">
+          <FieldRow label="DESCRIPTION">
             <textarea style={{ ...field, minHeight: 58, resize: 'vertical' }} value={d.description} onChange={(e) => set('description', e.target.value)} />
           </FieldRow>
         </div>

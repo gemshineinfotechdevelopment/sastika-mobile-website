@@ -4,11 +4,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n \"frontend,backend\" -c \"cyan,green\" \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "vite --host",
-    "dev:backend": "npm --prefix server run dev",
+    "dev": "vite --host",
+    "frontend": "vite --host",
+    "backend": "npm --prefix server run dev",
     "client": "vite --host",
     "server": "npm --prefix server run dev",
+    "dev:frontend": "vite --host",
+    "dev:backend": "npm --prefix server run dev",
+    "dev:all": "concurrently -n \"frontend,backend\" -c \"cyan,green\" \"npm run frontend\" \"npm run backend\"",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host"
   },

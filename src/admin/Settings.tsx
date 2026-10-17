@@ -56,7 +56,7 @@ export default function Settings() {
       return {
         ...DEFAULT,
         ...parsed,
-        business: parsed.business && !parsed.business.includes('சஷ்டிகா') ? parsed.business : DEFAULT.business,
+        business: parsed.business && !/[\u0B80-\u0BFF]/.test(parsed.business) ? parsed.business : DEFAULT.business,
         address: parsed.address || parsed.addressBranch1 || DEFAULT.address,
       };
     } catch {
