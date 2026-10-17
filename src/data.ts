@@ -381,16 +381,10 @@ export const SERVICES = [
 
 export const STORES = [
   {
-    name: 'கிளை 1 (Branch 1) - Sithurajapuram',
-    addr: 'ஸ்ரீ ரெங்கா காம்ப்ளக்ஸ், கென்னடி மெடிக்கல் அருகில், சித்துராஜபுரம் (Sri Renga Complex, Near Kennedy Medical, Sithurajapuram)',
-    hours: '09:30 AM – 09:30 PM',
-    tag: 'Main Store & Sales',
-  },
-  {
-    name: 'கிளை 2 (Branch 2) - Sivakasi Bus Stand',
-    addr: 'சிவகாசி பஸ் நிலையம், சிவகாசி (Sivakasi Bus Stand, Sivakasi)',
-    hours: '09:30 AM – 09:30 PM',
-    tag: 'Express Service & Accessories',
+    name: 'Sastika Mobiles - Main Store',
+    addr: 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189',
+    hours: '09:30 AM – 09:30 PM (Mon - Sun)',
+    tag: 'Flagship Showroom & Service Center',
   },
 ];
 

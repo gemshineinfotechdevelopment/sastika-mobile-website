@@ -35,14 +35,16 @@ export default function Contact() {
       </div>
 
       <div style={{ padding: '22px 18px 0' }}>
-        <h2 style={{ margin: '0 0 12px', fontSize: 20, fontWeight: 800 }}>Our Stores</h2>
-        <div className="hide-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12 }}>
-          {STORES.map((s, i) => (
-            <button key={s.name} className="tap" onClick={() => setActive(i)} style={{ padding: '9px 14px', borderRadius: 99, fontWeight: 700, fontSize: 12.5, whiteSpace: 'nowrap', background: active === i ? C.primary : '#fff', color: active === i ? '#fff' : C.text, border: `1px solid ${active === i ? C.primary : C.border}`, transition: 'all .25s ease' }}>
-              {s.name}
-            </button>
-          ))}
-        </div>
+        <h2 style={{ margin: '0 0 12px', fontSize: 20, fontWeight: 800 }}>Our Store Location</h2>
+        {STORES.length > 1 && (
+          <div className="hide-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12 }}>
+            {STORES.map((s, i) => (
+              <button key={s.name} className="tap" onClick={() => setActive(i)} style={{ padding: '9px 14px', borderRadius: 99, fontWeight: 700, fontSize: 12.5, whiteSpace: 'nowrap', background: active === i ? C.primary : '#fff', color: active === i ? '#fff' : C.text, border: `1px solid ${active === i ? C.primary : C.border}`, transition: 'all .25s ease' }}>
+                {s.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div key={active} style={{ background: '#fff', borderRadius: 22, border: `1px solid ${C.border}`, overflow: 'hidden', animation: 'fadeUp .4s ease' }}>
           {/* stylised map */}

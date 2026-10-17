@@ -199,7 +199,7 @@ function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => voi
 /* -------------------------------- FLASH DEAL ------------------------------- */
 
 function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string) => void }) {
-  const { h, m, s } = useCountdown(5);
+  const { d, h, hh, m, s, days, isExpired } = useCountdown(deal.endTime || 5);
   const nav = useNavigate();
   return (
     <section style={{ margin: '20px 14px 0', padding: 16, borderRadius: 26, background: `linear-gradient(160deg, ${C.tint}, #fff)`, border: `1px solid ${C.border}` }}>
@@ -218,12 +218,31 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
             </div>
           </div>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            {[h, m, s].map((v, i) => (
-              <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 30, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{v}</span>
-                {i < 2 && <span style={{ fontWeight: 800, color: C.primary }}>:</span>}
+            {days > 0 && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 32, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                  {d}d
+                </span>
+                <span style={{ fontWeight: 800, color: C.primary }}>:</span>
               </span>
-            ))}
+            )}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 30, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                {days > 0 ? hh : h}
+              </span>
+              <span style={{ fontWeight: 800, color: C.primary }}>:</span>
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ background: C.primary, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 30, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                {m}
+              </span>
+              <span style={{ fontWeight: 800, color: C.primary }}>:</span>
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ background: isExpired ? '#dc2626' : C.danger, color: '#fff', fontWeight: 800, fontSize: 13, padding: '6px 7px', borderRadius: 8, minWidth: 30, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                {s}
+              </span>
+            </span>
           </div>
         </div>
       </Reveal>

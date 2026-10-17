@@ -148,15 +148,69 @@ export function Marquee({ children, speed = 26 }: { children: ReactNode; speed?:
   );
 }
 
-/** Live countdown to a moving target (resets daily at midnight-ish). */
-export function useCountdown(hours = 6): { h: string; m: string; s: string } {
-  const [left, setLeft] = useState(hours * 3600 - 2 * 60 - 17);
+/** Live countdown supporting either hours duration or specific target timestamp string. */
+export function useCountdown(hoursOrTarget?: number | string): {
+  d: string;
+  h: string;
+  hh: string;
+  m: string;
+  s: string;
+  days: number;
+  hours: number;
+  mins: number;
+  secs: number;
+  totalSeconds: number;
+  isExpired: boolean;
+} {
+  const calculateLeft = () => {
+    if (typeof hoursOrTarget === 'string' && hoursOrTarget.trim()) {
+      const targetTime = new Date(hoursOrTarget).getTime();
+      if (!isNaN(targetTime)) {
+        return Math.max(0, Math.floor((targetTime - Date.now()) / 1000));
+      }
+    }
+    const hrs = typeof hoursOrTarget === 'number' ? hoursOrTarget : 6;
+    return Math.max(0, hrs * 3600);
+  };
+
+  const [left, setLeft] = useState(calculateLeft);
+
   useEffect(() => {
-    const t = window.setInterval(() => setLeft((n) => (n <= 0 ? hours * 3600 : n - 1)), 1000);
+    setLeft(calculateLeft());
+    const t = window.setInterval(() => {
+      setLeft((n) => {
+        if (typeof hoursOrTarget === 'string' && hoursOrTarget.trim()) {
+          const targetTime = new Date(hoursOrTarget).getTime();
+          if (!isNaN(targetTime)) {
+            return Math.max(0, Math.floor((targetTime - Date.now()) / 1000));
+          }
+        }
+        return Math.max(0, n - 1);
+      });
+    }, 1000);
     return () => window.clearInterval(t);
-  }, [hours]);
-  const p = (n: number) => String(n).padStart(2, '0');
-  return { h: p(Math.floor(left / 3600)), m: p(Math.floor((left % 3600) / 60)), s: p(left % 60) };
+  }, [hoursOrTarget]);
+
+  const p = (n: number) => String(Math.max(0, n)).padStart(2, '0');
+  const d = Math.floor(left / 86400);
+  const h = Math.floor((left % 86400) / 3600);
+  const m = Math.floor((left % 3600) / 60);
+  const s = left % 60;
+  const totalHours = Math.floor(left / 3600);
+
+  return {
+    d: p(d),
+    h: p(totalHours),
+    hh: p(h),
+    m: p(m),
+    s: p(s),
+    days: d,
+    hours: totalHours,
+    mins: m,
+    secs: s,
+    totalSeconds: left,
+    isExpired: left <= 0,
+  };
 }
 
 /** Animated bar that fills when visible. */
