@@ -152,7 +152,6 @@ function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => voi
           zIndex: 1,
           width: 195,
           maxWidth: '52%',
-          animation: 'float 6s ease-in-out infinite',
           filter: 'drop-shadow(0 20px 30px rgba(0,0,0,.45))',
           pointerEvents: 'none',
         }}
