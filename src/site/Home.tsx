@@ -175,11 +175,11 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
             className="hero-main-title"
             style={{
               margin: 0,
-              fontSize: 'clamp(19px, 3.8vw, 40px)',
-              lineHeight: 1.2,
+              fontSize: 'clamp(23px, 4.6vw, 44px)',
+              lineHeight: 1.18,
               fontWeight: 900,
-              letterSpacing: -0.4,
-              maxWidth: '65%',
+              letterSpacing: -0.5,
+              maxWidth: '68%',
             }}
           >
             Upgrade to Your Next
@@ -191,7 +191,7 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
             With Trust &amp; GST Bill.
           </h1>
 
-          {/* Action Buttons Row - Side-by-Side (Left & Right) */}
+          {/* Action Buttons Row - Side-by-Side (Left & Right) with smaller font */}
           <div
             className="hero-actions-row"
             style={{
@@ -209,17 +209,18 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               style={{
                 flex: '1 1 50%',
                 minWidth: 0,
-                padding: '8px 10px',
+                padding: '7px 4px',
                 borderRadius: 10,
                 background: C.accent,
                 color: C.primaryDark,
                 fontWeight: 900,
-                fontSize: 11.5,
+                fontSize: 9,
                 cursor: 'pointer',
                 border: 'none',
                 boxShadow: '0 4px 14px rgba(0,0,0,0.22)',
                 textAlign: 'center',
                 whiteSpace: 'nowrap',
+                letterSpacing: -0.15,
               }}
             >
               Explore Mobiles (78 In Stock)
@@ -230,17 +231,18 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               style={{
                 flex: '1 1 50%',
                 minWidth: 0,
-                padding: '8px 10px',
+                padding: '7px 4px',
                 borderRadius: 10,
                 background: 'rgba(11,74,67,0.7)',
                 color: '#fff',
                 fontWeight: 700,
-                fontSize: 11.5,
+                fontSize: 9,
                 border: '1.2px solid rgba(255,255,255,.3)',
                 cursor: 'pointer',
                 backdropFilter: 'blur(8px)',
                 textAlign: 'center',
                 whiteSpace: 'nowrap',
+                letterSpacing: -0.15,
               }}
             >
               Care &amp; Service Desk

@@ -69,11 +69,11 @@ html,body{overflow-x:hidden;width:100%;max-width:100%}
   .site-mobile-bottom-nav { display: none !important; }
   .mobile-hide { display: none !important; }
   .hero-wrapper { margin: 10px 8px 0 !important; padding: 22px 14px 18px !important; border-radius: 20px !important; overflow: hidden !important; position: relative !important; }
-  .hero-inner-container { position: relative !important; min-height: 200px !important; }
+  .hero-inner-container { position: relative !important; min-height: 215px !important; }
   .hero-content-col { width: 100% !important; max-width: 100% !important; position: relative !important; z-index: 2 !important; }
-  .hero-main-title { max-width: 65% !important; }
+  .hero-main-title { font-size: 24px !important; line-height: 1.18 !important; max-width: 68% !important; letter-spacing: -0.5px !important; }
   .hero-actions-row { display: flex !important; flex-direction: row !important; gap: 8px !important; flex-wrap: nowrap !important; margin-top: 14px !important; position: relative !important; z-index: 3 !important; }
-  .hero-actions-row .hero-btn { flex: 1 1 50% !important; min-width: 0 !important; padding: 8px 6px !important; font-size: 11px !important; border-radius: 9px !important; text-align: center !important; }
+  .hero-actions-row .hero-btn { flex: 1 1 50% !important; min-width: 0 !important; padding: 7px 4px !important; font-size: 9px !important; font-weight: 800 !important; letter-spacing: -0.15px !important; border-radius: 8px !important; text-align: center !important; }
   .hero-phones-img-wrapper { position: absolute !important; right: -12px !important; bottom: -15px !important; width: clamp(190px, 54vw, 360px) !important; z-index: 1 !important; pointer-events: none !important; animation: none !important; transform: none !important; }
   .hero-badges-row { display: flex !important; flex-wrap: wrap !important; gap: 4px 8px !important; font-size: 10.5px !important; margin-top: 12px !important; position: relative !important; z-index: 3 !important; }
   .stats-band-box { grid-template-columns: repeat(2, 1fr) !important; gap: 16px 10px !important; padding: 20px 14px !important; border-radius: 20px !important; margin-top: 24px !important; }
