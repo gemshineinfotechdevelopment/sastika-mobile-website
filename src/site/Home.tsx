@@ -8,6 +8,7 @@ import ProductArt from '../components/ProductArt';
 import { CountUp, FillBar, Marquee, Reveal, Typewriter, useCountdown } from '../components/anim';
 import { Btn, Pill, SectionHead, Stars } from './ui';
 import ProductCard from './ProductCard';
+import heroBannerImg from '../assets/hero-banner.png';
 
 export default function Home() {
   const nav = useNavigate();
@@ -156,7 +157,7 @@ function Hero({ onShop, onGear, color }: { onShop: () => void; onGear: () => voi
         }}
       >
         <img
-          src="/hero-mobiles.png"
+          src={heroBannerImg}
           alt="Premium Smartphones"
           style={{
             width: '100%',
