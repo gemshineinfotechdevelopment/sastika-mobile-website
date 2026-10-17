@@ -160,6 +160,7 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
       ))}
 
       <div
+        className="hero-inner-container"
         style={{
           maxWidth: 1360,
           margin: '0 auto',
@@ -167,42 +168,16 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
           zIndex: 2,
         }}
       >
-        {/* Store Badge */}
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '6px 12px',
-            borderRadius: 99,
-            background: 'rgba(255,255,255,.14)',
-            backdropFilter: 'blur(10px)',
-            fontSize: 11.5,
-            fontWeight: 700,
-            marginBottom: 12,
-          }}
-        >
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.accent, animation: 'pulseDot 1.6s infinite' }} />
-          Authorized Multi-Brand Store • Sivakasi &amp; Sithurajapuram
-        </div>
-
-        {/* Side-by-Side: Heading on Left + Compact Phones Image on Right */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}
-        >
+        {/* Left Content Column */}
+        <div className="hero-content-col" style={{ position: 'relative', zIndex: 2 }}>
           {/* Heading */}
           <h1
+            className="hero-main-title"
             style={{
               margin: 0,
-              fontSize: 'clamp(18px, 3.6vw, 36px)',
+              fontSize: 'clamp(19px, 3.8vw, 40px)',
               lineHeight: 1.2,
               fontWeight: 900,
-              flex: 1,
               letterSpacing: -0.4,
             }}
           >
@@ -215,79 +190,86 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
             With Trust &amp; GST Bill.
           </h1>
 
-          {/* Compact Phones Image beside heading */}
+          {/* Action Buttons Row - Compact & Sleek */}
+          <div className="hero-actions-row" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
+            <button
+              className="tap hero-btn hero-btn-primary"
+              onClick={onShop}
+              style={{
+                padding: '7px 13px',
+                borderRadius: 10,
+                background: C.accent,
+                color: C.primaryDark,
+                fontWeight: 900,
+                fontSize: 11.5,
+                cursor: 'pointer',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(246,196,69,0.3)',
+              }}
+            >
+              Explore Mobiles (78 In Stock)
+            </button>
+            <button
+              className="tap hero-btn hero-btn-secondary"
+              onClick={onGear}
+              style={{
+                padding: '7px 12px',
+                borderRadius: 10,
+                background: 'rgba(255,255,255,.14)',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: 11.5,
+                border: '1.2px solid rgba(255,255,255,.3)',
+                cursor: 'pointer',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              Care &amp; Service Desk
+            </button>
+          </div>
+
+          {/* Feature Badges Row */}
           <div
+            className="hero-badges-row"
             style={{
-              flexShrink: 0,
-              width: 'clamp(95px, 24vw, 240px)',
               display: 'flex',
-              justifyContent: 'center',
               alignItems: 'center',
-              filter: 'drop-shadow(0 14px 28px rgba(0,0,0,.45))',
-              animation: 'float 6s ease-in-out infinite',
+              gap: 10,
+              flexWrap: 'wrap',
+              marginTop: 14,
+              color: 'rgba(255,255,255,0.85)',
+              fontSize: 11,
+              fontWeight: 600,
             }}
           >
-            <img
-              src={heroBannerImg}
-              alt="Premium Smartphones"
-              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }}
-            />
+            <span>✓ GSTIN Tax Invoice</span>
+            <span>✓ Same-Day Sivakasi Pickup</span>
+            <span>✓ Free Data Migration</span>
           </div>
         </div>
 
-        {/* Action Buttons Row */}
-        <div className="hero-actions-row" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 18 }}>
-          <button
-            className="tap hero-btn"
-            onClick={onShop}
-            style={{
-              padding: '11px 18px',
-              borderRadius: 14,
-              background: C.accent,
-              color: C.primaryDark,
-              fontWeight: 900,
-              fontSize: 13,
-              cursor: 'pointer',
-              border: 'none',
-            }}
-          >
-            Explore Mobiles (78 In Stock)
-          </button>
-          <button
-            className="tap hero-btn"
-            onClick={onGear}
-            style={{
-              padding: '11px 16px',
-              borderRadius: 14,
-              background: 'rgba(255,255,255,.14)',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 13,
-              border: '1.5px solid rgba(255,255,255,.3)',
-              cursor: 'pointer',
-            }}
-          >
-            Care &amp; Service Desk
-          </button>
-        </div>
-
-        {/* Feature Badges Row */}
+        {/* Larger Phone Image - Positioned behind buttons / right side */}
         <div
-          className="hero-badges-row"
+          className="hero-phones-img-wrapper"
           style={{
+            position: 'absolute',
+            right: 0,
+            bottom: -10,
+            width: 'clamp(145px, 42vw, 360px)',
+            zIndex: 1,
             display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            flexWrap: 'wrap',
-            marginTop: 16,
-            color: 'rgba(255,255,255,0.85)',
-            fontSize: 11.5,
-            fontWeight: 600,
+            justifyContent: 'center',
+            alignItems: 'flex-end',
+            filter: 'drop-shadow(0 16px 32px rgba(0,0,0,.5))',
+            animation: 'float 6s ease-in-out infinite',
+            pointerEvents: 'none',
           }}
         >
-          <span>✓ GSTIN Tax Invoice</span>
-          <span>✓ Same-Day Sivakasi Pickup</span>
-          <span>✓ Free Data Migration</span>
+          <img
+            src={heroBannerImg}
+            alt="Premium Smartphones"
+            style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }}
+          />
         </div>
       </div>
     </section>

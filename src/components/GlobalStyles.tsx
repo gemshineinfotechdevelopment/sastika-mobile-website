@@ -50,7 +50,9 @@ html,body{overflow-x:hidden;width:100%;max-width:100%}
   .site-mobile-bottom-nav { display: none !important; }
   .desktop-hide { display: none !important; }
   .hero-wrapper { margin: 20px 24px 0 !important; padding: 44px 36px 48px !important; border-radius: 28px !important; }
-  .hero-grid { display: grid !important; grid-template-columns: 1.15fr 0.85fr !important; gap: 36px !important; align-items: center !important; }
+  .hero-inner-container { display: grid !important; grid-template-columns: 1.15fr 0.85fr !important; gap: 36px !important; align-items: center !important; }
+  .hero-content-col { max-width: 100% !important; }
+  .hero-phones-img-wrapper { position: relative !important; right: auto !important; bottom: auto !important; width: 100% !important; max-width: 480px !important; }
   .hero-title { font-size: 46px !important; line-height: 1.1 !important; letter-spacing: -1.2px !important; }
   .product-detail-grid { display: grid !important; grid-template-columns: 1fr 1.15fr !important; gap: 36px !important; align-items: start !important; }
   .cart-grid { display: grid !important; grid-template-columns: 1.5fr 1fr !important; gap: 28px !important; align-items: start !important; }
@@ -66,10 +68,13 @@ html,body{overflow-x:hidden;width:100%;max-width:100%}
   .site-mobile-header { display: flex !important; }
   .site-mobile-bottom-nav { display: none !important; }
   .mobile-hide { display: none !important; }
-  .hero-wrapper { margin: 10px 8px 0 !important; padding: 20px 14px !important; border-radius: 20px !important; overflow: hidden !important; }
-  .hero-actions-row { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; }
-  .hero-actions-row .hero-btn { flex: 1 1 140px !important; text-align: center !important; justify-content: center !important; }
-  .hero-badges-row { display: flex !important; flex-wrap: wrap !important; gap: 6px 10px !important; font-size: 11px !important; }
+  .hero-wrapper { margin: 10px 8px 0 !important; padding: 22px 14px 18px !important; border-radius: 20px !important; overflow: hidden !important; position: relative !important; }
+  .hero-inner-container { position: relative !important; min-height: 190px !important; }
+  .hero-content-col { max-width: 63% !important; position: relative !important; z-index: 2 !important; }
+  .hero-phones-img-wrapper { position: absolute !important; right: -8px !important; bottom: -12px !important; width: clamp(145px, 42vw, 240px) !important; z-index: 1 !important; pointer-events: none !important; }
+  .hero-actions-row { display: flex !important; gap: 6px !important; flex-wrap: wrap !important; margin-top: 12px !important; }
+  .hero-actions-row .hero-btn { padding: 6px 11px !important; font-size: 11px !important; border-radius: 8px !important; flex: 0 1 auto !important; }
+  .hero-badges-row { display: flex !important; flex-wrap: wrap !important; gap: 4px 8px !important; font-size: 10.5px !important; margin-top: 10px !important; }
   .stats-band-box { grid-template-columns: repeat(2, 1fr) !important; gap: 16px 10px !important; padding: 20px 14px !important; border-radius: 20px !important; margin-top: 24px !important; }
   .categories-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
   .spotlight-card { padding: 22px 16px !important; grid-template-columns: 1fr !important; gap: 20px !important; border-radius: 22px !important; }
