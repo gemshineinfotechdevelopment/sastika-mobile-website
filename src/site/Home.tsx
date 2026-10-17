@@ -249,16 +249,31 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {deal.items.map((p, i) => (
           <Reveal key={p.id} delay={i * 120} dir="zoom">
-            <div style={{ background: '#fff', borderRadius: 18, padding: 10, border: `1px solid ${C.border}`, position: 'relative' }}>
+            <div
+              className="lift tap"
+              onClick={() => nav(`/product/${p.id}`)}
+              style={{
+                background: '#fff',
+                borderRadius: 18,
+                padding: 10,
+                border: `1px solid ${C.border}`,
+                position: 'relative',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
               {p.badge && (
                 <span style={{ position: 'absolute', top: 14, left: 14, background: C.danger, color: '#fff', fontSize: 9.5, fontWeight: 800, padding: '3px 8px', borderRadius: 99, zIndex: 2 }}>
                   {p.badge}
                 </span>
               )}
-              <div onClick={() => nav(`/product/${p.id}`)} style={{ cursor: 'pointer', height: 104, borderRadius: 12, background: C.tint2, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
+              <div style={{ height: 104, borderRadius: 12, background: C.tint2, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
                 <ProductArt category={p.category} color={p.color} size={84} image={p.image} alt={p.name} float />
               </div>
-              <div style={{ fontSize: 12.5, fontWeight: 700, margin: '8px 0 2px', minHeight: 32, lineHeight: 1.25 }}>{p.name}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 700, margin: '8px 0 2px', minHeight: 32, lineHeight: 1.25, color: C.text }}>
+                {p.name}
+              </div>
               <div style={{ display: 'flex', gap: 5, alignItems: 'baseline' }}>
                 <b style={{ fontSize: 15 }}>{money(p.price)}</b>
                 <span style={{ fontSize: 10.5, color: C.success, fontWeight: 800 }}>{discount(p.price, p.mrp)}% off</span>
@@ -267,7 +282,15 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
                 {p.claimedPct || 65}% claimed • {p.stock} left
               </div>
               <FillBar pct={p.claimedPct || 65} color={`linear-gradient(90deg, ${C.accent}, ${C.danger})`} bg={C.tint} />
-              <Btn full variant="primary" onClick={() => onAdd(p.id)} style={{ marginTop: 9, padding: '9px 0', fontSize: 12 }}>
+              <Btn
+                full
+                variant="primary"
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  onAdd(p.id);
+                }}
+                style={{ marginTop: 9, padding: '9px 0', fontSize: 12 }}
+              >
                 Claim Now
               </Btn>
             </div>

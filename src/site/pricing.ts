@@ -16,9 +16,14 @@ export interface Totals {
   saved: number;
 }
 
-export function computeTotals(cart: CartLine[], products: Product[], coupon: string): Totals {
+export function computeTotals(
+  cart: CartLine[],
+  products: Product[],
+  coupon: string,
+  getProduct?: (id: string) => Product | undefined,
+): Totals {
   const lines = cart
-    .map((l) => ({ product: products.find((p) => p.id === l.id), qty: l.qty }))
+    .map((l) => ({ product: getProduct ? getProduct(l.id) : products.find((p) => p.id === l.id), qty: l.qty }))
     .filter((l): l is { product: Product; qty: number } => !!l.product);
   const mrpTotal = lines.reduce((n, l) => n + l.product.mrp * l.qty, 0);
   const subtotal = lines.reduce((n, l) => n + l.product.price * l.qty, 0);

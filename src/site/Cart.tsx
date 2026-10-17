@@ -10,11 +10,11 @@ import { COUPONS, computeTotals } from './pricing';
 
 export default function Cart() {
   const nav = useNavigate();
-  const { cart, products, setQty, removeFromCart, coupon, setCoupon } = useStore();
+  const { cart, products, getProduct, setQty, removeFromCart, coupon, setCoupon } = useStore();
   const [code, setCode] = useState(coupon);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [leaving, setLeaving] = useState<string | null>(null);
-  const t = computeTotals(cart, products, coupon);
+  const t = computeTotals(cart, products, coupon, getProduct);
 
   const apply = () => {
     const c = COUPONS[code.trim().toUpperCase()];
