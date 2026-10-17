@@ -22,8 +22,8 @@ export default function Contact() {
   };
 
   return (
-    <div style={{ paddingBottom: 24 }}>
-      <div style={{ margin: '14px 14px 0', padding: '24px 20px', borderRadius: 28, color: '#fff', background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '16px 24px 60px' }}>
+      <div style={{ padding: '32px 28px', borderRadius: 28, color: '#fff', background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`, position: 'relative', overflow: 'hidden', boxShadow: '0 8px 30px rgba(11,74,67,0.15)' }}>
         <span style={{ position: 'absolute', width: 150, height: 150, right: -40, top: -40, borderRadius: '50%', background: 'rgba(246,196,69,.2)', animation: 'orb 9s ease-in-out infinite' }} />
         <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.4, color: C.accent }}>CONTACT</div>
         <h1 style={{ margin: '8px 0 8px', fontSize: 29, lineHeight: 1.1, fontWeight: 800, letterSpacing: -0.8 }}>Get in Touch with Our Tech Specialists</h1>

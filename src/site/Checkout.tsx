@@ -57,8 +57,8 @@ export default function Checkout() {
   };
 
   return (
-    <div style={{ paddingBottom: 30 }}>
-      <PageHead title="Secure Checkout" sub="Encrypted · Sastika Protected" />
+    <div style={{ maxWidth: 840, margin: '0 auto', padding: '24px 24px 60px' }}>
+      <PageHead title="Secure Checkout" sub="Encrypted · Sastika Protected · Sivakasi & Sithurajapuram" />
 
       {/* stepper */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '10px 22px 18px' }}>

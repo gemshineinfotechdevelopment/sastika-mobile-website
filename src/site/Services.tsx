@@ -59,25 +59,28 @@ export default function Services() {
   }
 
   return (
-    <div style={{ paddingBottom: 24 }}>
-      <div style={{ margin: '14px 14px 0', padding: '22px 20px', borderRadius: 28, color: '#fff', position: 'relative', overflow: 'hidden', background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})` }}>
-        <span style={{ position: 'absolute', width: 160, height: 160, right: -40, top: -40, borderRadius: '50%', background: 'rgba(246,196,69,.2)', animation: 'orb 9s ease-in-out infinite' }} />
-        <div style={{ position: 'absolute', right: 18, top: 22, animation: 'wiggle 3s ease-in-out infinite' }}>
-          <Icon name="tool" size={46} color={C.accent} />
+    <div style={{ maxWidth: 1160, margin: '0 auto', padding: '16px 24px 60px' }}>
+      <div style={{ padding: '32px 30px', borderRadius: 28, color: '#fff', position: 'relative', overflow: 'hidden', background: `linear-gradient(140deg, ${C.primaryDark}, ${C.primarySoft})`, boxShadow: '0 8px 30px rgba(11,74,67,0.14)' }}>
+        <span style={{ position: 'absolute', width: 200, height: 200, right: -40, top: -40, borderRadius: '50%', background: 'rgba(246,196,69,.22)', animation: 'orb 9s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', right: 28, top: 28, animation: 'wiggle 3s ease-in-out infinite' }}>
+          <Icon name="tool" size={54} color={C.accent} />
         </div>
-        <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.4, color: C.accent }}>CERTIFIED TECH CARE</div>
-        <h1 style={{ margin: '8px 0 6px', fontSize: 28, lineHeight: 1.1, fontWeight: 800, letterSpacing: -0.8, maxWidth: 230 }}>Expert Mobile Repairs & Tech Services</h1>
-        <p style={{ margin: 0, fontSize: 12.5, opacity: 0.85, maxWidth: 240 }}>OEM parts, 1-year warranty and same-day repairs.</p>
-        <div style={{ display: 'flex', gap: 14, marginTop: 14, fontSize: 11.5, fontWeight: 700 }}>
-          {['Genuine Parts', '90-min Express', 'No Fix, No Fee'].map((t, i) => (
-            <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 4, animation: `fadeUp .5s ease ${0.3 + i * 0.12}s both` }}><Icon name="check" size={13} color={C.accent} stroke={3} />{t}</span>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, color: C.accent }}>CERTIFIED TECH CARE &amp; SERVICE</div>
+        <h1 style={{ margin: '8px 0 8px', fontSize: 32, lineHeight: 1.15, fontWeight: 800, letterSpacing: -0.8, maxWidth: 440 }}>Expert Mobile Repairs &amp; Tech Services</h1>
+        <p style={{ margin: 0, fontSize: 14, opacity: 0.9, maxWidth: 480 }}>OEM parts, 1-year brand warranty and express repairs in Sivakasi &amp; Sithurajapuram.</p>
+        <div style={{ display: 'flex', gap: 20, marginTop: 18, fontSize: 13, fontWeight: 700 }}>
+          {['100% Genuine Parts', '90-min Express Service', 'No Fix, No Fee Guarantee'].map((t, i) => (
+            <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, animation: `fadeUp .5s ease ${0.3 + i * 0.12}s both` }}>
+              <Icon name="check" size={15} color={C.accent} stroke={3} />
+              {t}
+            </span>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: '22px 18px 0' }}>
-        <h2 style={{ margin: '0 0 12px', fontSize: 20, fontWeight: 800 }}>Catalog of Care Services</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      <div style={{ padding: '28px 0 0' }}>
+        <h2 style={{ margin: '0 0 14px', fontSize: 22, fontWeight: 800 }}>Catalog of Care Services</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
           {SERVICES.map((s, i) => {
             const on = svc === s.id;
             return (

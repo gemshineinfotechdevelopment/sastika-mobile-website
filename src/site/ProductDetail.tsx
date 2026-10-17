@@ -24,7 +24,7 @@ export default function ProductDetail() {
 
   if (!p) {
     return (
-      <div style={{ padding: 40, textAlign: 'center' }}>
+      <div style={{ padding: '60px 20px', textAlign: 'center' }}>
         <h2>Product not found</h2>
         <Btn onClick={() => nav('/mobiles')}>Back to Mobiles</Btn>
       </div>
@@ -45,11 +45,11 @@ export default function ProductDetail() {
     'Official Festival Special Deal with authentic manufacturer warranty',
     '100% Original sealed pack with all inbox accessories',
     'Instant billing & warranty registered at Sastika Mobiles',
-    'Free same-day doorstep express delivery available',
+    'Free same-day doorstep express delivery in Sivakasi',
   ];
 
   const checkPin = () => {
-    setPinResult(/^\d{6}$/.test(pin) ? 'Delivery by tomorrow, 2:00 PM · Free express shipping' : 'Enter a valid 6-digit pincode');
+    setPinResult(/^\d{6}$/.test(pin) ? 'Delivery by tomorrow, 2:00 PM · Free express shipping in Sivakasi & Sithurajapuram' : 'Enter a valid 6-digit pincode');
   };
 
   const add = () => {
@@ -59,64 +59,178 @@ export default function ProductDetail() {
   };
 
   return (
-    <div style={{ paddingBottom: 90 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 18px 4px' }}>
-        <button className="tap" onClick={() => nav(-1)} style={{ width: 38, height: 38, borderRadius: 12, background: '#fff', border: `1px solid ${C.border}`, display: 'grid', placeItems: 'center' }} aria-label="Back">
-          <Icon name="left" size={18} />
+    <div style={{ maxWidth: 1240, margin: '0 auto', padding: '24px 28px 60px' }}>
+      {/* Top back button & breadcrumbs */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <button
+          className="tap"
+          onClick={() => nav(-1)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '8px 14px',
+            borderRadius: 12,
+            background: '#fff',
+            border: `1px solid ${C.border}`,
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          <Icon name="left" size={16} /> Back
         </button>
-        <button className="tap" onClick={() => toggleWish(p.id)} style={{ width: 38, height: 38, borderRadius: 12, background: '#fff', border: `1px solid ${C.border}`, display: 'grid', placeItems: 'center' }} aria-label="Wishlist">
-          <Icon name="heart" size={18} color={wished ? C.danger : C.muted} fill={wished ? C.danger : 'none'} />
+
+        <button
+          className="tap"
+          onClick={() => toggleWish(p.id)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '8px 14px',
+            borderRadius: 12,
+            background: '#fff',
+            border: `1px solid ${C.border}`,
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          <Icon name="heart" size={17} color={wished ? C.danger : C.muted} fill={wished ? C.danger : 'none'} />
+          <span>{wished ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
         </button>
       </div>
 
-      {/* gallery */}
-      <div style={{ margin: '6px 18px 0', height: 280, borderRadius: 28, background: `radial-gradient(circle at 50% 40%, #fff, ${C.tint})`, display: 'grid', placeItems: 'center', position: 'relative', overflow: 'hidden', border: `1px solid ${C.border}` }}>
-        <span style={{ position: 'absolute', width: 220, height: 220, borderRadius: '50%', background: art, opacity: 0.18, filter: 'blur(30px)', transition: 'background .5s ease', animation: 'orb 9s ease-in-out infinite' }} />
-        <div key={art} style={{ animation: 'bounceIn .6s ease both', filter: 'drop-shadow(0 22px 22px rgba(0,0,0,.25))' }}>
-          <ProductArt category={p.category} color={art} size={p.category === 'phone' ? 230 : 190} image={p.image} alt={p.name} float />
-        </div>
-        <div style={{ position: 'absolute', top: 14, left: 14, display: 'flex', gap: 6 }}>
-          {off > 0 && <Pill tone="accent">{off}% OFF</Pill>}
-          <Pill tone="dark">OFFICIAL STORE</Pill>
-        </div>
-      </div>
+      {/* 2-Column Desktop Grid */}
+      <div className="product-detail-grid">
+        {/* Left Column: Image Showcase */}
+        <div>
+          <div
+            style={{
+              height: 440,
+              borderRadius: 24,
+              background: `radial-gradient(circle at 50% 40%, #ffffff, ${C.tint})`,
+              display: 'grid',
+              placeItems: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+              border: `1.5px solid ${C.border}`,
+              boxShadow: '0 8px 30px rgba(11,74,67,0.08)',
+            }}
+          >
+            <span
+              style={{
+                position: 'absolute',
+                width: 320,
+                height: 320,
+                borderRadius: '50%',
+                background: art,
+                opacity: 0.16,
+                filter: 'blur(40px)',
+                animation: 'orb 9s ease-in-out infinite',
+              }}
+            />
+            <div key={art} style={{ animation: 'bounceIn .6s ease both', filter: 'drop-shadow(0 20px 24px rgba(0,0,0,.22))' }}>
+              <ProductArt category={p.category} color={art} size={p.category === 'phone' ? 290 : 230} image={p.image} alt={p.name} float />
+            </div>
 
-      <div style={{ padding: '16px 18px 0' }}>
-        <Reveal>
-          <div style={{ fontSize: 11, fontWeight: 800, color: C.primarySoft, letterSpacing: 1 }}>{p.brand.toUpperCase()}</div>
-          <h1 style={{ margin: '4px 0 8px', fontSize: 23, lineHeight: 1.2, fontWeight: 800, letterSpacing: -0.5 }}>{p.name}</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.muted }}>
-            <Stars value={rating} size={13} /> <b style={{ color: C.text }}>{rating}</b> · {reviews.toLocaleString('en-IN')} reviews
+            <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', gap: 6 }}>
+              {off > 0 && <Pill tone="accent">{off}% OFF</Pill>}
+              <Pill tone="dark">100% BRAND ORIGINAL</Pill>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 12 }}>
-            <span style={{ fontSize: 30, fontWeight: 800, letterSpacing: -1 }}>{money(p.price)}</span>
-            <span style={{ fontSize: 14, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp)}</span>
-            <span style={{ fontSize: 12, fontWeight: 800, color: C.success }}>{off}% off</span>
-          </div>
-          <div style={{ marginTop: 6, fontSize: 12.5, color: C.muted }}>
-            or <b style={{ color: C.text }}>{money(emi)}/month</b> with no-cost EMI
-          </div>
-          <div style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: p.stock > reorderAt ? C.success : p.stock > 0 ? C.danger : C.danger, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: 9, background: 'currentColor', animation: 'pulseDot 1.6s infinite' }} />
-            {p.stock === 0 ? 'Out of stock' : p.stock > reorderAt ? 'In stock · ready to dispatch' : `Only ${p.stock} left`}
-          </div>
-        </Reveal>
 
-        {p.category === 'phone' && (
-          <Reveal delay={80}>
+          {/* 3 Trust Pillars under photo */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginTop: 14 }}>
+            {[
+              { i: 'shield' as const, t: '1-Year Warranty' },
+              { i: 'refresh' as const, t: '7-Day Return' },
+              { i: 'award' as const, t: '100% Genuine' },
+            ].map((b) => (
+              <div key={b.t} style={{ textAlign: 'center', padding: '12px 6px', borderRadius: 14, background: '#fff', border: `1px solid ${C.border}`, fontSize: 11, fontWeight: 800, color: C.primary }}>
+                <Icon name={b.i} size={18} style={{ margin: '0 auto 4px', display: 'block' }} />
+                {b.t}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column: Details, Specs & Buying Actions */}
+        <div>
+          <Reveal>
+            <div style={{ fontSize: 11.5, fontWeight: 800, color: C.primarySoft, letterSpacing: 1.5 }}>
+              {p.brand.toUpperCase()} 5G SMARTPHONE
+            </div>
+            <h1 style={{ margin: '6px 0 10px', fontSize: 28, lineHeight: 1.2, fontWeight: 900, letterSpacing: -0.6 }}>
+              {p.name}
+            </h1>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: C.muted }}>
+              <Stars value={rating} size={15} /> <b style={{ color: C.text }}>{rating}</b> · {reviews.toLocaleString('en-IN')} Sivakasi buyers
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 14 }}>
+              <span style={{ fontSize: 34, fontWeight: 900, color: C.text, letterSpacing: -1 }}>{money(p.price)}</span>
+              <span style={{ fontSize: 16, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp)}</span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: C.success }}>{off}% off</span>
+            </div>
+
+            <div style={{ marginTop: 6, fontSize: 13, color: C.muted }}>
+              or <b style={{ color: C.text }}>{money(emi)}/month</b> with no-cost EMI
+            </div>
+
+            <div style={{ marginTop: 10, fontSize: 12.5, fontWeight: 700, color: p.stock > reorderAt ? C.success : p.stock > 0 ? C.danger : C.danger, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: 9, background: 'currentColor', animation: 'pulseDot 1.6s infinite' }} />
+              {p.stock === 0 ? 'Out of stock' : p.stock > reorderAt ? `${p.stock} units in stock · ready for instant dispatch` : `Hurry, only ${p.stock} left in stock!`}
+            </div>
+          </Reveal>
+
+          {/* Color Chooser */}
+          {p.category === 'phone' && (
             <div style={{ marginTop: 18 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 800, marginBottom: 8 }}>Colour</div>
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>Select Finish Colour</div>
+              <div style={{ display: 'flex', gap: 10 }}>
                 {colors.map((c) => (
-                  <button key={c} aria-label="Colour" onClick={() => setColor(c)} style={{ width: 34, height: 34, borderRadius: 99, background: c, border: `3px solid ${art === c ? C.primary : '#fff'}`, boxShadow: `0 0 0 1.5px ${C.border}`, transition: 'transform .2s ease', transform: art === c ? 'scale(1.15)' : 'none' }} />
+                  <button
+                    key={c}
+                    aria-label="Colour"
+                    onClick={() => setColor(c)}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 99,
+                      background: c,
+                      border: `3px solid ${art === c ? C.primary : '#fff'}`,
+                      boxShadow: `0 0 0 1.5px ${C.border}`,
+                      transition: 'transform .2s ease',
+                      transform: art === c ? 'scale(1.15)' : 'none',
+                      cursor: 'pointer',
+                    }}
+                  />
                 ))}
               </div>
+
               {p.storage && (
                 <>
-                  <div style={{ fontSize: 12.5, fontWeight: 800, margin: '16px 0 8px' }}>Storage</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, margin: '16px 0 8px' }}>Storage Variant</div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {p.storage.map((s, i) => (
-                      <button key={s} className="tap" onClick={() => setStorage(i)} style={{ padding: '10px 16px', borderRadius: 12, fontWeight: 700, fontSize: 13, background: storage === i ? C.primary : '#fff', color: storage === i ? '#fff' : C.text, border: `1.5px solid ${storage === i ? C.primary : C.border}`, transition: 'all .25s ease' }}>
+                      <button
+                        key={s}
+                        className="tap"
+                        onClick={() => setStorage(i)}
+                        style={{
+                          padding: '10px 18px',
+                          borderRadius: 12,
+                          fontWeight: 700,
+                          fontSize: 13,
+                          background: storage === i ? C.primary : '#fff',
+                          color: storage === i ? '#fff' : C.text,
+                          border: `1.5px solid ${storage === i ? C.primary : C.border}`,
+                          cursor: 'pointer',
+                        }}
+                      >
                         {s}
                       </button>
                     ))}
@@ -124,70 +238,129 @@ export default function ProductDetail() {
                 </>
               )}
             </div>
-          </Reveal>
-        )}
+          )}
 
-        <Reveal delay={100}>
-          <div style={{ marginTop: 18, padding: 14, borderRadius: 18, background: '#fff', border: `1px solid ${C.border}` }}>
+          {/* Pincode Delivery check */}
+          <div style={{ marginTop: 18, padding: '14px 16px', borderRadius: 16, background: '#fff', border: `1px solid ${C.border}` }}>
             <div style={{ fontSize: 12.5, fontWeight: 800, marginBottom: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
-              <Icon name="truck" size={16} color={C.primary} /> Delivery availability
+              <Icon name="truck" size={16} color={C.primary} /> Check Delivery to Your Pincode
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <input value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Pincode" inputMode="numeric" style={{ ...input, padding: '11px 12px' }} />
-              <Btn onClick={checkPin} variant="light" style={{ padding: '0 18px' }}>Check</Btn>
+              <input
+                value={pin}
+                onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="Enter 6-digit Pincode"
+                inputMode="numeric"
+                style={{ ...input, padding: '10px 12px', fontSize: 13 }}
+              />
+              <Btn onClick={checkPin} variant="light" style={{ padding: '0 20px', fontSize: 13 }}>Check</Btn>
             </div>
             {pinResult && (
-              <div key={pinResult} style={{ marginTop: 10, fontSize: 12, fontWeight: 700, color: /^Delivery/.test(pinResult) ? C.success : C.danger, animation: 'fadeUp .35s ease' }}>
+              <div key={pinResult} style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: /^Delivery/.test(pinResult) ? C.success : C.danger }}>
                 {pinResult}
               </div>
             )}
           </div>
-        </Reveal>
 
-        <Reveal delay={100}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 14 }}>
-            {[
-              { i: 'shield' as const, t: '1-Year Warranty' },
-              { i: 'refresh' as const, t: '7-Day Replace' },
-              { i: 'award' as const, t: '100% Genuine' },
-            ].map((b) => (
-              <div key={b.t} style={{ textAlign: 'center', padding: '12px 4px', borderRadius: 14, background: C.tint, fontSize: 10.5, fontWeight: 800, color: C.primary }}>
-                <Icon name={b.i} size={20} style={{ margin: '0 auto 4px', display: 'block' }} />
-                {b.t}
-              </div>
-            ))}
+          {/* Action Buttons: Add to Cart and Buy Now */}
+          <div style={{ display: 'flex', gap: 12, marginTop: 22 }}>
+            <Btn
+              variant="light"
+              full
+              disabled={p.stock === 0}
+              onClick={add}
+              style={{
+                flex: 1,
+                padding: '14px 0',
+                fontSize: 14,
+                fontWeight: 800,
+                background: added ? C.successSoft : C.tint,
+                color: added ? C.success : C.primary,
+              }}
+            >
+              <Icon name={added ? 'check' : 'cart'} size={18} /> {added ? 'Added to Cart!' : 'Add to Cart'}
+            </Btn>
+            <Btn
+              full
+              disabled={p.stock === 0}
+              onClick={() => {
+                addToCart(p.id);
+                nav('/cart');
+              }}
+              style={{ flex: 1, padding: '14px 0', fontSize: 14, fontWeight: 800 }}
+            >
+              Buy Now Express
+            </Btn>
           </div>
-        </Reveal>
+        </div>
+      </div>
 
-        {/* tabs */}
-        <div style={{ marginTop: 22, display: 'flex', gap: 6, background: C.tint, padding: 4, borderRadius: 14 }}>
+      {/* Tabs: Specifications, Overview, Reviews */}
+      <div style={{ marginTop: 36 }}>
+        <div style={{ display: 'flex', gap: 8, borderBottom: `1.5px solid ${C.border}`, paddingBottom: 8 }}>
           {(['specs', 'overview', 'reviews'] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: '10px 0', borderRadius: 11, fontWeight: 800, fontSize: 12.5, textTransform: 'capitalize', background: tab === t ? '#fff' : 'transparent', color: tab === t ? C.primary : C.muted, boxShadow: tab === t ? '0 2px 8px rgba(11,74,67,.1)' : 'none', transition: 'all .25s ease' }}>
-              {t}
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              style={{
+                padding: '10px 22px',
+                borderRadius: 12,
+                fontWeight: 800,
+                fontSize: 13.5,
+                textTransform: 'capitalize',
+                background: tab === t ? C.primary : 'transparent',
+                color: tab === t ? '#fff' : C.muted,
+                transition: 'all .2s ease',
+                cursor: 'pointer',
+              }}
+            >
+              {t === 'specs' ? 'Technical Specs' : t === 'overview' ? 'Device Overview' : 'Customer Reviews'}
             </button>
           ))}
         </div>
-        <div key={tab} style={{ marginTop: 12, background: '#fff', borderRadius: 18, border: `1px solid ${C.border}`, padding: 16, animation: 'fadeUp .35s ease' }}>
+
+        <div style={{ marginTop: 16, background: '#fff', borderRadius: 20, border: `1px solid ${C.border}`, padding: '24px 28px' }}>
           {tab === 'specs' &&
             specs.map((s, i) => (
-              <div key={s} style={{ display: 'flex', gap: 10, padding: '9px 0', borderBottom: i < specs.length - 1 ? `1px solid ${C.border}` : 'none', fontSize: 13, fontWeight: 600, animation: `fadeUp .4s ease ${i * 60}ms both` }}>
-                <Icon name="check" size={16} color={C.success} stroke={3} /> {s}
+              <div
+                key={s}
+                style={{
+                  display: 'flex',
+                  gap: 12,
+                  padding: '11px 0',
+                  borderBottom: i < specs.length - 1 ? `1px solid ${C.tint2}` : 'none',
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                }}
+              >
+                <Icon name="check" size={17} color={C.success} stroke={3} /> {s}
               </div>
             ))}
-          {tab === 'overview' && <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.65 }}>{p.description || `${p.name} with official manufacturer warranty and original sealed box from Sastika Mobiles.`}</p>}
+          {tab === 'overview' && (
+            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: C.text }}>
+              {p.description || `${p.name} with official manufacturer warranty and original sealed box from Sastika Mobiles.`}
+            </p>
+          )}
           {tab === 'reviews' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 30 }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 38, fontWeight: 800 }}>{rating}</div>
-                <Stars value={rating} size={13} />
-                <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>{reviews.toLocaleString('en-IN')} reviews</div>
+                <div style={{ fontSize: 44, fontWeight: 900, color: C.primary }}>{rating}</div>
+                <Stars value={rating} size={15} />
+                <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{reviews.toLocaleString('en-IN')} reviews</div>
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, maxWidth: 400 }}>
                 {[5, 4, 3, 2, 1].map((n) => (
-                  <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, marginBottom: 3 }}>
-                    {n}
-                    <div style={{ flex: 1, height: 6, background: C.tint, borderRadius: 9, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${[72, 18, 6, 2, 2][5 - n]}%`, background: C.accent, borderRadius: 9, animation: 'grow .9s ease both', transformOrigin: 'left' }} />
+                  <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginBottom: 4 }}>
+                    <span>{n}★</span>
+                    <div style={{ flex: 1, height: 7, background: C.tint, borderRadius: 9, overflow: 'hidden' }}>
+                      <div
+                        style={{
+                          height: '100%',
+                          width: `${[72, 18, 6, 2, 2][5 - n]}%`,
+                          background: C.accent,
+                          borderRadius: 9,
+                        }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -197,26 +370,24 @@ export default function ProductDetail() {
         </div>
       </div>
 
+      {/* Similar Mobiles */}
       {similar.length > 0 && (
-        <section style={{ paddingTop: 26 }}>
-          <SectionHead title="Similar Picks" />
-          <div className="hide-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 18px 12px' }}>
+        <section style={{ paddingTop: 40 }}>
+          <SectionHead title="Similar 5G Smartphones in Stock" sub="Explore alternative models from top brands" />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+              gap: 20,
+              paddingTop: 16,
+            }}
+          >
             {similar.map((s) => (
-              <ProductCard key={s.id} p={s} width={164} compact />
+              <ProductCard key={s.id} p={s} />
             ))}
           </div>
         </section>
       )}
-
-      {/* sticky buy bar */}
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, background: '#fff', borderTop: `1px solid ${C.border}`, padding: '10px 14px 14px', display: 'flex', gap: 10, zIndex: 15, animation: 'slideUp .5s ease both' }}>
-        <Btn variant="light" full disabled={p.stock === 0} onClick={add} style={{ flex: 1, background: added ? C.successSoft : C.tint, color: added ? C.success : C.primary }}>
-          <Icon name={added ? 'check' : 'cart'} size={17} /> {added ? 'Added' : 'Add to Cart'}
-        </Btn>
-        <Btn full disabled={p.stock === 0} onClick={() => { addToCart(p.id); nav('/cart'); }} style={{ flex: 1 }}>
-          Buy Now
-        </Btn>
-      </div>
     </div>
   );
 }

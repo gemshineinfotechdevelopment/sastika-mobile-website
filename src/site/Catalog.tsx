@@ -39,58 +39,100 @@ export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
   ];
 
   return (
-    <div style={{ padding: '18px 0 20px' }}>
-      <div style={{ padding: '0 18px' }}>
-        <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.4, color: C.primarySoft }}>{kind === 'phones' ? 'MOBILES CATALOGUE' : 'ACCESSORIES & AUDIO'}</div>
-        <h1 style={{ margin: '4px 0 4px', fontSize: 28, fontWeight: 800, letterSpacing: -0.8 }}>{kind === 'phones' ? 'Flagship & Budget Smartphones' : 'Original Accessories & Audio'}</h1>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-          <Pill tone="success">{list.length} FOUND</Pill>
-          <Pill>OFFICIAL STORE</Pill>
+    <div style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 28px 40px' }}>
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, color: C.primarySoft }}>
+          {kind === 'phones' ? 'INVENTORY MOBILES CATALOGUE' : 'ACCESSORIES & AUDIO'}
         </div>
-        <div style={{ position: 'relative', marginBottom: 12 }}>
-          <span style={{ position: 'absolute', left: 13, top: 13, color: C.muted }}><Icon name="search" size={18} /></span>
+        <h1 style={{ margin: '6px 0 8px', fontSize: 32, fontWeight: 800, letterSpacing: -0.8 }}>
+          {kind === 'phones' ? 'Available 5G Smartphones' : 'Original Accessories & Audio'}
+        </h1>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <Pill tone="success">{list.length} IN STOCK</Pill>
+          <Pill>100% BRAND WARRANTY</Pill>
+          <Pill tone="accent">SIVAKASI TAX INVOICE</Pill>
+        </div>
+
+        <div style={{ position: 'relative', maxWidth: 640, marginBottom: 16 }}>
+          <span style={{ position: 'absolute', left: 14, top: 13, color: C.muted }}>
+            <Icon name="search" size={18} />
+          </span>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder={kind === 'phones' ? 'Search iPhone, Galaxy, OnePlus…' : 'Search chargers, cases, earbuds…'}
-            style={{ width: '100%', padding: '13px 14px 13px 40px', borderRadius: 14, border: `1.5px solid ${C.border}`, background: '#fff' }}
+            placeholder={kind === 'phones' ? 'Search Redmi, OPPO, Vivo, Nothing, Samsung, Poco…' : 'Search chargers, cases, earbuds…'}
+            style={{ width: '100%', padding: '12px 14px 12px 42px', borderRadius: 14, border: `1.5px solid ${C.border}`, background: '#fff', fontSize: 14 }}
           />
         </div>
       </div>
 
-      <div className="hide-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 18px 10px' }}>
+      {/* Brand Selector Buttons */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
         {brands.map((b) => (
           <button
             key={b}
             className="tap"
             onClick={() => {
               setBrand(b);
-              setLimit(6);
+              setLimit(18);
             }}
-            style={{ padding: '8px 16px', borderRadius: 99, fontWeight: 700, fontSize: 12.5, whiteSpace: 'nowrap', background: brand === b ? C.primary : '#fff', color: brand === b ? '#fff' : C.text, border: `1px solid ${brand === b ? C.primary : C.border}`, transition: 'all .25s ease' }}
+            style={{
+              padding: '8px 18px',
+              borderRadius: 99,
+              fontWeight: 700,
+              fontSize: 13,
+              background: brand === b ? C.primary : '#fff',
+              color: brand === b ? '#fff' : C.text,
+              border: `1.5px solid ${brand === b ? C.primary : C.border}`,
+              boxShadow: brand === b ? '0 4px 12px rgba(11,74,67,0.18)' : 'none',
+              transition: 'all .2s ease',
+            }}
           >
             {b}
           </button>
         ))}
       </div>
-      <div className="hide-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 18px 14px', alignItems: 'center' }}>
-        <Icon name="filter" size={15} color={C.muted} />
+
+      {/* Sorting Bar */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 20 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: C.muted, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Icon name="filter" size={14} color={C.muted} /> Sort By:
+        </span>
         {sorts.map((s) => (
-          <button key={s.k} onClick={() => setSort(s.k)} style={{ padding: '6px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', background: sort === s.k ? C.accent : C.tint, color: sort === s.k ? C.primaryDark : C.primary, transition: 'all .25s ease' }}>
+          <button
+            key={s.k}
+            onClick={() => setSort(s.k)}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 10,
+              fontSize: 12,
+              fontWeight: 700,
+              background: sort === s.k ? C.accent : C.tint,
+              color: sort === s.k ? C.primaryDark : C.primary,
+              transition: 'all .2s ease',
+            }}
+          >
             {s.label}
           </button>
         ))}
       </div>
 
       {list.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '50px 20px', color: C.muted, animation: 'fadeUp .4s ease' }}>
-          <Icon name="search" size={34} />
-          <div style={{ fontWeight: 700, marginTop: 8 }}>No products match your search</div>
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: C.muted, background: '#fff', borderRadius: 20, border: `1px solid ${C.border}` }}>
+          <Icon name="search" size={40} />
+          <div style={{ fontWeight: 800, fontSize: 16, marginTop: 12 }}>No products match your search</div>
+          <div style={{ fontSize: 13, marginTop: 4 }}>Try clearing the search query or selecting a different brand</div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 18px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 20,
+          }}
+        >
           {list.slice(0, limit).map((p, i) => (
-            <Reveal key={p.id + brand + sort} delay={(i % 2) * 80} dir="up">
+            <Reveal key={p.id + brand + sort} delay={(i % 4) * 60} dir="up">
               <ProductCard p={p} />
             </Reveal>
           ))}
@@ -98,10 +140,24 @@ export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
       )}
 
       {limit < list.length && (
-        <div style={{ padding: '18px 18px 0', textAlign: 'center' }}>
-          <div style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>Showing {Math.min(limit, list.length)} of {list.length}</div>
-          <button className="tap" onClick={() => setLimit((n) => n + 6)} style={{ width: '100%', padding: 14, borderRadius: 14, background: C.primary, color: '#fff', fontWeight: 700 }}>
-            Load More
+        <div style={{ padding: '24px 0 0', textAlign: 'center' }}>
+          <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>
+            Showing {Math.min(limit, list.length)} of {list.length} products
+          </div>
+          <button
+            className="tap"
+            onClick={() => setLimit((n) => n + 12)}
+            style={{
+              padding: '12px 32px',
+              borderRadius: 14,
+              background: C.primary,
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: 13.5,
+              boxShadow: '0 4px 14px rgba(11,74,67,0.2)',
+            }}
+          >
+            Load More Products
           </button>
         </div>
       )}

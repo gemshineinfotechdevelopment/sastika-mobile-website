@@ -148,12 +148,14 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
   return (
     <section
       style={{
+        margin: '20px 24px 0',
+        borderRadius: 28,
         position: 'relative',
         overflow: 'hidden',
         color: '#fff',
         background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primary}, ${C.primarySoft})`,
-        borderRadius: '0 0 36px 36px',
-        padding: '50px 24px 60px',
+        padding: '44px 36px 48px',
+        boxShadow: '0 12px 36px rgba(11,74,67,0.18)',
       }}
     >
       {orbs.map((o, i) => (

@@ -62,7 +62,7 @@ export default function About() {
   const { logo } = useStore();
 
   return (
-    <div style={{ paddingBottom: 24 }}>
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '16px 24px 60px' }}>
       {/* Devotional Invocations Banner from original bill */}
       <div
         style={{

@@ -36,105 +36,128 @@ export default function Cart() {
 
   if (t.lines.length === 0) {
     return (
-      <div>
-        <PageHead title="Shopping Cart" />
-        <div style={{ textAlign: 'center', padding: '60px 30px' }}>
-          <div style={{ width: 110, height: 110, borderRadius: 99, background: C.tint, display: 'grid', placeItems: 'center', margin: '0 auto 18px', animation: 'floatSoft 3s ease-in-out infinite' }}>
-            <Icon name="cart" size={46} color={C.primary} />
-          </div>
-          <h2 style={{ margin: '0 0 6px' }}>Your cart is empty</h2>
-          <p style={{ color: C.muted, fontSize: 13.5, marginBottom: 20 }}>Pick a phone or an accessory to get started.</p>
-          <Btn onClick={() => nav('/mobiles')}>Shop Mobiles</Btn>
+      <div style={{ maxWidth: 600, margin: '60px auto', textAlign: 'center', padding: '40px 20px' }}>
+        <div style={{ width: 110, height: 110, borderRadius: 99, background: C.tint, display: 'grid', placeItems: 'center', margin: '0 auto 18px', animation: 'floatSoft 3s ease-in-out infinite' }}>
+          <Icon name="cart" size={46} color={C.primary} />
         </div>
+        <h2 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 900 }}>Your shopping cart is empty</h2>
+        <p style={{ color: C.muted, fontSize: 14, marginBottom: 24 }}>Explore top 5G smartphones in Sivakasi to get started.</p>
+        <Btn onClick={() => nav('/mobiles')} style={{ padding: '12px 32px' }}>Shop Available Mobiles</Btn>
       </div>
     );
   }
 
   return (
-    <div style={{ paddingBottom: 24 }}>
-      <PageHead title={`Shopping Cart (${t.lines.length})`} />
+    <div style={{ maxWidth: 1160, margin: '0 auto', padding: '24px 28px 60px' }}>
+      <PageHead title={`Shopping Cart (${t.lines.length} items)`} />
 
-      <div style={{ padding: '6px 18px 0' }}>
-        {t.lines.map(({ product: p, qty }, i) => (
-          <div
-            key={p.id}
-            style={{
-              display: 'flex',
-              gap: 12,
-              padding: 12,
-              background: '#fff',
-              borderRadius: 18,
-              border: `1px solid ${C.border}`,
-              marginBottom: 10,
-              opacity: leaving === p.id ? 0 : 1,
-              transform: leaving === p.id ? 'translateX(60px)' : 'none',
-              transition: 'all .3s ease',
-              animation: `fadeUp .45s ease ${i * 70}ms both`,
-            }}
-          >
-            <div style={{ width: 84, height: 96, borderRadius: 14, background: C.tint, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-              <ProductArt category={p.category} color={p.color} size={74} image={p.image} alt={p.name} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>
-                <div style={{ fontWeight: 800, fontSize: 13.5, lineHeight: 1.25 }}>{p.name}</div>
-                <button onClick={() => remove(p.id)} aria-label="Remove" style={{ color: C.muted }}><Icon name="trash" size={16} /></button>
+      <div className="cart-grid" style={{ marginTop: 16 }}>
+        {/* Left Column: Cart items list */}
+        <div>
+          {t.lines.map(({ product: p, qty }, i) => (
+            <div
+              key={p.id}
+              style={{
+                display: 'flex',
+                gap: 16,
+                padding: 16,
+                background: '#fff',
+                borderRadius: 18,
+                border: `1.5px solid ${C.border}`,
+                marginBottom: 14,
+                opacity: leaving === p.id ? 0 : 1,
+                transform: leaving === p.id ? 'translateX(60px)' : 'none',
+                transition: 'all .3s ease',
+                animation: `fadeUp .45s ease ${i * 70}ms both`,
+              }}
+            >
+              <div style={{ width: 100, height: 110, borderRadius: 14, background: C.tint, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <ProductArt category={p.category} color={p.color} size={84} image={p.image} alt={p.name} />
               </div>
-              <div style={{ fontSize: 11, color: C.success, fontWeight: 700, margin: '3px 0 6px' }}>In stock</div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: 16 }}>{money(p.price * qty)}</div>
-                  <div style={{ fontSize: 10.5, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp * qty)}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ fontWeight: 800, fontSize: 15, lineHeight: 1.3 }}>{p.name}</div>
+                    <button onClick={() => remove(p.id)} aria-label="Remove" style={{ color: C.muted, cursor: 'pointer', padding: 4 }}>
+                      <Icon name="trash" size={17} />
+                    </button>
+                  </div>
+                  <div style={{ fontSize: 12, color: C.success, fontWeight: 700, margin: '4px 0 8px' }}>
+                    ✓ In Stock at Sivakasi Branch
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', background: C.tint, borderRadius: 12 }}>
-                  <button className="tap" onClick={() => setQty(p.id, qty - 1)} style={{ width: 32, height: 32, display: 'grid', placeItems: 'center' }} aria-label="Decrease"><Icon name="minus" size={15} /></button>
-                  <span key={qty} style={{ minWidth: 22, textAlign: 'center', fontWeight: 800, animation: 'pop .3s ease' }}>{qty}</span>
-                  <button className="tap" onClick={() => setQty(p.id, Math.min(p.stock, qty + 1))} style={{ width: 32, height: 32, display: 'grid', placeItems: 'center' }} aria-label="Increase"><Icon name="plus" size={15} /></button>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+                  <div>
+                    <div style={{ fontWeight: 900, fontSize: 18, color: C.text }}>{money(p.price * qty)}</div>
+                    <div style={{ fontSize: 11, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp * qty)}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', background: C.tint, borderRadius: 12, padding: '2px 4px' }}>
+                    <button className="tap" onClick={() => setQty(p.id, qty - 1)} style={{ width: 32, height: 32, display: 'grid', placeItems: 'center' }} aria-label="Decrease">
+                      <Icon name="minus" size={15} />
+                    </button>
+                    <span key={qty} style={{ minWidth: 28, textAlign: 'center', fontWeight: 800, fontSize: 14 }}>
+                      {qty}
+                    </span>
+                    <button className="tap" onClick={() => setQty(p.id, Math.min(p.stock, qty + 1))} style={{ width: 32, height: 32, display: 'grid', placeItems: 'center' }} aria-label="Increase">
+                      <Icon name="plus" size={15} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      <Reveal>
-        <div style={{ margin: '4px 18px 0', padding: 14, borderRadius: 18, background: '#fff', border: `1px solid ${C.border}` }}>
-          <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Icon name="percent" size={16} color={C.primary} /> Coupons & Offers
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Enter code (try FESTIVAL2000)" style={{ ...input, padding: '11px 12px', letterSpacing: 0.5 }} />
-            <Btn onClick={apply} style={{ padding: '0 18px' }}>Apply</Btn>
-          </div>
-          {msg && (
-            <div key={msg.text} style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: msg.ok ? C.success : C.danger, animation: 'fadeUp .3s ease' }}>{msg.text}</div>
-          )}
+          ))}
         </div>
-      </Reveal>
 
-      <Reveal>
-        <div style={{ margin: '12px 18px 0', padding: 16, borderRadius: 18, background: '#fff', border: `1px solid ${C.border}` }}>
-          <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 10 }}>Price Details</div>
-          <Row label={`Items total (MRP)`} value={money(t.mrpTotal)} />
-          <Row label="Product discount" value={`− ${money(t.productDiscount)}`} green />
-          {t.couponDiscount > 0 && <Row label={`Coupon (${coupon})`} value={`− ${money(t.couponDiscount)}`} green />}
-          <Row label="Delivery fee" value="FREE" green />
-          <div style={{ borderTop: `1px dashed ${C.border}`, margin: '10px 0' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 18 }}>
-            <span>Total Payable</span>
-            <span key={t.payable} style={{ animation: 'pop .35s ease' }}>{money(t.payable)}</span>
+        {/* Right Column: Coupons & Order Summary Sticky Card */}
+        <div style={{ position: 'sticky', top: 70 }}>
+          {/* Coupon input */}
+          <div style={{ padding: 18, borderRadius: 18, background: '#fff', border: `1.5px solid ${C.border}`, marginBottom: 16 }}>
+            <div style={{ fontWeight: 800, fontSize: 13.5, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Icon name="percent" size={16} color={C.primary} /> Discount Coupons &amp; Offers
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                placeholder="Coupon code (e.g. FESTIVAL2000)"
+                style={{ ...input, padding: '10px 12px', fontSize: 13, letterSpacing: 0.5 }}
+              />
+              <Btn onClick={apply} style={{ padding: '0 20px', fontSize: 13 }}>Apply</Btn>
+            </div>
+            {msg && (
+              <div key={msg.text} style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: msg.ok ? C.success : C.danger }}>
+                {msg.text}
+              </div>
+            )}
           </div>
-          <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 10, background: C.successSoft, color: C.success, fontSize: 12, fontWeight: 700 }}>
-            You're saving {money(t.saved)} on this order
+
+          {/* Price Summary */}
+          <div style={{ padding: 20, borderRadius: 18, background: '#fff', border: `1.5px solid ${C.border}` }}>
+            <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 14, color: C.text }}>Order Price Summary</div>
+            <Row label={`Items total (MRP)`} value={money(t.mrpTotal)} />
+            <Row label="Direct store discount" value={`− ${money(t.productDiscount)}`} green />
+            {t.couponDiscount > 0 && <Row label={`Coupon (${coupon})`} value={`− ${money(t.couponDiscount)}`} green />}
+            <Row label="Express Delivery fee" value="FREE" green />
+            <div style={{ borderTop: `1px dashed ${C.border}`, margin: '14px 0' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: 20 }}>
+              <span>Total Payable</span>
+              <span key={t.payable} style={{ color: C.primary }}>{money(t.payable)}</span>
+            </div>
+            <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 10, background: C.successSoft, color: C.success, fontSize: 12.5, fontWeight: 700 }}>
+              🎉 You are saving {money(t.saved)} on this purchase!
+            </div>
+
+            <div style={{ display: 'grid', gap: 10, marginTop: 18 }}>
+              <Btn full onClick={() => nav('/checkout')} style={{ padding: '14px 0', fontSize: 14, fontWeight: 800 }}>
+                Proceed to Checkout · {money(t.payable)} <Icon name="right" size={16} />
+              </Btn>
+              <Btn full variant="light" onClick={() => nav('/mobiles')} style={{ padding: '11px 0', fontSize: 13 }}>
+                Continue Shopping
+              </Btn>
+            </div>
           </div>
         </div>
-      </Reveal>
-
-      <div style={{ padding: '14px 18px 0', display: 'grid', gap: 10 }}>
-        <Btn full onClick={() => nav('/checkout')}>
-          Proceed to Checkout · {money(t.payable)} <Icon name="right" size={16} />
-        </Btn>
-        <Btn full variant="light" onClick={() => nav('/mobiles')}>Continue Shopping</Btn>
       </div>
     </div>
   );
@@ -142,7 +165,7 @@ export default function Cart() {
 
 function Row({ label, value, green }: { label: string; value: string; green?: boolean }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '5px 0', color: green ? C.success : C.text, fontWeight: green ? 700 : 500 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13.5, padding: '6px 0', color: green ? C.success : C.text, fontWeight: green ? 700 : 500 }}>
       <span style={{ color: green ? C.success : C.muted }}>{label}</span>
       <span>{value}</span>
     </div>

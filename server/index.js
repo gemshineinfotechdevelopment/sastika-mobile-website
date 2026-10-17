@@ -75,11 +75,23 @@ const startServer = async () => {
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`❌ Port ${PORT} is already in use by another process. Run: Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force`);
+      console.error(`❌ Port ${PORT} is already in use by another process.`);
+      console.error(`👉 Run in PowerShell to free it: Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force`);
     } else {
       console.error('❌ Server startup error:', err);
     }
   });
+
+  const shutdown = () => {
+    console.log('\n🛑 Shutting down server gracefully...');
+    server.close(() => {
+      console.log('✅ Port 5000 released.');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 };
 
 startServer();
