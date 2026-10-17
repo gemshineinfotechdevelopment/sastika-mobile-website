@@ -73,7 +73,7 @@ export default function Cart() {
             }}
           >
             <div style={{ width: 84, height: 96, borderRadius: 14, background: C.tint, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-              <ProductArt category={p.category} color={p.color} size={74} />
+              <ProductArt category={p.category} color={p.color} size={74} image={p.image} alt={p.name} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>

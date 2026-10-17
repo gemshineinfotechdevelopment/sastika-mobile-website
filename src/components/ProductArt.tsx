@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import type { Category } from '../types';
 
 interface Props {
@@ -7,6 +7,8 @@ interface Props {
   size?: number;
   style?: CSSProperties;
   float?: boolean;
+  image?: string;
+  alt?: string;
 }
 
 function shade(hex: string, amt: number): string {
@@ -18,10 +20,45 @@ function shade(hex: string, amt: number): string {
   return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
 }
 
-/** Procedurally drawn product artwork so the project needs no image assets. */
-export default function ProductArt({ category, color, size = 120, style, float }: Props) {
+export default function ProductArt({ category, color, size = 120, style, float, image, alt }: Props) {
+  const [imgError, setImgError] = useState(false);
   const id = 'g' + color.replace('#', '') + category;
   const anim: CSSProperties = float ? { animation: 'floatSoft 4s ease-in-out infinite' } : {};
+
+  // If real picture is provided and loads without error, render the photo
+  if (image && !imgError) {
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+          ...anim,
+          ...style,
+        }}
+      >
+        <img
+          src={image}
+          alt={alt || 'Product Image'}
+          loading="lazy"
+          onError={() => setImgError(true)}
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.12))',
+            transition: 'transform 0.3s ease',
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Fallback to procedurally drawn SVG artwork
   if (category === 'phone') {
     return (
       <svg width={size * 0.55} height={size} viewBox="0 0 110 200" style={{ ...anim, ...style }} aria-hidden>
@@ -44,6 +81,7 @@ export default function ProductArt({ category, color, size = 120, style, float }
       </svg>
     );
   }
+
   if (category === 'audio') {
     return (
       <svg width={size} height={size} viewBox="0 0 160 160" style={{ ...anim, ...style }} aria-hidden>
@@ -64,6 +102,7 @@ export default function ProductArt({ category, color, size = 120, style, float }
       </svg>
     );
   }
+
   return (
     <svg width={size} height={size} viewBox="0 0 160 160" style={{ ...anim, ...style }} aria-hidden>
       <defs>

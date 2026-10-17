@@ -92,7 +92,16 @@ export default function Inventory() {
               <tbody>
                 {products.map((p) => (
                   <tr key={p.id} className="row-hover">
-                    <td style={{ ...td, fontWeight: 700, maxWidth: 220 }}>{p.name}</td>
+                    <td style={{ ...td, fontWeight: 700, maxWidth: 240 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        {p.image ? (
+                          <img src={p.image} alt={p.name} style={{ width: 30, height: 30, objectFit: 'contain', borderRadius: 6, background: C.tint2, flexShrink: 0 }} />
+                        ) : (
+                          <div style={{ width: 12, height: 12, borderRadius: 99, background: p.color, flexShrink: 0 }} />
+                        )}
+                        <span>{p.name}</span>
+                      </div>
+                    </td>
                     <td style={{ ...td, color: C.muted, fontSize: 12 }}>{p.sku}</td>
                     <td style={{ ...td, fontWeight: 800 }}>{p.stock}</td>
                     <td style={td}>{p.reorderAt}</td>

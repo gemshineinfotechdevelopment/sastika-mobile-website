@@ -14,6 +14,7 @@
     "reorderAt": 10,
     "sku": "OP12-16-512-EM",
     "storage": ["128GB", "256GB", "512GB"],
+    "image": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80",
     "specs": [
       "Snapdragon 8 Gen 3",
       "50MP Sony LYT-808 camera",
@@ -39,6 +40,7 @@
     "reorderAt": 8,
     "sku": "IP15PM-256-NT",
     "storage": ["256GB", "512GB", "1TB"],
+    "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80",
     "specs": [
       "A17 Pro chip",
       "48MP main + 5x telephoto",
@@ -64,6 +66,7 @@
     "reorderAt": 8,
     "sku": "S24U-512-TG",
     "storage": ["256GB", "512GB", "1TB"],
+    "image": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=600&q=80",
     "specs": [
       "Snapdragon 8 Gen 3 for Galaxy",
       "200MP quad camera",
@@ -89,6 +92,7 @@
     "reorderAt": 15,
     "sku": "NCE4-8-128-DC",
     "storage": ["128GB", "256GB"],
+    "image": "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=600&q=80",
     "specs": [
       "Snapdragon 7 Gen 3",
       "50MP Sony LYT-600 OIS",
@@ -113,6 +117,7 @@
     "reorderAt": 12,
     "sku": "RN13P-12-256",
     "storage": ["256GB", "512GB"],
+    "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
     "specs": [
       "Dimensity 7200 Ultra",
       "200MP OIS camera",
@@ -137,6 +142,7 @@
     "reorderAt": 6,
     "sku": "VX100P-16-512",
     "storage": ["256GB", "512GB"],
+    "image": "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=600&q=80",
     "specs": [
       "Dimensity 9300",
       "ZEISS APO telephoto",
@@ -161,6 +167,7 @@
     "reorderAt": 10,
     "sku": "IQ12-12-256",
     "storage": ["256GB", "512GB"],
+    "image": "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=600&q=80",
     "specs": [
       "Snapdragon 8 Gen 3",
       "50MP OIS main camera",
@@ -185,6 +192,7 @@
     "reorderAt": 10,
     "sku": "S24-8-256",
     "storage": ["128GB", "256GB", "512GB"],
+    "image": "https://images.unsplash.com/photo-1575695342320-d2d2d2f9b73f?auto=format&fit=crop&w=600&q=80",
     "specs": [
       "Exynos 2400",
       "50MP triple camera",
@@ -208,6 +216,7 @@
     "stock": 120,
     "reorderAt": 25,
     "sku": "AC-MSC-15",
+    "image": "https://images.unsplash.com/photo-1622445262464-84b1456045b6?auto=format&fit=crop&w=600&q=80",
     "specs": ["15W MagSafe charging", "USB-C cable", "Works with iPhone 12 and later"],
     "description": "Snap-on magnetic wireless charging."
   },
@@ -225,6 +234,7 @@
     "stock": 7,
     "reorderAt": 10,
     "sku": "AU-SNY-XM5",
+    "image": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=600&q=80",
     "specs": ["Industry-leading ANC", "8h battery (24h with case)", "LDAC hi-res audio", "IPX4"],
     "description": "Compact earbuds with best-in-class noise cancelling."
   },
@@ -242,6 +252,7 @@
     "stock": 210,
     "reorderAt": 40,
     "sku": "AC-SPG-UH",
+    "image": "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=600&q=80",
     "specs": ["Crystal-clear back", "MagSafe compatible", "Military-grade drop protection"],
     "description": "Slim, clear and magnetic."
   },
@@ -259,6 +270,7 @@
     "stock": 88,
     "reorderAt": 20,
     "sku": "AC-ANK-65",
+    "image": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=600&q=80",
     "specs": ["65W GaN technology", "3 ports (2 USB-C + 1 USB-A)", "Foldable plug"],
     "description": "Charge a laptop and two phones from one tiny brick."
   },
@@ -276,6 +288,7 @@
     "stock": 45,
     "reorderAt": 12,
     "sku": "AU-SAM-B2P",
+    "image": "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?auto=format&fit=crop&w=600&q=80",
     "specs": ["24-bit Hi-Fi audio", "Intelligent ANC", "IPX7"],
     "description": "Hi-Fi earbuds with intelligent noise control."
   },
@@ -293,6 +306,7 @@
     "stock": 340,
     "reorderAt": 60,
     "sku": "AC-SAS-TG",
+    "image": "https://images.unsplash.com/photo-1585060544812-6b45742d762f?auto=format&fit=crop&w=600&q=80",
     "specs": ["9H hardness", "Anti-fingerprint coating", "Free alignment frame"],
     "description": "Scratch-proof screen cover with an easy install frame."
   },
@@ -310,6 +324,7 @@
     "stock": 56,
     "reorderAt": 15,
     "sku": "AC-ANK-PB20",
+    "image": "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?auto=format&fit=crop&w=600&q=80",
     "specs": ["20000mAh capacity", "30W PD output", "Dual USB-C"],
     "description": "Two full phone charges in your pocket."
   },
@@ -327,6 +342,7 @@
     "stock": 33,
     "reorderAt": 10,
     "sku": "AU-OP-BP2",
+    "image": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=600&q=80",
     "specs": ["Dual drivers with Dynaudio tuning", "Adaptive ANC", "39h total battery"],
     "description": "Dynaudio-tuned buds with adaptive noise cancelling."
   }

@@ -18,6 +18,7 @@ const productSchema = new mongoose.Schema(
     sku: { type: String, required: true },
     description: { type: String, default: '' },
     storage: [{ type: String }],
+    image: { type: String },
   },
   { timestamps: true }
 );
