@@ -9,10 +9,8 @@ import { computeTotals } from './pricing';
 const STEPS = ['Contact', 'Address', 'Payment', 'Review'];
 
 const PAYMENTS: { id: string; title: string; sub: string; icon: IconName }[] = [
-  { id: 'UPI', title: 'UPI / QR Payment', sub: 'Google Pay, PhonePe, Paytm — extra ₹500 off', icon: 'zap' },
-  { id: 'Credit Card', title: 'Credit / Debit Card', sub: 'Visa, Mastercard, RuPay · No-cost EMI', icon: 'card' },
-  { id: 'Net Banking', title: 'Net Banking', sub: 'SBI, HDFC, Axis, ICICI and others', icon: 'lock' },
-  { id: 'COD', title: 'Cash on Delivery', sub: '₹50 verification deposit may apply', icon: 'truck' },
+  { id: 'UPI', title: 'UPI / QR Payment', sub: 'Google Pay, PhonePe, Paytm — Instant & Secure', icon: 'zap' },
+  { id: 'COD', title: 'Cash on Delivery', sub: 'Pay cash or UPI at your doorstep upon delivery', icon: 'truck' },
 ];
 
 export default function Checkout() {
@@ -60,7 +58,7 @@ export default function Checkout() {
         return;
       }
 
-      // Name, Phone, and Email are strictly mandatory
+      // Name and Phone are strictly mandatory
       const cleanName = form.name.trim();
       const cleanPhone = form.phone.trim();
       const cleanEmail = form.email.trim();
@@ -69,8 +67,9 @@ export default function Checkout() {
       if (cleanName.length < 2) return setError('Name must be at least 2 characters');
       if (!cleanPhone) return setError('Please enter your 10-digit mobile number (Mandatory)');
       if (!/^\d{10}$/.test(cleanPhone)) return setError('Enter a valid 10-digit mobile number');
-      if (!cleanEmail) return setError('Please enter your email address (Mandatory)');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) return setError('Enter a valid email address (e.g. name@example.com)');
+      if (cleanEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+        return setError('Enter a valid email address (e.g. name@example.com)');
+      }
 
       if (!user && password.trim()) {
         if (password.length < 4) return setError('Please choose a password (minimum 4 characters)');
@@ -269,15 +268,14 @@ export default function Checkout() {
                     required
                   />
                 </Field>
-                <Field label="Email address (for GST Tax Invoice & warranty)" required>
+                <Field label="Email address (optional)">
                   <input
                     style={input}
                     type="email"
                     value={form.email}
                     onChange={(e) => set('email', e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && next()}
-                    placeholder="rajesh@example.com"
-                    required
+                    placeholder="rajesh@example.com (optional)"
                   />
                 </Field>
                 {!user && (
@@ -302,9 +300,6 @@ export default function Checkout() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <Field label="City"><input style={input} value={form.city} onChange={(e) => set('city', e.target.value)} /></Field>
               <Field label="Pincode"><input style={input} inputMode="numeric" value={form.pin} onChange={(e) => set('pin', e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="600017" /></Field>
-            </div>
-            <div style={{ padding: '10px 12px', borderRadius: 12, background: C.successSoft, color: C.success, fontSize: 12, fontWeight: 700, display: 'flex', gap: 8, alignItems: 'center' }}>
-              <Icon name="truck" size={16} /> Sastika Lightning Express · Free delivery by tomorrow, 2:00 PM
             </div>
           </Card>
         )}
@@ -350,7 +345,7 @@ export default function Checkout() {
             <Card title="Delivering to">
               <div style={{ fontSize: 13, lineHeight: 1.55 }}>
                 <b>{form.name}</b> · +91 {form.phone}<br />
-                <span style={{ color: C.muted }}>Email:</span> <b>{form.email}</b><br />
+                {form.email && <><span style={{ color: C.muted }}>Email:</span> <b>{form.email}</b><br /></>}
                 {form.address}, {form.city} {form.pin}<br />
                 <span style={{ color: C.muted }}>Paying via {form.payment}</span>
               </div>
