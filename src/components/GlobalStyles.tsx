@@ -60,7 +60,7 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   .site-page-container { padding: 24px 28px 50px !important; }
   .product-cards-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important; gap: 20px !important; align-items: stretch !important; }
   .product-cards-grid > * { height: 100% !important; display: flex !important; }
-  .product-cards-grid > * > * { width: 100% !important; height: 100% !important; }
+  .product-cards-grid .product-card-item { width: 100% !important; height: 100% !important; }
   .categories-grid { display: grid !important; grid-template-columns: repeat(6, 1fr) !important; gap: 14px !important; align-items: stretch !important; }
   .categories-grid > * { height: 100% !important; display: flex !important; }
   .categories-grid .category-box-card { width: 100% !important; height: 100% !important; min-height: 154px !important; box-sizing: border-box !important; }
@@ -96,7 +96,7 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   .site-page-container { padding: 12px 8px 32px !important; }
   .product-cards-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; align-items: stretch !important; }
   .product-cards-grid > * { height: 100% !important; display: flex !important; }
-  .product-cards-grid > * > * { width: 100% !important; height: 100% !important; }
+  .product-cards-grid .product-card-item { width: 100% !important; height: 100% !important; }
   .brand-ticker-head { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; font-size: 11px !important; }
   .flash-deal-box { padding: 16px 12px !important; margin: 18px 0 0 !important; border-radius: 18px !important; }
   .desktop-footer { padding: 28px 16px 36px !important; }

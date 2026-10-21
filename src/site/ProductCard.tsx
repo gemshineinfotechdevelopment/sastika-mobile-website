@@ -23,9 +23,9 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
 
   return (
     <div
-      className="lift"
+      className="lift product-card-item"
       style={{
-        width,
+        width: width || '100%',
         height: '100%',
         boxSizing: 'border-box',
         flexShrink: 0,
