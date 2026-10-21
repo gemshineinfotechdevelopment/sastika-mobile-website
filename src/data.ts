@@ -347,6 +347,21 @@ export const PRODUCTS: Product[] = [
 
 export const BRANDS = ['Redmi', 'OPPO', 'Vivo', 'Nothing', 'Samsung', 'Poco'];
 
+/** Extract unique brand names from products without duplicates, case-insensitively */
+export function getUniqueProductBrands(products: { brand?: string }[]): string[] {
+  const map = new Map<string, string>();
+  products.forEach((p) => {
+    const raw = (p.brand || '').trim();
+    if (!raw) return;
+    const key = raw.toLowerCase();
+    if (!map.has(key)) {
+      map.set(key, raw);
+    }
+  });
+  const list = Array.from(map.values());
+  return list.length > 0 ? list : BRANDS;
+}
+
 export const TESTIMONIALS: Testimonial[] = [
   { name: 'Kavitha R.', meta: 'Bought OPPO K14x 5G', text: 'Purchased OPPO K14x 5G at Sastika Mobiles Sivakasi. The staff helped migrate my WhatsApp data seamlessly without losing a single message.' },
   { name: 'Dr. Rajeshwari S.', meta: 'Verified • Sivakasi', text: 'The staff transferred 128GB of my medical photos and clinic chats without losing a single file. Genuinely warm customer care.' },

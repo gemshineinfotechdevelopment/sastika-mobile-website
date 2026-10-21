@@ -1,6 +1,6 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BRANDS, SERVICES, TESTIMONIALS } from '../data';
+import { getUniqueProductBrands, SERVICES, TESTIMONIALS } from '../data';
 import { C, discount, money } from '../theme';
 import { useStore } from '../store';
 import Icon, { type IconName } from '../components/Icon';
@@ -18,6 +18,18 @@ export default function Home() {
   const gear = products.filter((p) => p.category !== 'phone');
   const hero = products.find((p) => p.id === 'p1') ?? phones[0];
 
+  // Dynamic unique brand list from admin products (no duplicates)
+  const brandList = useMemo(() => getUniqueProductBrands(products), [products]);
+
+  // Flash deal is only active if isActive, has items, has endTime and endTime is strictly in the future
+  const isDealActive = useMemo(() => {
+    if (!flashDeal?.isActive) return false;
+    if (!flashDeal.items || flashDeal.items.length === 0) return false;
+    if (!flashDeal.endTime) return false;
+    const target = new Date(flashDeal.endTime).getTime();
+    return !isNaN(target) && target > Date.now();
+  }, [flashDeal]);
+
   return (
     <div style={{ paddingBottom: 30 }}>
       {/* Full Width Desktop Hero */}
@@ -32,10 +44,10 @@ export default function Home() {
             <span style={{ color: C.success }}>100% ORIGINAL &amp; SEALED WITH WARRANTY</span>
           </div>
           <Marquee>
-            {BRANDS.map((b) => (
+            {brandList.map((b) => (
               <div
                 key={b}
-                onClick={() => nav('/mobiles')}
+                onClick={() => nav(`/mobiles?brand=${encodeURIComponent(b)}`)}
                 style={{
                   padding: '10px 24px',
                   borderRadius: 99,
@@ -55,7 +67,7 @@ export default function Home() {
         </section>
 
         {/* Flash Deals */}
-        {flashDeal.isActive && flashDeal.items && flashDeal.items.length > 0 && (
+        {isDealActive && (
           <FlashDeal deal={flashDeal} onAdd={addToCart} />
         )}
 
@@ -65,13 +77,13 @@ export default function Home() {
             <SectionHead
               title="Featured 5G Smartphones"
               sub="Factory sealed with official brand warranty & Sivakasi tax bill"
-              action="View All (18 Mobiles)"
+              action="View All"
               onAction={() => nav('/mobiles')}
             />
           </Reveal>
           <div className="product-cards-grid" style={{ padding: '16px 0 0' }}>
             {phones.slice(0, 8).map((p, i) => (
-              <Reveal key={p.id} dir="up" delay={i * 50}>
+              <Reveal key={p.id} dir="up" delay={i * 50} style={{ height: '100%', display: 'flex' }}>
                 <ProductCard p={p} />
               </Reveal>
             ))}
@@ -99,7 +111,7 @@ export default function Home() {
           </Reveal>
           <div className="product-cards-grid" style={{ padding: '16px 0 0' }}>
             {(gear.length > 0 ? gear : phones.slice(8, 18)).map((p, i) => (
-              <Reveal key={p.id} dir="up" delay={i * 50}>
+              <Reveal key={p.id} dir="up" delay={i * 50} style={{ height: '100%', display: 'flex' }}>
                 <ProductCard p={p} />
               </Reveal>
             ))}
@@ -307,8 +319,14 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
 /* -------------------------------- FLASH DEAL ------------------------------- */
 
 function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string) => void }) {
-  const { d, h, hh, m, s, days, isExpired } = useCountdown(deal.endTime || 5);
+  const { d, h, hh, m, s, days, isExpired } = useCountdown(deal.endTime || '');
   const nav = useNavigate();
+
+  // If countdown expired or no future end time, do not show container!
+  if (isExpired || !deal.endTime) return null;
+  const targetTime = new Date(deal.endTime).getTime();
+  if (isNaN(targetTime) || targetTime <= Date.now()) return null;
+
   return (
     <section
       className="flash-deal-box"
@@ -482,25 +500,26 @@ function Categories() {
       <Reveal>
         <SectionHead title="Explore by Category" sub="Find your preferred phone range and expert services" />
       </Reveal>
-      <div className="categories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div className="categories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
         {cats.map((c, i) => (
-          <Reveal key={c.title} delay={i * 50} dir="up">
+          <Reveal key={c.title} delay={i * 50} dir="up" style={{ height: '100%', display: 'flex' }}>
             <div
-              className="lift category-card"
+              className="lift"
               onClick={() => nav(c.to)}
               style={{
-                background: '#fff',
-                borderRadius: 20,
-                border: `1px solid ${C.border}`,
-                padding: '22px 16px',
-                cursor: 'pointer',
-                textAlign: 'center',
+                width: '100%',
                 height: '100%',
+                minHeight: 154,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
+                background: '#fff',
+                borderRadius: 20,
+                border: `1px solid ${C.border}`,
+                padding: '20px 18px',
+                cursor: 'pointer',
+                textAlign: 'center',
               }}
             >
               <div
@@ -514,13 +533,12 @@ function Categories() {
                   display: 'grid',
                   placeItems: 'center',
                   margin: '0 auto 12px',
-                  flexShrink: 0,
                 }}
               >
                 <Icon name={c.icon} size={24} />
               </div>
-              <div className="category-title" style={{ fontWeight: 800, fontSize: 15, color: C.primary, lineHeight: 1.3 }}>{c.title}</div>
-              <div className="category-sub" style={{ fontSize: 11.5, color: C.muted, marginTop: 4, lineHeight: 1.35 }}>{c.sub}</div>
+              <div style={{ fontWeight: 800, fontSize: 15, color: C.primary }}>{c.title}</div>
+              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>{c.sub}</div>
             </div>
           </Reveal>
         ))}

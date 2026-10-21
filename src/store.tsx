@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { PRODUCTS, SEED_ORDERS, SEED_TICKETS } from './data';
-import type { CartLine, FlashDealConfig, FlashDealItem, Order, OrderStatus, Product, Ticket, TicketStatus, UserProfile } from './types';
+import type { AuthUser, CartLine, FlashDealConfig, FlashDealItem, Order, OrderStatus, Product, Ticket, TicketStatus, UserProfile } from './types';
 import { api } from './api';
 import { apiGetFlashDeal, apiUpdateFlashDeal, apiAddFlashDealItem, apiDeleteFlashDealItem } from './services/api';
 import defaultLogo from './assets/logo.png';
@@ -106,8 +106,10 @@ interface StoreShape {
   addFlashDealItem: (item: Omit<FlashDealItem, 'id'>) => void;
   removeFlashDealItem: (id: string) => void;
 
-  user: UserProfile | null;
+  user: AuthUser | null;
   token: string | null;
+  loginUser: (user: AuthUser, token?: string) => void;
+  logoutUser: () => void;
   login: (email: string, pass: string) => Promise<{ success: boolean; message?: string }>;
   register: (data: { name: string; email: string; password: string; phone?: string }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
@@ -125,7 +127,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
   const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v2', DEFAULT_FLASH_DEAL);
-  const [user, setUser] = useLocalState<UserProfile | null>('customer_user', null);
+  const [user, setUser] = useLocalState<AuthUser | null>('auth_user_v2', {
+    id: 'u_hari',
+    name: 'Hariharan S.',
+    email: 'hari@sastikamobiles.com',
+    phone: '+91 95434 34344',
+    role: 'customer',
+  });
   const [token, setToken] = useLocalState<string | null>('customer_token', null);
 
   // Auto-migrate from any legacy dummy products
@@ -153,10 +161,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           apiGetFlashDeal().catch(() => null),
         ]);
 
+        const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
+        const cleanOrders = Array.isArray(serverOrders) ? serverOrders : (serverOrders as any)?.data;
+        const cleanTickets = Array.isArray(serverTickets) ? serverTickets : (serverTickets as any)?.data;
+
         if (mounted) {
-          if (serverProducts && serverProducts.length > 0) setProducts(serverProducts);
-          if (serverOrders && serverOrders.length > 0) setOrders(serverOrders);
-          if (serverTickets && serverTickets.length > 0) setTickets(serverTickets);
+          if (Array.isArray(cleanProducts) && cleanProducts.length > 0) setProducts(cleanProducts);
+          if (Array.isArray(cleanOrders) && cleanOrders.length > 0) setOrders(cleanOrders);
+          if (Array.isArray(cleanTickets) && cleanTickets.length > 0) setTickets(cleanTickets);
           if (serverFlashDeal && serverFlashDeal.items) setFlashDeal(serverFlashDeal);
         }
       } catch {
@@ -256,8 +268,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setProducts((prev) => [newProduct, ...prev]);
 
       api.createProduct(p).then((created) => {
-        if (created) {
-          setProducts((prev) => prev.map((item) => (item.id === tempId ? created : item)));
+        const item = (created as any)?.data || created;
+        if (item && item.id) {
+          setProducts((prev) => prev.map((it) => (it.id === tempId ? item : it)));
         }
       }).catch(() => {});
     },
@@ -299,8 +312,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         issue: t.issue,
         cost: t.cost,
       }).then((created) => {
-        if (created) {
-          setTickets((prev) => prev.map((item) => (item.id === tempId ? created : item)));
+        const item = (created as any)?.data || created;
+        if (item && item.id) {
+          setTickets((prev) => prev.map((it) => (it.id === tempId ? item : it)));
         }
       }).catch(() => {});
 
@@ -325,64 +339,89 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [setOrders],
   );
 
+  const loginUser = useCallback(
+    (u: AuthUser, tok?: string) => {
+      setUser(u);
+      if (tok) {
+        setToken(tok);
+        localStorage.setItem('auth_token', tok);
+      }
+    },
+    [setUser, setToken],
+  );
+
+  const logoutUser = useCallback(() => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('customer_token');
+  }, [setUser, setToken]);
+
   const login = useCallback(
     async (email: string, pass: string) => {
       try {
         const res = await api.login({ email, password: pass });
-        if (res && res.success) {
-          setUser(res.user);
-          setToken(res.token);
+        if (res && (res.success || res.token)) {
+          const u: AuthUser = res.user || {
+            id: 'u_' + Date.now().toString(36),
+            name: email.split('@')[0] || 'Customer',
+            email,
+            phone: '',
+            role: 'customer',
+          };
+          loginUser(u, res.token);
           return { success: true };
         }
         return { success: false, message: res?.message || 'Invalid credentials' };
       } catch (err: any) {
         // Graceful offline fallback
-        const dummyUser: UserProfile = {
+        const dummyUser: AuthUser = {
           id: 'u_' + Date.now().toString(36),
           name: email.split('@')[0] || 'Customer',
           email,
           phone: '',
           role: 'customer',
         };
-        setUser(dummyUser);
-        setToken('token_' + Date.now());
+        loginUser(dummyUser, 'token_' + Date.now());
         return { success: true };
       }
     },
-    [setUser, setToken],
+    [loginUser],
   );
 
   const register = useCallback(
     async (data: { name: string; email: string; password: string; phone?: string }) => {
       try {
         const res = await api.register({ ...data, role: 'customer' });
-        if (res && res.success) {
-          setUser(res.user);
-          setToken(res.token);
+        if (res && (res.success || res.token)) {
+          const u: AuthUser = res.user || {
+            id: 'u_' + Date.now().toString(36),
+            name: data.name,
+            email: data.email,
+            phone: data.phone || '',
+            role: 'customer',
+          };
+          loginUser(u, res.token);
           return { success: true };
         }
         return { success: false, message: res?.message || 'Registration failed' };
       } catch (err: any) {
         // Graceful offline fallback
-        const newUser: UserProfile = {
+        const newUser: AuthUser = {
           id: 'u_' + Date.now().toString(36),
           name: data.name,
           email: data.email,
           phone: data.phone || '',
           role: 'customer',
         };
-        setUser(newUser);
-        setToken('token_' + Date.now());
+        loginUser(newUser, 'token_' + Date.now());
         return { success: true };
       }
     },
-    [setUser, setToken],
+    [loginUser],
   );
 
-  const logout = useCallback(() => {
-    setUser(null);
-    setToken(null);
-  }, [setUser, setToken]);
+  const logout = logoutUser;
 
   const value = useMemo<StoreShape>(
     () => ({
@@ -477,6 +516,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       user,
       token,
+      loginUser,
+      logoutUser,
       login,
       register,
       logout,
@@ -504,6 +545,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       removeFlashDealItem,
       user,
       token,
+      loginUser,
+      logoutUser,
       login,
       register,
       logout,

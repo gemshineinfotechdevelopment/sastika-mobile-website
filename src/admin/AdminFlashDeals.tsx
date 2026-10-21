@@ -39,7 +39,8 @@ export default function AdminFlashDeals() {
   const applyPresetHours = (hours: number) => {
     const target = new Date(Date.now() + hours * 3600 * 1000).toISOString();
     setEndTime(target);
-    updateFlashDeal({ endTime: target });
+    setIsActive(true);
+    updateFlashDeal({ endTime: target, isActive: true });
     setSavedMsg(true);
     setTimeout(() => setSavedMsg(false), 3000);
   };

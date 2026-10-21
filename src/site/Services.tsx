@@ -7,34 +7,47 @@ import Icon, { type IconName } from '../components/Icon';
 import { Reveal } from '../components/anim';
 import { Btn, Field, input } from './ui';
 
-const ISSUES = ['Cracked Screen', 'Battery Drain', "Won't Turn On", 'Water Damage', 'Camera Issue', 'Other'];
+const ISSUES = [
+  'Cracked Screen',
+  'Battery Drain',
+  "Won't Turn On",
+  'Water Damage',
+  'Camera Issue',
+  'Charging Port Issue',
+  'Speaker / Mic Issue',
+  'Other',
+];
 
 export default function Services() {
   const nav = useNavigate();
   const { addTicket } = useStore();
   const [svc, setSvc] = useState<string>(SERVICES[0].id);
   const [issue, setIssue] = useState(ISSUES[0]);
+  const [problemText, setProblemText] = useState(ISSUES[0]);
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [mode, setMode] = useState<'pickup' | 'walk'>('pickup');
-  const [slot, setSlot] = useState('Today (Express)');
+  const [slot, setSlot] = useState('Today (Express) — Within 90 mins');
   const [error, setError] = useState('');
   const [doneId, setDoneId] = useState<string | null>(null);
 
   const selected = SERVICES.find((s) => s.id === svc);
 
   const submit = () => {
-    if (!brand.trim() || !model.trim()) return setError('Please enter the device brand and model');
-    if (name.trim().length < 2) return setError('Please enter your name');
-    if (!/^\d{10}$/.test(phone)) return setError('Enter a valid 10-digit mobile number');
+    if (!brand.trim()) return setError('Brand is required. Please enter device brand.');
+    if (!model.trim()) return setError('Model is required. Please enter device model.');
+    if (!name.trim() || name.trim().length < 2) return setError('Your name is required. Please enter your name.');
+    if (!phone.trim()) return setError('Mobile number is required. Please enter 10-digit number.');
+    if (!/^\d{10}$/.test(phone)) return setError('Enter a valid 10-digit mobile number.');
     setError('');
+    const finalProblem = problemText.trim() || issue || 'General Repair';
     const id = addTicket({
-      customer: name,
-      phone: '+91 ' + phone,
-      device: `${brand} ${model}`,
-      issue: `${selected?.title ?? 'Repair'} — ${issue} (${mode === 'pickup' ? 'Doorstep pickup' : 'Walk-in'}, ${slot})`,
+      customer: name.trim(),
+      phone: '+91 ' + phone.trim(),
+      device: `${brand.trim()} ${model.trim()}`,
+      issue: `${selected?.title ?? 'Repair'} — ${finalProblem} (${mode === 'pickup' ? 'Doorstep pickup' : 'Walk-in'}, ${slot})`,
       cost: selected?.price ?? 0,
     });
     setDoneId(id);
@@ -100,33 +113,182 @@ export default function Services() {
       </div>
 
       <Reveal>
-        <div style={{ margin: '22px 18px 0', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}`, padding: 18 }}>
-          <h2 style={{ margin: '0 0 4px', fontSize: 19, fontWeight: 800 }}>Book a Device Service</h2>
-          <p style={{ margin: '0 0 14px', fontSize: 12, color: C.muted }}>Selected: <b style={{ color: C.primary }}>{selected?.title}</b></p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <Field label="Brand"><input style={input} value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="OnePlus" /></Field>
-            <Field label="Model"><input style={input} value={model} onChange={(e) => setModel(e.target.value)} placeholder="12 5G" /></Field>
+        <div style={{ margin: '24px 0 0', width: '100%', boxSizing: 'border-box', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}`, padding: '24px 20px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+          <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 800 }}>Book a Device Service</h2>
+          <p style={{ margin: '0 0 16px', fontSize: 12.5, color: C.muted }}>Selected Service: <b style={{ color: C.primary }}>{selected?.title}</b></p>
+
+          {/* Brand & Model (Required) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+            <Field label="Brand" required>
+              <input
+                style={input}
+                required
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                placeholder="e.g. OnePlus, Vivo, Redmi"
+              />
+            </Field>
+            <Field label="Model" required>
+              <input
+                style={input}
+                required
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="e.g. 12 5G, Y200, Note 13"
+              />
+            </Field>
           </div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>Problem</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-            {ISSUES.map((i) => (
-              <button key={i} className="tap" onClick={() => setIssue(i)} style={{ padding: '8px 12px', borderRadius: 99, fontSize: 12, fontWeight: 700, background: issue === i ? C.primary : C.tint, color: issue === i ? '#fff' : C.primary, transition: 'all .25s ease' }}>{i}</button>
-            ))}
+
+          {/* Problem section: Text box + Dropdown */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>
+              Problem / Issue Description <span style={{ color: C.danger, fontWeight: 800 }}>*</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+              {/* Text Box */}
+              <div>
+                <input
+                  style={input}
+                  value={problemText}
+                  onChange={(e) => setProblemText(e.target.value)}
+                  placeholder="Type issue details (e.g. screen broken, battery drain)..."
+                />
+              </div>
+
+              {/* Dropdown with options */}
+              <div style={{ position: 'relative' }}>
+                <select
+                  style={{
+                    ...input,
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    paddingRight: 34,
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    color: C.primary,
+                  }}
+                  value={issue}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setIssue(val);
+                    if (val && val !== 'Other') {
+                      setProblemText(val);
+                    } else if (val === 'Other') {
+                      setProblemText('');
+                    }
+                  }}
+                >
+                  {ISSUES.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+                <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: C.muted }}>
+                  <Icon name="down" size={15} />
+                </div>
+              </div>
+            </div>
           </div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>Fulfilment</div>
+
+          {/* Fulfilment Mode */}
+          <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>Fulfilment Type</div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
             {([['pickup', 'Doorstep Pickup'], ['walk', 'Store Walk-in']] as const).map(([k, l]) => (
-              <button key={k} className="tap" onClick={() => setMode(k)} style={{ flex: 1, padding: 11, borderRadius: 12, fontWeight: 700, fontSize: 12.5, border: `2px solid ${mode === k ? C.primary : C.border}`, background: mode === k ? C.tint2 : '#fff', color: C.primary, transition: 'all .25s ease' }}>{l}</button>
+              <button key={k} type="button" className="tap" onClick={() => setMode(k)} style={{ flex: 1, padding: 11, borderRadius: 12, fontWeight: 700, fontSize: 12.5, border: `2px solid ${mode === k ? C.primary : C.border}`, background: mode === k ? C.tint2 : '#fff', color: C.primary, transition: 'all .25s ease' }}>{l}</button>
             ))}
           </div>
-          <Field label="Preferred slot">
-            <select style={input} value={slot} onChange={(e) => setSlot(e.target.value)}>
-              {['Today (Express)', 'Today 4–6 PM', 'Tomorrow 10–12 AM', 'Tomorrow 2–4 PM'].map((s) => <option key={s}>{s}</option>)}
-            </select>
-          </Field>
-          <Field label="Your name"><input style={input} value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" /></Field>
-          <Field label="Mobile number"><input style={input} inputMode="numeric" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit number" /></Field>
-          {error && <div style={{ color: C.danger, fontSize: 12.5, fontWeight: 700, marginBottom: 10, animation: 'fadeUp .3s ease' }}>{error}</div>}
+
+          {/* Preferred Slot - Modern Redesigned UI */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>Preferred Time Slot</div>
+            <div style={{ position: 'relative', width: '100%', boxSizing: 'border-box' }}>
+              <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: C.primary }}>
+                <Icon name="clock" size={18} />
+              </div>
+              <select
+                value={slot}
+                onChange={(e) => setSlot(e.target.value)}
+                style={{
+                  ...input,
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                  paddingLeft: 42,
+                  paddingRight: 36,
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  color: C.primaryDark,
+                  background: '#fff',
+                  border: `1.5px solid ${C.border}`,
+                  borderRadius: 14,
+                }}
+              >
+                <option value="Today (Express) — Within 90 mins">⚡ Today (Express) — Within 90 mins</option>
+                <option value="Today Evening (4:00 PM – 6:00 PM)">🕒 Today Evening (4:00 PM – 6:00 PM)</option>
+                <option value="Tomorrow Morning (10:00 AM – 12:00 PM)">🌅 Tomorrow Morning (10:00 AM – 12:00 PM)</option>
+                <option value="Tomorrow Afternoon (2:00 PM – 4:00 PM)">🌇 Tomorrow Afternoon (2:00 PM – 4:00 PM)</option>
+              </select>
+              <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: C.muted }}>
+                <Icon name="down" size={16} />
+              </div>
+            </div>
+
+            {/* Quick Slot Selector Chips */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+              {[
+                { id: 'Today (Express) — Within 90 mins', label: '⚡ Today (Express)' },
+                { id: 'Today Evening (4:00 PM – 6:00 PM)', label: '🕒 Today 4–6 PM' },
+                { id: 'Tomorrow Morning (10:00 AM – 12:00 PM)', label: '🌅 Tomorrow 10–12 AM' },
+                { id: 'Tomorrow Afternoon (2:00 PM – 4:00 PM)', label: '🌇 Tomorrow 2–4 PM' },
+              ].map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className="tap"
+                  onClick={() => setSlot(s.id)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 99,
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    background: slot === s.id ? C.primary : C.tint,
+                    color: slot === s.id ? '#fff' : C.primary,
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all .2s ease',
+                  }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Customer Name & Phone (Required) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+            <Field label="Your name" required>
+              <input
+                style={input}
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Full name"
+              />
+            </Field>
+            <Field label="Mobile number" required>
+              <input
+                style={input}
+                required
+                inputMode="numeric"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="10-digit number"
+              />
+            </Field>
+          </div>
+
+          {error && <div style={{ color: C.danger, fontSize: 12.5, fontWeight: 700, marginBottom: 12, padding: '8px 12px', background: C.dangerSoft, borderRadius: 10, animation: 'fadeUp .3s ease' }}>⚠️ {error}</div>}
           <Btn full onClick={submit}>Confirm Service Booking <Icon name="right" size={16} /></Btn>
         </div>
       </Reveal>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { C, discount, money } from '../theme';
 import { useStore } from '../store';
+import { getUniqueProductBrands } from '../data';
 import type { Category, Product } from '../types';
 import ProductArt from '../components/ProductArt';
 import { AButton, FieldRow, Kpi, Modal, PageTitle, Tag, field, panel, td, th } from './ui';
@@ -44,6 +45,7 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [creating, setCreating] = useState(params.get('new') === '1');
   const [confirmDel, setConfirmDel] = useState<Product | null>(null);
+  const existingBrands = useMemo(() => getUniqueProductBrands(products), [products]);
 
   useEffect(() => {
     setQ(params.get('q') ?? '');
@@ -219,6 +221,8 @@ function ProductForm({
   onClose: () => void;
   onSubmit: (d: Draft) => void;
 }) {
+  const { products } = useStore();
+  const existingBrands = useMemo(() => getUniqueProductBrands(products), [products]);
   const [d, setD] = useState<Draft>(initial);
   const [error, setError] = useState('');
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((x) => ({ ...x, [k]: v }));
@@ -315,7 +319,18 @@ function ProductForm({
         </div>
 
         <FieldRow label="BRAND">
-          <input style={field} value={d.brand} onChange={(e) => set('brand', e.target.value)} placeholder="OnePlus, Apple, Samsung..." />
+          <input
+            style={field}
+            value={d.brand}
+            onChange={(e) => set('brand', e.target.value)}
+            placeholder="OnePlus, Apple, Samsung..."
+            list="existing-brands-list"
+          />
+          <datalist id="existing-brands-list">
+            {existingBrands.map((b) => (
+              <option key={b} value={b} />
+            ))}
+          </datalist>
         </FieldRow>
 
         <FieldRow label="CATEGORY">

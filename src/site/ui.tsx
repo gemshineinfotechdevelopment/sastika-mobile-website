@@ -110,17 +110,21 @@ export function Pill({ children, tone = 'tint' }: { children: ReactNode; tone?: 
 
 export const input: CSSProperties = {
   width: '100%',
+  boxSizing: 'border-box',
   padding: '13px 14px',
   borderRadius: 12,
   border: `1.5px solid ${C.border}`,
   background: '#fff',
   fontSize: 14,
+  outline: 'none',
 };
 
-export function Field({ label, children }: { label: string; children: ReactNode }) {
+export function Field({ label, required, children }: { label: string; required?: boolean; children: ReactNode }) {
   return (
     <label style={{ display: 'block', marginBottom: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>
+        {label} {required && <span style={{ color: C.danger, fontWeight: 800 }}>*</span>}
+      </div>
       {children}
     </label>
   );

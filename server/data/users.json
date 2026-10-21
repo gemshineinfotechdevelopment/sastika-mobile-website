@@ -1,0 +1,27 @@
+[
+  {
+    "id": "u_admin",
+    "name": "Sastika Admin",
+    "email": "admin@sastikamobiles.com",
+    "passwordHash": "$2a$08$9PdrYqjVz7M06VnK1dI3b.J5b1z1M5yU7GkLpZ4N7wH2s6D3q0t1S",
+    "role": "admin",
+    "phone": "+91 98401 23456"
+  },
+  {
+    "id": "u_hari",
+    "name": "Hariharan S.",
+    "email": "hari@sastikamobiles.com",
+    "passwordHash": "$2a$08$9PdrYqjVz7M06VnK1dI3b.J5b1z1M5yU7GkLpZ4N7wH2s6D3q0t1S",
+    "role": "customer",
+    "phone": "+91 95434 34344"
+  },
+  {
+    "id": "6ad86ed5b3168ad3e824cffb",
+    "name": "Vimal Kumar",
+    "email": "vimal@gmail.com",
+    "passwordHash": "$2a$10$A2f26sB2axknVSoIjPRKj.p0.RZRGslgKbia935pL.6FWHdRFgrzG",
+    "phone": "+91 9876501234",
+    "role": "customer",
+    "createdAt": "2026-10-21T07:50:45.606Z"
+  }
+]

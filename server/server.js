@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import productsRouter from './routes/products.js';
 import ordersRouter from './routes/orders.js';
 import ticketsRouter from './routes/tickets.js';
+import authRouter from './routes/authRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,6 +55,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/products', productsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/tickets', ticketsRouter);
+app.use('/api/auth', authRouter);
 
 // 404 Route Handler
 app.use((req, res) => {

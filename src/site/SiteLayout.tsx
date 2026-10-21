@@ -11,7 +11,7 @@ const NAV_LINKS: { to: string; label: string; icon: IconName; badge?: string }[]
   { to: '/mobiles', label: 'All Mobiles', icon: 'phone', badge: '18 Deals' },
   { to: '/accessories', label: 'Accessories', icon: 'headphones' },
   { to: '/services', label: 'Care & Repair', icon: 'tool' },
-  { to: '/track', label: 'Track Device', icon: 'search' },
+  { to: '/orders', label: 'Track & Orders', icon: 'truck' },
   { to: '/about', label: 'About Showroom', icon: 'award' },
   { to: '/contact', label: 'Stores & Contact', icon: 'pin' },
 ];
@@ -19,7 +19,7 @@ const NAV_LINKS: { to: string; label: string; icon: IconName; badge?: string }[]
 export default function SiteLayout() {
   const { pathname } = useLocation();
   const nav = useNavigate();
-  const { cart, cartCount, wishlist, products, logo, user } = useStore();
+  const { cart, cartCount, wishlist, products, logo, user, logoutUser } = useStore();
   const [drawer, setDrawer] = useState(false);
   const [searching, setSearching] = useState(false);
   const [mobileSearch, setMobileSearch] = useState(false);
@@ -84,8 +84,43 @@ export default function SiteLayout() {
             <span style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>
             <span>📞 Helpline: <b style={{ color: '#fff' }}>+91 95434 34344</b></span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span style={{ color: 'rgba(255,255,255,0.75)' }}>📄 GSTIN: <b style={{ color: '#fff' }}>33BQTPJ5275L1Z6</b></span>
+            <span style={{ color: 'rgba(255,255,255,0.4)' }}>•</span>
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ color: C.accent, fontWeight: 700 }}>Hi, {user.name.split(' ')[0]}</span>
+                <button
+                  onClick={() => nav('/orders')}
+                  style={{ color: '#fff', fontSize: 11.5, background: 'rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: 6, cursor: 'pointer', border: 'none' }}
+                >
+                  My Orders
+                </button>
+                <button
+                  onClick={logoutUser}
+                  style={{ color: '#ff8589', fontSize: 11.5, background: 'transparent', cursor: 'pointer', border: 'none' }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => nav('/login')}
+                style={{
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: 12,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                <Icon name="user" size={13} /> Sign In
+              </button>
+            )}
             <span style={{ color: 'rgba(255,255,255,0.4)' }}>•</span>
             <button
               onClick={() => nav('/admin')}
@@ -98,6 +133,8 @@ export default function SiteLayout() {
                 gap: 5,
                 fontSize: 12,
                 cursor: 'pointer',
+                background: 'none',
+                border: 'none',
               }}
             >
               <Icon name="zap" size={13} color={C.accent} /> Admin Portal ⚡
@@ -155,10 +192,10 @@ export default function SiteLayout() {
 
           {/* User Button */}
           <button
-            onClick={() => nav('/account')}
+            onClick={() => nav(user ? '/orders' : '/login')}
             className="tap"
             aria-label="Account"
-            title="Account"
+            title={user ? user.name : 'Sign In'}
             style={{
               width: 38,
               height: 38,
@@ -191,7 +228,7 @@ export default function SiteLayout() {
 
           {/* Wishlist Button */}
           <button
-            onClick={() => nav('/account')}
+            onClick={() => nav('/account?tab=wishlist')}
             className="tap"
             aria-label="Wishlist"
             title="Wishlist"
@@ -233,7 +270,7 @@ export default function SiteLayout() {
             )}
           </button>
 
-          {/* Cart Button (Yellow Squircle as before) */}
+          {/* Cart Button */}
           <button
             onClick={() => nav('/cart')}
             className="tap"
@@ -448,8 +485,9 @@ export default function SiteLayout() {
                 alignItems: 'center',
                 background: 'rgba(255,255,255,0.12)',
                 borderRadius: 99,
-                border: '1.5px solid rgba(255,255,255,0.22)',
-                padding: '0 16px',
+                padding: '3px 18px',
+                border: '1px solid rgba(255,255,255,0.16)',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.15)',
               }}
             >
               <Icon name="search" size={17} color="rgba(255,255,255,0.7)" />
@@ -460,16 +498,16 @@ export default function SiteLayout() {
                   setSearching(true);
                 }}
                 onFocus={() => setSearching(true)}
-                placeholder="Search phone models (Redmi, OPPO, Vivo, Poco, Samsung...)"
+                placeholder="Search phone models, brand, budget (Redmi, Vivo, 5G...)"
                 style={{
                   width: '100%',
-                  padding: '10px 10px',
+                  padding: '10px 12px',
                   background: 'transparent',
                   border: 'none',
-                  outline: 'none',
-                  fontSize: 13.5,
-                  fontWeight: 500,
                   color: '#fff',
+                  outline: 'none',
+                  fontSize: 13,
+                  fontWeight: 500,
                 }}
               />
               {q && (
@@ -478,26 +516,25 @@ export default function SiteLayout() {
                     setQ('');
                     setSearching(false);
                   }}
-                  style={{ color: 'rgba(255,255,255,0.7)' }}
+                  style={{ color: 'rgba(255,255,255,0.6)', cursor: 'pointer', background: 'none', border: 'none' }}
                 >
-                  <Icon name="x" size={16} />
+                  ✕
                 </button>
               )}
             </div>
 
-            {/* Search Dropdown Popup */}
+            {/* Desktop Search Dropdown */}
             {searching && q.trim().length > 0 && (
               <div
                 style={{
                   position: 'absolute',
-                  top: '100%',
+                  top: 50,
                   left: 0,
                   right: 0,
-                  marginTop: 8,
                   background: '#fff',
                   borderRadius: 18,
+                  boxShadow: '0 12px 36px rgba(0,0,0,0.22)',
                   border: `1px solid ${C.border}`,
-                  boxShadow: '0 16px 40px rgba(0,0,0,0.22)',
                   overflow: 'hidden',
                   zIndex: 60,
                   animation: 'fadeUp .2s ease',
@@ -505,7 +542,7 @@ export default function SiteLayout() {
               >
                 <div style={{ padding: '10px 16px', background: C.tint, fontSize: 11.5, fontWeight: 800, color: C.primarySoft, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>MATCHING PHONES ({results.length})</span>
-                  <button onClick={() => setSearching(false)} style={{ color: C.muted, fontSize: 11 }}>✕ Close</button>
+                  <button onClick={() => setSearching(false)} style={{ color: C.muted, fontSize: 11, background: 'none', border: 'none', cursor: 'pointer' }}>✕ Close</button>
                 </div>
                 {results.length === 0 ? (
                   <div style={{ padding: '20px 16px', fontSize: 13, color: C.muted, textAlign: 'center' }}>
@@ -549,47 +586,95 @@ export default function SiteLayout() {
             )}
           </div>
 
-          {/* Quick Actions (User, Heart/Wishlist, Red Cart - Old Iconic Style) */}
+          {/* Quick Actions (User, Heart/Wishlist, Cart) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-            {/* User / Account Button */}
+            {/* Track & Orders Button */}
             <button
-              onClick={() => nav('/account')}
+              onClick={() => nav('/orders')}
               className="tap"
-              title={user ? `Account (${user.name})` : 'Customer Account / Sign In'}
-              aria-label="Account"
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: 14,
-                background: '#ffffff',
-                border: '1px solid rgba(0,0,0,0.06)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                display: 'grid',
-                placeItems: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                padding: '8px 14px',
+                borderRadius: 12,
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.14)',
+                color: '#fff',
+                fontSize: 12.5,
+                fontWeight: 700,
                 cursor: 'pointer',
-                position: 'relative',
               }}
             >
-              <Icon name="user" size={20} color="#1e293b" />
-              {user && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    bottom: -2,
-                    right: -2,
-                    width: 10,
-                    height: 10,
-                    borderRadius: '50%',
-                    background: '#22c55e',
-                    border: '2px solid #fff',
-                  }}
-                />
-              )}
+              <Icon name="truck" size={15} color={C.accent} />
+              <span>Track Orders</span>
             </button>
+
+            {/* User / Account Button */}
+            {user ? (
+              <button
+                onClick={() => nav('/orders')}
+                className="tap"
+                title={`Account (${user.name})`}
+                aria-label="Account"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '6px 12px',
+                  borderRadius: 14,
+                  background: '#ffffff',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  cursor: 'pointer',
+                }}
+              >
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    background: C.accent,
+                    color: C.primaryDark,
+                    fontSize: 13,
+                    fontWeight: 900,
+                    display: 'grid',
+                    placeItems: 'center',
+                  }}
+                >
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: C.primaryDark }}>
+                  {user.name.split(' ')[0]}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => nav('/login')}
+                className="tap"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 14px',
+                  borderRadius: 12,
+                  background: '#ffffff',
+                  color: C.primaryDark,
+                  fontSize: 12.5,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  border: 'none',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                }}
+              >
+                <Icon name="user" size={15} color={C.primaryDark} />
+                <span>Sign In</span>
+              </button>
+            )}
 
             {/* Wishlist Button */}
             <button
-              onClick={() => nav('/account')}
+              onClick={() => nav('/account?tab=wishlist')}
               className="tap"
               title="Saved / Wishlist"
               aria-label="Wishlist"
@@ -631,49 +716,55 @@ export default function SiteLayout() {
               )}
             </button>
 
-            {/* Cart Button (Yellow Squircle as before) */}
+            {/* Cart Button */}
             <button
               onClick={() => nav('/cart')}
               className="tap"
               title="Shopping Cart"
               aria-label="Cart"
               style={{
-                width: 44,
-                height: 44,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '9px 18px',
                 borderRadius: 14,
                 background: C.accent,
+                color: C.primaryDark,
+                fontWeight: 800,
+                fontSize: 13.5,
                 border: 'none',
                 boxShadow: '0 3px 12px rgba(246,196,69,0.35)',
-                display: 'grid',
-                placeItems: 'center',
                 cursor: 'pointer',
-                position: 'relative',
                 animation: bump ? 'pop .45s ease' : undefined,
               }}
             >
-              <Icon name="cart" size={20} color={C.primaryDark} />
-              {cartCount > 0 && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: -5,
-                    right: -5,
-                    background: C.danger,
-                    color: '#ffffff',
-                    fontSize: 9.5,
-                    fontWeight: 900,
-                    borderRadius: 99,
-                    minWidth: 16,
-                    height: 16,
-                    display: 'grid',
-                    placeItems: 'center',
-                    padding: '0 3px',
-                    border: '2px solid #fff',
-                  }}
-                >
-                  {cartCount}
-                </span>
-              )}
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Icon name="cart" size={19} color={C.primaryDark} />
+                {cartCount > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: -8,
+                      right: -10,
+                      background: C.danger,
+                      color: '#ffffff',
+                      fontSize: 9.5,
+                      fontWeight: 900,
+                      borderRadius: 99,
+                      minWidth: 16,
+                      height: 16,
+                      display: 'grid',
+                      placeItems: 'center',
+                      padding: '0 3px',
+                      border: '2px solid #fff',
+                    }}
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </div>
+              <span>Cart</span>
+              {totals.payable > 0 && <span>• {money(totals.payable)}</span>}
             </button>
           </div>
         </div>
@@ -747,160 +838,164 @@ export default function SiteLayout() {
         </div>
       </header>
 
-        {/* Main Content View Container */}
-        <main style={{ flex: 1, width: '100%', minHeight: '70vh' }}>
-          <Outlet />
-        </main>
+      {/* Main Content View Container */}
+      <main style={{ flex: 1, width: '100%', minHeight: '70vh' }}>
+        <Outlet />
+      </main>
 
-        {/* Desktop / Mobile Responsive Footer */}
-        <footer
-          className="desktop-footer"
+      {/* Desktop / Mobile Responsive Footer */}
+      <footer
+        className="desktop-footer"
+        style={{
+          background: `linear-gradient(170deg, ${C.primaryDark}, #052622)`,
+          color: '#fff',
+          marginTop: 50,
+          borderTop: '3px solid #d4af37',
+          padding: '48px 36px 24px',
+        }}
+      >
+        <div
           style={{
-            background: `linear-gradient(170deg, ${C.primaryDark}, #052622)`,
-            color: '#fff',
-            marginTop: 50,
-            borderTop: '3px solid #d4af37',
-            padding: '48px 36px 24px',
+            maxWidth: 1320,
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: 36,
+            paddingBottom: 36,
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
           }}
         >
-          <div
-            style={{
-              maxWidth: 1320,
-              margin: '0 auto',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-              gap: 36,
-              paddingBottom: 36,
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
-            }}
-          >
-            {/* Column 1: Store info */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                <img
-                  src={logo || logoImg}
-                  alt="Sastika Mobiles"
-                  style={{
-                    width: 46,
-                    height: 46,
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '2px solid #d4af37',
-                  }}
-                />
-                <div>
-                  <div style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>Sastika Mobiles</div>
-                  <div style={{ fontSize: 10, letterSpacing: 2, color: C.accent, fontWeight: 800 }}>SALES &amp; SERVICE</div>
-                </div>
-              </div>
-              <p style={{ fontSize: 13, lineHeight: 1.6, color: 'rgba(255,255,255,0.75)', margin: '0 0 16px' }}>
-                Leading multi-brand smartphone showroom, genuine accessories, and instant repair service in Sivakasi and Sithurajapuram.
-              </p>
-              <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'rgba(255,255,255,0.9)' }}>
-                <div>📍 <b>Branch 1:</b> Sri Renga Complex, Near Kennedy Medical, Sithurajapuram.</div>
-                <div>📍 <b>Branch 2:</b> Sivakasi Bus Stand, Sivakasi.</div>
-                <div>📞 <b>Phone / WhatsApp:</b> +91 95434 34344</div>
-                <div>📄 <b>GSTIN:</b> 33BQTPJ5275L1Z6</div>
+          {/* Column 1: Store info */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+              <img
+                src={logo || logoImg}
+                alt="Sastika Mobiles"
+                style={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '2px solid #d4af37',
+                }}
+              />
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>Sastika Mobiles</div>
+                <div style={{ fontSize: 10, letterSpacing: 2, color: C.accent, fontWeight: 800 }}>SALES &amp; SERVICE</div>
               </div>
             </div>
-
-            {/* Column 2: 5G Smartphone Brands */}
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
-                POPULAR 5G BRANDS
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
-                {['Redmi 5G', 'OPPO 5G', 'Vivo 5G', 'Nothing 5G', 'Samsung Galaxy', 'Poco 5G', 'Fast Chargers', 'ANC Audio'].map((b) => (
-                  <button
-                    key={b}
-                    onClick={() => nav('/mobiles')}
-                    style={{
-                      textAlign: 'left',
-                      color: 'rgba(255,255,255,0.8)',
-                      padding: '6px 0',
-                      fontSize: 13,
-                      cursor: 'pointer',
-                      transition: 'color .2s ease',
-                    }}
-                  >
-                    › {b}
-                  </button>
-                ))}
-              </div>
+            <p style={{ fontSize: 13, lineHeight: 1.6, color: 'rgba(255,255,255,0.75)', margin: '0 0 16px' }}>
+              Leading multi-brand smartphone showroom, genuine accessories, and instant repair service in Sivakasi and Sithurajapuram.
+            </p>
+            <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'rgba(255,255,255,0.9)' }}>
+              <div>📍 <b>Branch 1:</b> Sri Renga Complex, Near Kennedy Medical, Sithurajapuram.</div>
+              <div>📍 <b>Branch 2:</b> Sivakasi Bus Stand, Sivakasi.</div>
+              <div>📞 <b>Phone / WhatsApp:</b> +91 95434 34344</div>
+              <div>📄 <b>GSTIN:</b> 33BQTPJ5275L1Z6</div>
             </div>
+          </div>
 
-            {/* Column 3: Care Services */}
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
-                CARE &amp; REPAIR SERVICES
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>
-                <div>🔧 Same-day Display Replacement (1-Yr Warranty)</div>
-                <div>🔋 Certified Battery Replacement &amp; Fitting</div>
-                <div>📲 WhatsApp &amp; Contact Data Migration</div>
-                <div>🛡️ 42-Point Motherboard Diagnostics</div>
-                <div>⚡ 45W/80W/100W Fast Chargers &amp; Glass</div>
+          {/* Column 2: 5G Smartphone Brands */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
+              POPULAR 5G BRANDS
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+              {['Redmi 5G', 'OPPO 5G', 'Vivo 5G', 'Nothing 5G', 'Samsung Galaxy', 'Poco 5G', 'Fast Chargers', 'ANC Audio'].map((b) => (
                 <button
-                  onClick={() => nav('/services')}
+                  key={b}
+                  onClick={() => nav('/mobiles')}
                   style={{
-                    marginTop: 8,
-                    padding: '8px 14px',
-                    borderRadius: 10,
-                    background: 'rgba(255,255,255,0.12)',
-                    color: C.accent,
-                    fontWeight: 700,
-                    fontSize: 12.5,
-                    alignSelf: 'flex-start',
+                    textAlign: 'left',
+                    color: 'rgba(255,255,255,0.8)',
+                    padding: '6px 0',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    background: 'none',
+                    border: 'none',
+                    transition: 'color .2s ease',
                   }}
                 >
-                  Book Repair Desk →
+                  › {b}
                 </button>
-              </div>
-            </div>
-
-            {/* Column 4: Invoice Policy */}
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
-                INVOICE WARRANTY POLICY
-              </div>
-              <div style={{ fontSize: 12.5, lineHeight: 1.7, color: 'rgba(255,255,255,0.75)' }}>
-                <div>✓ 1-Year official brand warranty on all new smartphones.</div>
-                <div>✓ Complete guidance for quick service at authorized brand centers.</div>
-                <div>✓ Official GST Tax Invoice provided with every device purchase.</div>
-                <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 12, background: 'rgba(246,196,69,0.12)', border: '1px solid rgba(246,196,69,0.3)' }}>
-                  <b style={{ color: C.accent }}>Store Timings:</b>
-                  <div style={{ fontSize: 12, color: '#fff' }}>09:30 AM – 09:30 PM (All 7 Days)</div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Copyright bar */}
-          <div
-            style={{
-              maxWidth: 1320,
-              margin: '0 auto',
-              paddingTop: 20,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              fontSize: 12,
-              color: 'rgba(255,255,255,0.6)',
-              flexWrap: 'wrap',
-              gap: 10,
-            }}
-          >
-            <div>
-              © 2026 <b>Sastika Mobiles</b>. All Rights Reserved. Sivakasi &amp; Sithurajapuram, Tamil Nadu.
+          {/* Column 3: Care Services */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
+              CARE &amp; REPAIR SERVICES
             </div>
-            <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
-              <span style={{ color: C.accent }}>● 100% Secure Checkout</span>
-              <button onClick={() => nav('/about')} style={{ color: 'rgba(255,255,255,0.8)' }}>About Us</button>
-              <button onClick={() => nav('/contact')} style={{ color: 'rgba(255,255,255,0.8)' }}>Contact</button>
-              <button onClick={() => nav('/admin')} style={{ color: C.accent, fontWeight: 700 }}>Admin Login</button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>
+              <div>🔧 Same-day Display Replacement (1-Yr Warranty)</div>
+              <div>🔋 Certified Battery Replacement &amp; Fitting</div>
+              <div>📲 WhatsApp &amp; Contact Data Migration</div>
+              <div>🛡️ 42-Point Motherboard Diagnostics</div>
+              <div>⚡ 45W/80W/100W Fast Chargers &amp; Glass</div>
+              <button
+                onClick={() => nav('/services')}
+                style={{
+                  marginTop: 8,
+                  padding: '8px 14px',
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.12)',
+                  color: C.accent,
+                  fontWeight: 700,
+                  fontSize: 12.5,
+                  alignSelf: 'flex-start',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Book Repair Desk →
+              </button>
             </div>
           </div>
-        </footer>
+
+          {/* Column 4: Invoice Policy */}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
+              INVOICE WARRANTY POLICY
+            </div>
+            <div style={{ fontSize: 12.5, lineHeight: 1.7, color: 'rgba(255,255,255,0.75)' }}>
+              <div>✓ 1-Year official brand warranty on all new smartphones.</div>
+              <div>✓ Complete guidance for quick service at authorized brand centers.</div>
+              <div>✓ Official GST Tax Invoice provided with every device purchase.</div>
+              <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 12, background: 'rgba(246,196,69,0.12)', border: '1px solid rgba(246,196,69,0.3)' }}>
+                <b style={{ color: C.accent }}>Store Timings:</b>
+                <div style={{ fontSize: 12, color: '#fff' }}>09:30 AM – 09:30 PM (All 7 Days)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright bar */}
+        <div
+          style={{
+            maxWidth: 1320,
+            margin: '0 auto',
+            paddingTop: 20,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.6)',
+            flexWrap: 'wrap',
+            gap: 10,
+          }}
+        >
+          <div>
+            © 2026 <b>Sastika Mobiles</b>. All Rights Reserved. Sivakasi &amp; Sithurajapuram, Tamil Nadu.
+          </div>
+          <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
+            <span style={{ color: C.accent }}>● 100% Secure Checkout</span>
+            <button onClick={() => nav('/about')} style={{ color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer' }}>About Us</button>
+            <button onClick={() => nav('/contact')} style={{ color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer' }}>Contact</button>
+            <button onClick={() => nav('/admin')} style={{ color: C.accent, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>Admin Login</button>
+          </div>
+        </div>
+      </footer>
 
       {/* Slide-out Mobile Drawer */}
       {drawer && (
@@ -932,7 +1027,7 @@ export default function SiteLayout() {
               boxShadow: '4px 0 24px rgba(0,0,0,0.3)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div onClick={() => { setDrawer(false); nav('/'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <img
                   src={logo || logoImg}
@@ -944,29 +1039,108 @@ export default function SiteLayout() {
                   <div style={{ color: C.accent, fontSize: 9.5, letterSpacing: 2, fontWeight: 800 }}>MOBILES</div>
                 </div>
               </div>
-              <button onClick={() => setDrawer(false)} style={{ color: '#fff' }} aria-label="Close"><Icon name="x" size={22} /></button>
+              <button onClick={() => setDrawer(false)} style={{ color: '#fff', background: 'none', border: 'none', cursor: 'pointer' }} aria-label="Close"><Icon name="x" size={22} /></button>
             </div>
-            {NAV_LINKS.map((d) => (
-              <NavLink key={d.to} to={d.to} end={d.to === '/'} onClick={() => setDrawer(false)}>
-                {({ isActive }) => (
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 14,
-                      padding: '13px 14px',
-                      borderRadius: 14,
-                      fontWeight: 700,
-                      fontSize: 14.5,
-                      background: isActive ? 'rgba(246,196,69,0.18)' : 'transparent',
-                      color: isActive ? C.accent : '#fff',
-                    }}
-                  >
-                    <Icon name={d.icon} size={18} /> {d.label}
+
+            {/* User Profile in Drawer */}
+            {user ? (
+              <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.1)', marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 34, height: 34, borderRadius: '50%', background: C.accent, color: C.primaryDark, fontWeight: 900, fontSize: 14, display: 'grid', placeItems: 'center' }}>
+                    {user.name.charAt(0).toUpperCase()}
                   </div>
-                )}
-              </NavLink>
-            ))}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 800, fontSize: 13.5, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{user.email}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                  <button
+                    onClick={() => { setDrawer(false); nav('/orders'); }}
+                    style={{ flex: 1, padding: '7px 0', borderRadius: 8, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 11.5, fontWeight: 700, border: 'none', cursor: 'pointer' }}
+                  >
+                    My Orders
+                  </button>
+                  <button
+                    onClick={() => { logoutUser(); setDrawer(false); }}
+                    style={{ padding: '7px 12px', borderRadius: 8, background: 'rgba(229,72,77,0.25)', color: '#ff8589', fontSize: 11.5, fontWeight: 800, border: 'none', cursor: 'pointer' }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setDrawer(false); nav('/login'); }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '11px 14px',
+                  borderRadius: 12,
+                  background: C.accent,
+                  color: C.primaryDark,
+                  fontWeight: 800,
+                  fontSize: 13,
+                  marginBottom: 14,
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon name="user" size={16} /> Sign In / Register
+              </button>
+            )}
+
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => { setDrawer(false); nav('/admin'); }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '9px 12px',
+                  borderRadius: 12,
+                  background: 'rgba(246,196,69,0.18)',
+                  border: '1px solid rgba(246,196,69,0.3)',
+                  color: C.accent,
+                  fontWeight: 800,
+                  fontSize: 12,
+                  marginBottom: 12,
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon name="zap" size={14} /> Admin Portal ⚡
+              </button>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {NAV_LINKS.map((d) => (
+                <NavLink key={d.to} to={d.to} end={d.to === '/'} onClick={() => setDrawer(false)}>
+                  {({ isActive }) => (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 14,
+                        padding: '11px 14px',
+                        borderRadius: 12,
+                        fontWeight: 700,
+                        fontSize: 14,
+                        background: isActive ? 'rgba(246,196,69,0.18)' : 'transparent',
+                        color: isActive ? C.accent : '#fff',
+                      }}
+                    >
+                      <Icon name={d.icon} size={18} /> {d.label}
+                    </div>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+
             <div style={{ marginTop: 'auto', padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 12.5 }}>
               <div style={{ fontWeight: 800, color: C.accent, marginBottom: 2 }}>Need Help?</div>
               Call / WhatsApp: +91 95434 34344

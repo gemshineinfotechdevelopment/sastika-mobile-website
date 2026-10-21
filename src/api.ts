@@ -20,10 +20,14 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    throw new Error(errorBody.error || `Request failed with status ${response.status}`);
+    throw new Error(errorBody.message || errorBody.error || `Request failed with status ${response.status}`);
   }
 
-  return response.json();
+  const json = await response.json();
+  if (json && typeof json === 'object' && 'data' in json && json.data !== undefined) {
+    return json.data as T;
+  }
+  return json as T;
 }
 
 export const api = {
@@ -97,12 +101,12 @@ export const api = {
 
   // Auth
   login: (credentials: { email: string; password: string }) =>
-    request<{ success: boolean; token: string; user: { id: string; name: string; email: string; phone?: string; role?: string }; message?: string }>('/auth/login', {
+    request<{ success: boolean; token: string; user: any; message?: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     }),
   register: (userData: { name: string; email: string; password: string; phone?: string; role?: string }) =>
-    request<{ success: boolean; token: string; user: { id: string; name: string; email: string; phone?: string; role?: string }; message?: string }>('/auth/register', {
+    request<{ success: boolean; token: string; user: any; message?: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     }),

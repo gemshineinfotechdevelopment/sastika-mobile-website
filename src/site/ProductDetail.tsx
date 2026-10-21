@@ -375,8 +375,10 @@ export default function ProductDetail() {
         <section style={{ paddingTop: 40 }}>
           <SectionHead title="Similar 5G Smartphones in Stock" sub="Explore alternative models from top brands" />
           <div className="product-cards-grid" style={{ paddingTop: 16 }}>
-            {similar.map((s) => (
-              <ProductCard key={s.id} p={s} />
+            {similar.map((s, i) => (
+              <Reveal key={s.id} dir="up" delay={i * 50} style={{ height: '100%', display: 'flex' }}>
+                <ProductCard p={s} />
+              </Reveal>
             ))}
           </div>
         </section>

@@ -10,6 +10,7 @@ import Account from './site/Account';
 import Services from './site/Services';
 import About from './site/About';
 import Contact from './site/Contact';
+import Login from './site/Login';
 
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/Dashboard';
@@ -33,6 +34,9 @@ export default function App() {
         <Route path="checkout" element={<Checkout />} />
         <Route path="confirmation/:id" element={<Confirmation />} />
         <Route path="account" element={<Account />} />
+        <Route path="orders" element={<Account />} />
+        <Route path="track" element={<Account />} />
+        <Route path="login" element={<Login />} />
         <Route path="services" element={<Services />} />
         <Route path="about" element={<About />} />
         <Route path="contact" element={<Contact />} />
