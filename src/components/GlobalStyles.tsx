@@ -49,7 +49,7 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   .site-mobile-header { display: none !important; }
   .site-mobile-bottom-nav { display: none !important; }
   .desktop-hide { display: none !important; }
-  .hero-wrapper { margin: 20px 24px 0 !important; padding: 44px 36px 48px !important; border-radius: 28px !important; }
+  .hero-wrapper { max-width: 1360px !important; margin: 24px auto 0 !important; padding: 44px 40px 48px !important; border-radius: 28px !important; }
   .hero-inner-container { display: grid !important; grid-template-columns: 1.15fr 0.85fr !important; gap: 36px !important; align-items: center !important; }
   .hero-content-col { max-width: 100% !important; }
   .hero-phones-img-wrapper { position: relative !important; right: auto !important; bottom: auto !important; width: 100% !important; max-width: 480px !important; }
@@ -69,6 +69,8 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
 
 @media (max-width: 1023px) {
   .site-desktop-sidebar { display: none !important; }
+  .site-desktop-top-bar { display: none !important; }
+  .site-desktop-navbar { display: none !important; }
   .site-desktop-header { display: none !important; }
   .site-mobile-header { display: flex !important; position: sticky !important; top: 0 !important; z-index: 100 !important; }
   .site-mobile-bottom-nav { display: none !important; }
