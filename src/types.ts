@@ -90,4 +90,10 @@ export interface FlashDealConfig {
   endTime?: string;
   items: FlashDealItem[];
 }
-
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role?: string;
+}

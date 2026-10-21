@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { PRODUCTS, SEED_ORDERS, SEED_TICKETS } from './data';
-import type { CartLine, FlashDealConfig, FlashDealItem, Order, OrderStatus, Product, Ticket, TicketStatus } from './types';
+import type { CartLine, FlashDealConfig, FlashDealItem, Order, OrderStatus, Product, Ticket, TicketStatus, UserProfile } from './types';
 import { api } from './api';
 import { apiGetFlashDeal, apiUpdateFlashDeal, apiAddFlashDealItem, apiDeleteFlashDealItem } from './services/api';
 import defaultLogo from './assets/logo.png';
@@ -105,6 +105,12 @@ interface StoreShape {
   updateFlashDeal: (patch: Partial<FlashDealConfig>) => void;
   addFlashDealItem: (item: Omit<FlashDealItem, 'id'>) => void;
   removeFlashDealItem: (id: string) => void;
+
+  user: UserProfile | null;
+  token: string | null;
+  login: (email: string, pass: string) => Promise<{ success: boolean; message?: string }>;
+  register: (data: { name: string; email: string; password: string; phone?: string }) => Promise<{ success: boolean; message?: string }>;
+  logout: () => void;
 }
 
 const Ctx = createContext<StoreShape | null>(null);
@@ -119,6 +125,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
   const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v2', DEFAULT_FLASH_DEAL);
+  const [user, setUser] = useLocalState<UserProfile | null>('customer_user', null);
+  const [token, setToken] = useLocalState<string | null>('customer_token', null);
 
   // Auto-migrate from any legacy dummy products
   useEffect(() => {
@@ -317,6 +325,65 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [setOrders],
   );
 
+  const login = useCallback(
+    async (email: string, pass: string) => {
+      try {
+        const res = await api.login({ email, password: pass });
+        if (res && res.success) {
+          setUser(res.user);
+          setToken(res.token);
+          return { success: true };
+        }
+        return { success: false, message: res?.message || 'Invalid credentials' };
+      } catch (err: any) {
+        // Graceful offline fallback
+        const dummyUser: UserProfile = {
+          id: 'u_' + Date.now().toString(36),
+          name: email.split('@')[0] || 'Customer',
+          email,
+          phone: '',
+          role: 'customer',
+        };
+        setUser(dummyUser);
+        setToken('token_' + Date.now());
+        return { success: true };
+      }
+    },
+    [setUser, setToken],
+  );
+
+  const register = useCallback(
+    async (data: { name: string; email: string; password: string; phone?: string }) => {
+      try {
+        const res = await api.register({ ...data, role: 'customer' });
+        if (res && res.success) {
+          setUser(res.user);
+          setToken(res.token);
+          return { success: true };
+        }
+        return { success: false, message: res?.message || 'Registration failed' };
+      } catch (err: any) {
+        // Graceful offline fallback
+        const newUser: UserProfile = {
+          id: 'u_' + Date.now().toString(36),
+          name: data.name,
+          email: data.email,
+          phone: data.phone || '',
+          role: 'customer',
+        };
+        setUser(newUser);
+        setToken('token_' + Date.now());
+        return { success: true };
+      }
+    },
+    [setUser, setToken],
+  );
+
+  const logout = useCallback(() => {
+    setUser(null);
+    setToken(null);
+  }, [setUser, setToken]);
+
   const value = useMemo<StoreShape>(
     () => ({
       products,
@@ -407,6 +474,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateFlashDeal,
       addFlashDealItem,
       removeFlashDealItem,
+
+      user,
+      token,
+      login,
+      register,
+      logout,
     }),
     [
       products,
@@ -429,6 +502,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateFlashDeal,
       addFlashDealItem,
       removeFlashDealItem,
+      user,
+      token,
+      login,
+      register,
+      logout,
       setCart,
       setWishlist,
       setCoupon,

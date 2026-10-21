@@ -94,4 +94,17 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     }),
+
+  // Auth
+  login: (credentials: { email: string; password: string }) =>
+    request<{ success: boolean; token: string; user: { id: string; name: string; email: string; phone?: string; role?: string }; message?: string }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    }),
+  register: (userData: { name: string; email: string; password: string; phone?: string; role?: string }) =>
+    request<{ success: boolean; token: string; user: { id: string; name: string; email: string; phone?: string; role?: string }; message?: string }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    }),
 };
+
