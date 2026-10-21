@@ -48,8 +48,19 @@ export default function ProductDetail() {
     'Free same-day doorstep express delivery in Sivakasi',
   ];
 
+  const LOCAL_PINCODES = ['626123', '626124', '626189', '626130'];
+
   const checkPin = () => {
-    setPinResult(/^\d{6}$/.test(pin) ? 'Delivery by tomorrow, 2:00 PM · Free express shipping in Sivakasi & Sithurajapuram' : 'Enter a valid 6-digit pincode');
+    const clean = pin.trim();
+    if (!/^\d{6}$/.test(clean)) {
+      setPinResult('Enter a valid 6-digit pincode');
+      return;
+    }
+    if (LOCAL_PINCODES.includes(clean)) {
+      setPinResult('Delivery by tomorrow, 2:00 PM · Free express shipping in Sivakasi & Sithurajapuram');
+    } else {
+      setPinResult('Delivery within 7 working days from order date · Standard delivery');
+    }
   };
 
   const add = () => {
@@ -248,7 +259,14 @@ export default function ProductDetail() {
             <div style={{ display: 'flex', gap: 8 }}>
               <input
                 value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                maxLength={6}
+                onChange={(e) => {
+                  setPin(e.target.value.replace(/\D/g, '').slice(0, 6));
+                  if (pinResult) setPinResult(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') checkPin();
+                }}
                 placeholder="Enter 6-digit Pincode"
                 inputMode="numeric"
                 style={{ ...input, padding: '10px 12px', fontSize: 13 }}
@@ -256,7 +274,19 @@ export default function ProductDetail() {
               <Btn onClick={checkPin} variant="light" style={{ padding: '0 20px', fontSize: 13 }}>Check</Btn>
             </div>
             {pinResult && (
-              <div key={pinResult} style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: /^Delivery/.test(pinResult) ? C.success : C.danger }}>
+              <div
+                key={pinResult}
+                style={{
+                  marginTop: 8,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  color: /^Delivery/.test(pinResult) ? C.success : C.danger,
+                }}
+              >
+                <Icon name={/^Delivery/.test(pinResult) ? 'check' : 'alert'} size={14} />
                 {pinResult}
               </div>
             )}
