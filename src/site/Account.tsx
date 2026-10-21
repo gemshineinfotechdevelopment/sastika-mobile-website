@@ -535,7 +535,20 @@ export default function Account() {
             </div>
 
             {/* Orders List */}
-            {filteredOrders.length === 0 ? (
+            {!user ? (
+              <div style={{ textAlign: 'center', padding: '50px 20px', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}` }}>
+                <div style={{ width: 64, height: 64, borderRadius: '50%', background: C.tint, display: 'grid', placeItems: 'center', margin: '0 auto 14px', color: C.primary }}>
+                  <Icon name="truck" size={32} />
+                </div>
+                <h3 style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 800 }}>Sign in to View Your Orders</h3>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: C.muted, maxWidth: 380, marginInline: 'auto' }}>
+                  Please sign in with your email or mobile number to track live delivery status and view order history.
+                </p>
+                <Btn onClick={() => nav('/login?redirect=' + encodeURIComponent('/orders'))}>
+                  <Icon name="user" size={16} /> Sign In to Your Account
+                </Btn>
+              </div>
+            ) : filteredOrders.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '50px 20px', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}` }}>
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: C.tint, display: 'grid', placeItems: 'center', margin: '0 auto 14px', color: C.primary }}>
                   <Icon name="truck" size={32} />
@@ -930,7 +943,20 @@ export default function Account() {
               </div>
             </div>
 
-            {filteredTickets.length === 0 ? (
+            {!user ? (
+              <div style={{ textAlign: 'center', padding: '50px 20px', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}` }}>
+                <div style={{ width: 64, height: 64, borderRadius: '50%', background: C.tint, display: 'grid', placeItems: 'center', margin: '0 auto 14px', color: C.primary }}>
+                  <Icon name="tool" size={32} />
+                </div>
+                <h3 style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 800 }}>Sign in to View Care Tickets</h3>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: C.muted, maxWidth: 380, marginInline: 'auto' }}>
+                  Please sign in with your phone or email to track live repair status and service desk updates.
+                </p>
+                <Btn onClick={() => nav('/login?redirect=' + encodeURIComponent('/orders?tab=service'))}>
+                  <Icon name="user" size={16} /> Sign In to Your Account
+                </Btn>
+              </div>
+            ) : filteredTickets.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '50px 20px', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}` }}>
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: C.tint, display: 'grid', placeItems: 'center', margin: '0 auto 14px', color: C.primary }}>
                   <Icon name="tool" size={32} />

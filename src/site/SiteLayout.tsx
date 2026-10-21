@@ -45,22 +45,11 @@ export default function SiteLayout() {
     }
   }, [cartCount]);
 
-  // Require login to access website storefront
-  useEffect(() => {
-    if (!user && pathname !== '/login') {
-      nav('/login' + (pathname && pathname !== '/' ? '?redirect=' + encodeURIComponent(pathname) : ''), { replace: true });
-    }
-  }, [user, pathname, nav]);
-
   const results = q.trim()
     ? products
         .filter((p) => (p.name + p.brand + p.color).toLowerCase().includes(q.toLowerCase()))
         .slice(0, 6)
     : [];
-
-  if (!user && pathname !== '/login') {
-    return null;
-  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: C.bg, color: C.text, width: '100%' }}>
