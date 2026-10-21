@@ -52,481 +52,134 @@ export default function SiteLayout() {
     : [];
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: C.bg, color: C.text }}>
-      {/* -------------------- DESKTOP SIDEBAR -------------------- */}
-      <aside
-        className="site-desktop-sidebar hide-scroll"
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: C.bg, color: C.text, width: '100%' }}>
+      {/* -------------------- 1. DESKTOP UTILITY TOP BAR -------------------- */}
+      <div
+        className="site-desktop-top-bar"
         style={{
-          width: 270,
-          background: `linear-gradient(185deg, #072a25 0%, ${C.primaryDark} 50%, #052622 100%)`,
-          color: '#fff',
-          padding: '22px 16px 20px',
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
-          flexDirection: 'column',
-          flexShrink: 0,
-          boxShadow: '4px 0 24px rgba(0,0,0,0.12)',
-          zIndex: 40,
-          overflowY: 'auto',
-          borderRight: '1px solid rgba(255,255,255,0.08)',
+          background: '#041e1b',
+          color: 'rgba(255,255,255,0.85)',
+          fontSize: 12,
+          padding: '7px 24px',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          width: '100%',
         }}
       >
-        {/* Brand Header */}
         <div
-          onClick={() => nav('/')}
-          className="tap"
           style={{
+            maxWidth: 1360,
+            margin: '0 auto',
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: 12,
-            padding: '4px 8px 18px',
-            cursor: 'pointer',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-            marginBottom: 16,
           }}
         >
-          <img
-            src={logo || logoImg}
-            alt="Sastika Mobiles Logo"
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: '2px solid #d4af37',
-              boxShadow: '0 3px 12px rgba(0,0,0,0.3)',
-              background: '#fff',
-              flexShrink: 0,
-            }}
-          />
-          <div style={{ lineHeight: 1.15 }}>
-            <div style={{ fontWeight: 900, fontSize: 17, letterSpacing: 0.3, color: '#fff' }}>
-              SASTIKA MOBILES
-            </div>
-            <div style={{ fontSize: 9.5, letterSpacing: 1.8, color: C.accent, fontWeight: 800, marginTop: 3 }}>
-              SALES &amp; SERVICE
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.accent, fontWeight: 700 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', animation: 'pulseDot 1.6s infinite' }} />
+              Open 09:30 AM – 09:30 PM (All 7 Days)
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>
+            <span>📍 Sithurajapuram &amp; Sivakasi Bus Stand</span>
+            <span style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>
+            <span>📞 Helpline: <b style={{ color: '#fff' }}>+91 95434 34344</b></span>
           </div>
-        </div>
-
-        {/* Live Store Timings & Location Chip */}
-        <div
-          style={{
-            padding: '10px 12px',
-            borderRadius: 14,
-            background: 'rgba(255,255,255,0.07)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            marginBottom: 16,
-            fontSize: 11.5,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.accent, fontWeight: 700 }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', animation: 'pulseDot 1.6s infinite' }} />
-            Open 09:30 AM – 09:30 PM
-          </div>
-          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, marginTop: 4 }}>
-            📍 Sithurajapuram &amp; Sivakasi Bus Stand
-          </div>
-        </div>
-
-        {/* Navigation Links */}
-        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.4, opacity: 0.6, padding: '0 10px 8px', color: '#fff' }}>
-          STORE DIRECTORY
-        </div>
-
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {NAV_LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.to === '/'}>
-              {({ isActive }) => (
-                <div
-                  className="row-hover"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '11px 14px',
-                    borderRadius: 12,
-                    fontWeight: 700,
-                    fontSize: 13.5,
-                    background: isActive ? 'rgba(246,196,69,0.16)' : 'transparent',
-                    color: isActive ? C.accent : 'rgba(255,255,255,0.85)',
-                    border: isActive ? '1px solid rgba(246,196,69,0.3)' : '1px solid transparent',
-                    position: 'relative',
-                    transition: 'all .2s ease',
-                  }}
-                >
-                  {isActive && (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        left: -16,
-                        top: 8,
-                        bottom: 8,
-                        width: 4,
-                        borderRadius: 4,
-                        background: C.accent,
-                      }}
-                    />
-                  )}
-                  <Icon name={l.icon} size={17} color={isActive ? C.accent : 'rgba(255,255,255,0.8)'} />
-                  <span style={{ flex: 1 }}>{l.label}</span>
-                  {l.badge && (
-                    <span
-                      style={{
-                        background: C.accent,
-                        color: C.primaryDark,
-                        fontSize: 10,
-                        fontWeight: 800,
-                        padding: '2px 7px',
-                        borderRadius: 99,
-                      }}
-                    >
-                      {l.badge}
-                    </span>
-                  )}
-                </div>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Quick Cart & Shopping Action Card */}
-        <div style={{ marginTop: 18, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 14 }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.4, opacity: 0.6, padding: '0 10px 8px', color: '#fff' }}>
-            MY SHOPPING
-          </div>
-
-          <div style={{ display: 'grid', gap: 6 }}>
-            {/* Cart Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            <span style={{ color: 'rgba(255,255,255,0.75)' }}>📄 GSTIN: <b style={{ color: '#fff' }}>33BQTPJ5275L1Z6</b></span>
+            <span style={{ color: 'rgba(255,255,255,0.4)' }}>•</span>
             <button
-              onClick={() => nav('/cart')}
+              onClick={() => nav('/admin')}
               className="tap"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '10px 12px',
-                borderRadius: 12,
-                background: cartCount > 0 ? C.accent : 'rgba(255,255,255,0.08)',
-                color: cartCount > 0 ? C.primaryDark : '#fff',
+                color: C.accent,
                 fontWeight: 800,
-                fontSize: 13,
-                animation: bump ? 'pop .45s ease' : undefined,
-                cursor: 'pointer',
-              }}
-            >
-              <div style={{ position: 'relative' }}>
-                <Icon name="cart" size={17} color={cartCount > 0 ? C.primaryDark : '#fff'} />
-                {cartCount > 0 && (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: -6,
-                      right: -8,
-                      background: C.danger,
-                      color: '#fff',
-                      fontSize: 9.5,
-                      fontWeight: 800,
-                      borderRadius: 99,
-                      minWidth: 15,
-                      height: 15,
-                      display: 'grid',
-                      placeItems: 'center',
-                      padding: '0 3px',
-                    }}
-                  >
-                    {cartCount}
-                  </span>
-                )}
-              </div>
-              <span style={{ flex: 1, textAlign: 'left' }}>Cart</span>
-              <span>{totals.payable > 0 ? money(totals.payable) : '0 Items'}</span>
-            </button>
-
-            {/* Wishlist & Account */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-              <button
-                onClick={() => nav('/account')}
-                className="tap"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  padding: '9px 8px',
-                  borderRadius: 10,
-                  background: 'rgba(255,255,255,0.08)',
-                  color: '#fff',
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}
-              >
-                <Icon name="heart" size={15} color={wishlist.length > 0 ? C.accent : '#fff'} />
-                <span>Wishlist {wishlist.length > 0 ? `(${wishlist.length})` : ''}</span>
-              </button>
-
-              <button
-                onClick={() => nav('/account')}
-                className="tap"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  padding: '9px 8px',
-                  borderRadius: 10,
-                  background: 'rgba(255,255,255,0.08)',
-                  color: '#fff',
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}
-              >
-                <Icon name="user" size={15} />
-                <span>Orders</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Sidebar Footer info */}
-        <div style={{ marginTop: 'auto', paddingTop: 16 }}>
-          <button
-            onClick={() => nav('/admin')}
-            className="tap"
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              padding: '10px 12px',
-              borderRadius: 12,
-              background: 'rgba(246,196,69,0.15)',
-              border: '1px solid rgba(246,196,69,0.3)',
-              color: C.accent,
-              fontWeight: 800,
-              fontSize: 12.5,
-              marginBottom: 10,
-              cursor: 'pointer',
-            }}
-          >
-            <Icon name="zap" size={15} /> Admin Portal ⚡
-          </button>
-
-          <div
-            style={{
-              padding: '10px 12px',
-              borderRadius: 12,
-              background: 'rgba(0,0,0,0.25)',
-              fontSize: 11,
-              lineHeight: 1.5,
-              color: 'rgba(255,255,255,0.7)',
-            }}
-          >
-            <div>📞 Helpline: <b style={{ color: '#fff' }}>+91 95434 34344</b></div>
-            <div>📄 GSTIN: <b style={{ color: '#fff' }}>33BQTPJ5275L1Z6</b></div>
-          </div>
-        </div>
-      </aside>
-
-      {/* -------------------- RIGHT MAIN AREA -------------------- */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-        {/* Mobile Header (Shows on screens < 1024px) */}
-        <header
-          className="site-mobile-header"
-          style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 50,
-            background: `linear-gradient(90deg, ${C.primaryDark}, ${C.primary})`,
-            color: '#fff',
-            padding: '10px 14px',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button
-              onClick={() => setDrawer(true)}
-              style={{ color: '#fff', padding: 4, display: 'grid', placeItems: 'center' }}
-              aria-label="Open menu"
-            >
-              <Icon name="menu" size={24} />
-            </button>
-            <div onClick={() => nav('/')} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <img
-                src={logo || logoImg}
-                alt="Sastika Mobiles"
-                style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #d4af37', background: '#fff' }}
-              />
-              <div>
-                <div style={{ fontWeight: 900, fontSize: 15, letterSpacing: 0.3, lineHeight: 1.1 }}>SASTIKA MOBILES</div>
-                <div style={{ fontSize: 8.5, letterSpacing: 1.4, color: C.accent, fontWeight: 800 }}>SALES &amp; SERVICE</div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button
-              onClick={() => setMobileSearch(!mobileSearch)}
-              style={{
-                color: '#fff',
-                padding: '6px 8px',
-                borderRadius: 8,
-                background: mobileSearch ? 'rgba(255,255,255,0.2)' : 'transparent',
-                display: 'grid',
-                placeItems: 'center',
-              }}
-              aria-label="Search"
-            >
-              <Icon name={mobileSearch ? 'x' : 'search'} size={19} color="#fff" />
-            </button>
-            <button
-              onClick={() => nav('/cart')}
-              style={{
-                position: 'relative',
-                background: C.accent,
-                color: C.primaryDark,
-                padding: '6px 12px',
-                borderRadius: 99,
-                fontWeight: 800,
-                fontSize: 12,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 5,
+                fontSize: 12,
+                cursor: 'pointer',
               }}
             >
-              <Icon name="cart" size={15} />
-              <span>{cartCount}</span>
+              <Icon name="zap" size={13} color={C.accent} /> Admin Portal ⚡
             </button>
           </div>
-        </header>
+        </div>
+      </div>
 
-        {/* Mobile Search Dropdown Bar */}
-        {mobileSearch && (
-          <div
-            className="site-mobile-header"
-            style={{
-              padding: '10px 14px',
-              background: '#fff',
-              borderBottom: `1px solid ${C.border}`,
-              position: 'sticky',
-              top: 54,
-              zIndex: 49,
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', background: C.tint2, borderRadius: 12, padding: '0 12px' }}>
-              <Icon name="search" size={16} color={C.muted} />
-              <input
-                autoFocus
-                value={q}
-                onChange={(e) => {
-                  setQ(e.target.value);
-                  setSearching(true);
-                }}
-                placeholder="Search phone models (Redmi, Vivo, OPPO...)"
-                style={{
-                  width: '100%',
-                  padding: '10px 8px',
-                  border: 'none',
-                  background: 'transparent',
-                  outline: 'none',
-                  fontSize: 13,
-                  fontWeight: 500,
-                }}
-              />
-              {q && (
-                <button
-                  onClick={() => {
-                    setQ('');
-                    setSearching(false);
-                  }}
-                  style={{ color: C.muted, padding: 4 }}
-                >
-                  <Icon name="x" size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Mobile Search Results list */}
-            {searching && q.trim().length > 0 && (
-              <div style={{ marginTop: 8, maxHeight: 260, overflowY: 'auto' }}>
-                {results.length === 0 ? (
-                  <div style={{ padding: '12px', textAlign: 'center', fontSize: 12.5, color: C.muted }}>
-                    No mobiles found for "{q}"
-                  </div>
-                ) : (
-                  results.map((p) => (
-                    <div
-                      key={p.id}
-                      onClick={() => {
-                        nav(`/product/${p.id}`);
-                        setMobileSearch(false);
-                        setSearching(false);
-                        setQ('');
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        padding: '8px 4px',
-                        borderBottom: `1px solid ${C.tint2}`,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <img src={p.image} alt={p.name} style={{ width: 32, height: 32, objectFit: 'contain' }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: 12.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {p.name}
-                        </div>
-                        <div style={{ fontSize: 11, color: C.muted }}>
-                          {money(p.price)} · {p.brand}
-                        </div>
-                      </div>
-                      <Icon name="right" size={14} color={C.muted} />
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Desktop Sticky Top Utility Bar (Hidden on Mobile) */}
-        <header
-          className="site-desktop-header"
+      {/* -------------------- 2. DESKTOP MAIN STICKY NAVBAR -------------------- */}
+      <header
+        className="site-desktop-navbar"
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: `linear-gradient(135deg, #072a25 0%, ${C.primaryDark} 50%, #052622 100%)`,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          width: '100%',
+        }}
+      >
+        {/* Tier 1: Brand Logo + Search Bar + Actions */}
+        <div
           style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 35,
-            background: 'rgba(255,255,255,0.96)',
-            backdropFilter: 'blur(12px)',
-            borderBottom: `1px solid ${C.border}`,
-            padding: '12px 32px',
+            maxWidth: 1360,
+            margin: '0 auto',
+            padding: '12px 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 20,
+            gap: 24,
           }}
         >
-          {/* Live Search Bar */}
+          {/* Brand Logo & Name */}
+          <div
+            onClick={() => nav('/')}
+            className="tap"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <img
+              src={logo || logoImg}
+              alt="Sastika Mobiles Logo"
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid #d4af37',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                background: '#fff',
+                flexShrink: 0,
+              }}
+            />
+            <div style={{ lineHeight: 1.15 }}>
+              <div style={{ fontWeight: 900, fontSize: 18, letterSpacing: 0.4, color: '#fff' }}>
+                SASTIKA MOBILES
+              </div>
+              <div style={{ fontSize: 9.5, letterSpacing: 1.8, color: C.accent, fontWeight: 800, marginTop: 2 }}>
+                SALES &amp; SERVICE • SIVAKASI
+              </div>
+            </div>
+          </div>
+
+          {/* Live Search Bar with Floating Dropdown */}
           <div style={{ position: 'relative', flex: 1, maxWidth: 500 }}>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                background: C.tint2,
-                borderRadius: 14,
-                border: `1.5px solid ${C.border}`,
-                padding: '0 14px',
+                background: 'rgba(255,255,255,0.12)',
+                borderRadius: 99,
+                border: '1.5px solid rgba(255,255,255,0.22)',
+                padding: '0 16px',
               }}
             >
-              <Icon name="search" size={17} color={C.muted} />
+              <Icon name="search" size={17} color="rgba(255,255,255,0.7)" />
               <input
                 value={q}
                 onChange={(e) => {
@@ -543,6 +196,7 @@ export default function SiteLayout() {
                   outline: 'none',
                   fontSize: 13.5,
                   fontWeight: 500,
+                  color: '#fff',
                 }}
               />
               {q && (
@@ -551,7 +205,7 @@ export default function SiteLayout() {
                     setQ('');
                     setSearching(false);
                   }}
-                  style={{ color: C.muted }}
+                  style={{ color: 'rgba(255,255,255,0.7)' }}
                 >
                   <Icon name="x" size={16} />
                 </button>
@@ -566,21 +220,22 @@ export default function SiteLayout() {
                   top: '100%',
                   left: 0,
                   right: 0,
-                  marginTop: 6,
+                  marginTop: 8,
                   background: '#fff',
-                  borderRadius: 16,
+                  borderRadius: 18,
                   border: `1px solid ${C.border}`,
-                  boxShadow: '0 16px 36px rgba(11,74,67,0.18)',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.22)',
                   overflow: 'hidden',
-                  zIndex: 50,
+                  zIndex: 60,
                   animation: 'fadeUp .2s ease',
                 }}
               >
-                <div style={{ padding: '10px 14px', background: C.tint, fontSize: 11.5, fontWeight: 800, color: C.primarySoft }}>
-                  MATCHING PHONES ({results.length})
+                <div style={{ padding: '10px 16px', background: C.tint, fontSize: 11.5, fontWeight: 800, color: C.primarySoft, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>MATCHING PHONES ({results.length})</span>
+                  <button onClick={() => setSearching(false)} style={{ color: C.muted, fontSize: 11 }}>✕ Close</button>
                 </div>
                 {results.length === 0 ? (
-                  <div style={{ padding: '18px 14px', fontSize: 13, color: C.muted, textAlign: 'center' }}>
+                  <div style={{ padding: '20px 16px', fontSize: 13, color: C.muted, textAlign: 'center' }}>
                     No products found for "{q}"
                   </div>
                 ) : (
@@ -597,7 +252,7 @@ export default function SiteLayout() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 12,
-                        padding: '10px 14px',
+                        padding: '10px 16px',
                         cursor: 'pointer',
                         borderBottom: `1px solid ${C.tint2}`,
                       }}
@@ -605,10 +260,10 @@ export default function SiteLayout() {
                       <img
                         src={p.image}
                         alt={p.name}
-                        style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, background: C.tint }}
+                        style={{ width: 38, height: 38, objectFit: 'contain', borderRadius: 8, background: C.tint }}
                       />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: 13 }}>{p.name}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 13, color: C.text }}>{p.name}</div>
                         <div style={{ fontSize: 11, color: C.muted }}>
                           {p.brand} • <b style={{ color: C.primary }}>{money(p.price)}</b> • {p.stock} in stock
                         </div>
@@ -621,14 +276,53 @@ export default function SiteLayout() {
             )}
           </div>
 
-          {/* Location & Guarantee info badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 12, background: C.tint, border: `1px solid ${C.border}`, fontSize: 12.5, fontWeight: 700, color: C.primary }}>
-            <Icon name="pin" size={14} color={C.primary} />
-            <span>Sithurajapuram &amp; Sivakasi</span>
-          </div>
+          {/* Quick Actions (Wishlist, Account, Cart) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            {/* Wishlist */}
+            <button
+              onClick={() => nav('/account')}
+              className="tap"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '9px 14px',
+                borderRadius: 12,
+                background: 'rgba(255,255,255,0.08)',
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 700,
+                border: '1px solid rgba(255,255,255,0.12)',
+                cursor: 'pointer',
+              }}
+            >
+              <Icon name="heart" size={16} color={wishlist.length > 0 ? C.accent : 'rgba(255,255,255,0.85)'} />
+              <span>Wishlist{wishlist.length > 0 ? ` (${wishlist.length})` : ''}</span>
+            </button>
 
-          {/* Quick Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Account / Orders */}
+            <button
+              onClick={() => nav('/account')}
+              className="tap"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '9px 14px',
+                borderRadius: 12,
+                background: 'rgba(255,255,255,0.08)',
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 700,
+                border: '1px solid rgba(255,255,255,0.12)',
+                cursor: 'pointer',
+              }}
+            >
+              <Icon name="user" size={16} color="rgba(255,255,255,0.85)" />
+              <span>Account</span>
+            </button>
+
+            {/* Cart Button */}
             <button
               onClick={() => nav('/cart')}
               className="tap"
@@ -637,21 +331,115 @@ export default function SiteLayout() {
                 alignItems: 'center',
                 gap: 8,
                 padding: '9px 18px',
-                borderRadius: 14,
-                background: C.primary,
-                color: '#fff',
-                fontWeight: 800,
+                borderRadius: 99,
+                background: C.accent,
+                color: C.primaryDark,
+                fontWeight: 900,
                 fontSize: 13.5,
-                boxShadow: '0 4px 14px rgba(11,74,67,0.22)',
+                boxShadow: '0 4px 16px rgba(246,196,69,0.3)',
+                animation: bump ? 'pop .45s ease' : undefined,
                 cursor: 'pointer',
+                border: 'none',
               }}
             >
-              <Icon name="cart" size={17} color="#fff" />
-              <span>Cart ({cartCount})</span>
-              {totals.payable > 0 && <span style={{ color: C.accent }}>• {money(totals.payable)}</span>}
+              <div style={{ position: 'relative' }}>
+                <Icon name="cart" size={17} color={C.primaryDark} />
+                {cartCount > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: -7,
+                      right: -9,
+                      background: C.danger,
+                      color: '#fff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      borderRadius: 99,
+                      minWidth: 16,
+                      height: 16,
+                      display: 'grid',
+                      placeItems: 'center',
+                      padding: '0 3px',
+                    }}
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </div>
+              <span>Cart</span>
+              {totals.payable > 0 && <span style={{ opacity: 0.9 }}>• {money(totals.payable)}</span>}
             </button>
           </div>
-        </header>
+        </div>
+
+        {/* Tier 2: Category & Directory Links Bar */}
+        <div
+          style={{
+            background: 'rgba(5, 38, 34, 0.96)',
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            width: '100%',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 1360,
+              margin: '0 auto',
+              padding: '0 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+            }}
+          >
+            <nav style={{ display: 'flex', alignItems: 'center', gap: 4, overflowX: 'auto' }}>
+              {NAV_LINKS.map((l) => (
+                <NavLink key={l.to} to={l.to} end={l.to === '/'}>
+                  {({ isActive }) => (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 7,
+                        padding: '11px 14px',
+                        fontSize: 13.5,
+                        fontWeight: 700,
+                        color: isActive ? C.accent : 'rgba(255,255,255,0.85)',
+                        borderBottom: isActive ? `3px solid ${C.accent}` : '3px solid transparent',
+                        transition: 'all .18s ease',
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Icon name={l.icon} size={15} color={isActive ? C.accent : 'rgba(255,255,255,0.7)'} />
+                      <span>{l.label}</span>
+                      {l.badge && (
+                        <span
+                          style={{
+                            background: C.accent,
+                            color: C.primaryDark,
+                            fontSize: 10,
+                            fontWeight: 800,
+                            padding: '2px 7px',
+                            borderRadius: 99,
+                            marginLeft: 2,
+                          }}
+                        >
+                          {l.badge}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
+
+            {/* Right side tag in Tier 2 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.accent, fontWeight: 700 }}>
+              <span>⚡ Sivakasi Official Brand Warranty Invoices</span>
+            </div>
+          </div>
+        </div>
+      </header>
 
         {/* Main Content View Container */}
         <main style={{ flex: 1, width: '100%', minHeight: '70vh' }}>
@@ -807,7 +595,6 @@ export default function SiteLayout() {
             </div>
           </div>
         </footer>
-      </div>
 
       {/* Slide-out Mobile Drawer */}
       {drawer && (

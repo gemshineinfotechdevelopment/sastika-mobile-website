@@ -191,14 +191,14 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
             With Trust &amp; GST Bill.
           </h1>
 
-          {/* Action Buttons Row - Side-by-Side (Left & Right) with smaller font */}
+          {/* Action Buttons Row - Side-by-Side (Left & Right) with expanded height */}
           <div
             className="hero-actions-row"
             style={{
               display: 'flex',
               flexDirection: 'row',
-              gap: 8,
-              marginTop: 14,
+              gap: 12,
+              marginTop: 18,
               position: 'relative',
               zIndex: 3,
             }}
@@ -209,18 +209,21 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               style={{
                 flex: '1 1 50%',
                 minWidth: 0,
-                padding: '7px 4px',
-                borderRadius: 10,
+                minHeight: 48,
+                padding: '12px 16px',
+                borderRadius: 12,
                 background: C.accent,
                 color: C.primaryDark,
                 fontWeight: 900,
-                fontSize: 9,
+                fontSize: 13,
                 cursor: 'pointer',
                 border: 'none',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.22)',
+                boxShadow: '0 6px 18px rgba(0,0,0,0.22)',
                 textAlign: 'center',
-                whiteSpace: 'nowrap',
-                letterSpacing: -0.15,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1.25,
               }}
             >
               Explore Mobiles (78 In Stock)
@@ -231,18 +234,21 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
               style={{
                 flex: '1 1 50%',
                 minWidth: 0,
-                padding: '7px 4px',
-                borderRadius: 10,
-                background: 'rgba(11,74,67,0.7)',
+                minHeight: 48,
+                padding: '12px 16px',
+                borderRadius: 12,
+                background: 'rgba(11,74,67,0.75)',
                 color: '#fff',
                 fontWeight: 700,
-                fontSize: 9,
-                border: '1.2px solid rgba(255,255,255,.3)',
+                fontSize: 13,
+                border: '1.2px solid rgba(255,255,255,.35)',
                 cursor: 'pointer',
                 backdropFilter: 'blur(8px)',
                 textAlign: 'center',
-                whiteSpace: 'nowrap',
-                letterSpacing: -0.15,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1.25,
               }}
             >
               Care &amp; Service Desk
@@ -476,22 +482,29 @@ function Categories() {
       <Reveal>
         <SectionHead title="Explore by Category" sub="Find your preferred phone range and expert services" />
       </Reveal>
-      <div className="categories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
+      <div className="categories-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
         {cats.map((c, i) => (
           <Reveal key={c.title} delay={i * 50} dir="up">
             <div
-              className="lift"
+              className="lift category-card"
               onClick={() => nav(c.to)}
               style={{
                 background: '#fff',
                 borderRadius: 20,
                 border: `1px solid ${C.border}`,
-                padding: '20px 18px',
+                padding: '22px 16px',
                 cursor: 'pointer',
                 textAlign: 'center',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
               }}
             >
               <div
+                className="category-icon-box"
                 style={{
                   width: 48,
                   height: 48,
@@ -501,12 +514,13 @@ function Categories() {
                   display: 'grid',
                   placeItems: 'center',
                   margin: '0 auto 12px',
+                  flexShrink: 0,
                 }}
               >
                 <Icon name={c.icon} size={24} />
               </div>
-              <div style={{ fontWeight: 800, fontSize: 15, color: C.primary }}>{c.title}</div>
-              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>{c.sub}</div>
+              <div className="category-title" style={{ fontWeight: 800, fontSize: 15, color: C.primary, lineHeight: 1.3 }}>{c.title}</div>
+              <div className="category-sub" style={{ fontSize: 11.5, color: C.muted, marginTop: 4, lineHeight: 1.35 }}>{c.sub}</div>
             </div>
           </Reveal>
         ))}
