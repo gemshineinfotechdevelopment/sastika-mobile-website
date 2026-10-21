@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { PRODUCTS, SEED_ORDERS, SEED_TICKETS } from './data';
-import type { CartLine, FlashDealConfig, FlashDealItem, Order, OrderStatus, Product, Ticket, TicketStatus } from './types';
+import type { AuthUser, CartLine, FlashDealConfig, FlashDealItem, Order, OrderStatus, Product, Ticket, TicketStatus } from './types';
 import { api } from './api';
 import { apiGetFlashDeal, apiUpdateFlashDeal, apiAddFlashDealItem, apiDeleteFlashDealItem } from './services/api';
 import defaultLogo from './assets/logo.png';
@@ -105,6 +105,10 @@ interface StoreShape {
   updateFlashDeal: (patch: Partial<FlashDealConfig>) => void;
   addFlashDealItem: (item: Omit<FlashDealItem, 'id'>) => void;
   removeFlashDealItem: (id: string) => void;
+
+  user: AuthUser | null;
+  loginUser: (user: AuthUser, token?: string) => void;
+  logoutUser: () => void;
 }
 
 const Ctx = createContext<StoreShape | null>(null);
@@ -119,6 +123,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
   const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v2', DEFAULT_FLASH_DEAL);
+  const [user, setUser] = useLocalState<AuthUser | null>('auth_user_v2', {
+    id: 'u_hari',
+    name: 'Hariharan S.',
+    email: 'hari@sastikamobiles.com',
+    phone: '+91 95434 34344',
+    role: 'customer',
+  });
 
   // Auto-migrate from any legacy dummy products
   useEffect(() => {
@@ -145,10 +156,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           apiGetFlashDeal().catch(() => null),
         ]);
 
+        const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
+        const cleanOrders = Array.isArray(serverOrders) ? serverOrders : (serverOrders as any)?.data;
+        const cleanTickets = Array.isArray(serverTickets) ? serverTickets : (serverTickets as any)?.data;
+
         if (mounted) {
-          if (serverProducts && serverProducts.length > 0) setProducts(serverProducts);
-          if (serverOrders && serverOrders.length > 0) setOrders(serverOrders);
-          if (serverTickets && serverTickets.length > 0) setTickets(serverTickets);
+          if (Array.isArray(cleanProducts) && cleanProducts.length > 0) setProducts(cleanProducts);
+          if (Array.isArray(cleanOrders) && cleanOrders.length > 0) setOrders(cleanOrders);
+          if (Array.isArray(cleanTickets) && cleanTickets.length > 0) setTickets(cleanTickets);
           if (serverFlashDeal && serverFlashDeal.items) setFlashDeal(serverFlashDeal);
         }
       } catch {
@@ -248,8 +263,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setProducts((prev) => [newProduct, ...prev]);
 
       api.createProduct(p).then((created) => {
-        if (created) {
-          setProducts((prev) => prev.map((item) => (item.id === tempId ? created : item)));
+        const item = (created as any)?.data || created;
+        if (item && item.id) {
+          setProducts((prev) => prev.map((it) => (it.id === tempId ? item : it)));
         }
       }).catch(() => {});
     },
@@ -291,8 +307,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         issue: t.issue,
         cost: t.cost,
       }).then((created) => {
-        if (created) {
-          setTickets((prev) => prev.map((item) => (item.id === tempId ? created : item)));
+        const item = (created as any)?.data || created;
+        if (item && item.id) {
+          setTickets((prev) => prev.map((it) => (it.id === tempId ? item : it)));
         }
       }).catch(() => {});
 
@@ -316,6 +333,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     },
     [setOrders],
   );
+
+  const loginUser = useCallback(
+    (u: AuthUser, token?: string) => {
+      setUser(u);
+      if (token) localStorage.setItem('auth_token', token);
+    },
+    [setUser],
+  );
+
+  const logoutUser = useCallback(() => {
+    setUser(null);
+    localStorage.removeItem('auth_token');
+  }, [setUser]);
 
   const value = useMemo<StoreShape>(
     () => ({
@@ -407,6 +437,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateFlashDeal,
       addFlashDealItem,
       removeFlashDealItem,
+
+      user,
+      loginUser,
+      logoutUser,
     }),
     [
       products,
@@ -429,6 +463,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateFlashDeal,
       addFlashDealItem,
       removeFlashDealItem,
+      user,
+      loginUser,
+      logoutUser,
       setCart,
       setWishlist,
       setCoupon,

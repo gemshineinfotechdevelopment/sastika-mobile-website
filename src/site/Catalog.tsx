@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
-import { BRANDS } from '../data';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { getUniqueProductBrands } from '../data';
 import { C } from '../theme';
 import { useStore } from '../store';
 import Icon from '../components/Icon';
@@ -11,19 +12,31 @@ type Sort = 'popular' | 'low' | 'high' | 'rating';
 
 export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
   const { products } = useStore();
+  const [searchParams] = useSearchParams();
+  const urlBrand = searchParams.get('brand');
   const [q, setQ] = useState('');
-  const [brand, setBrand] = useState('All');
+  const [brand, setBrand] = useState(urlBrand || 'All');
   const [sort, setSort] = useState<Sort>('popular');
   const [limit, setLimit] = useState(6);
+
+  useEffect(() => {
+    if (urlBrand) {
+      setBrand(urlBrand);
+    }
+  }, [urlBrand]);
 
   const base = useMemo(
     () => products.filter((p) => (kind === 'phones' ? p.category === 'phone' : p.category !== 'phone')),
     [products, kind],
   );
-  const brands = useMemo(() => ['All', ...Array.from(new Set(base.map((p) => p.brand)))], [base]);
+  const brands = useMemo(() => ['All', ...getUniqueProductBrands(base)], [base]);
 
   const list = useMemo(() => {
-    let l = base.filter((p) => (brand === 'All' || p.brand === brand) && (p.name + p.brand).toLowerCase().includes(q.toLowerCase()));
+    let l = base.filter(
+      (p) =>
+        (brand === 'All' || p.brand.toLowerCase() === brand.toLowerCase()) &&
+        (p.name + p.brand).toLowerCase().includes(q.toLowerCase()),
+    );
     if (sort === 'low') l = [...l].sort((a, b) => a.price - b.price);
     if (sort === 'high') l = [...l].sort((a, b) => b.price - a.price);
     if (sort === 'rating') l = [...l].sort((a, b) => b.rating - a.rating);

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { C, money } from '../theme';
 import { useStore } from '../store';
+import { getUniqueProductBrands } from '../data';
 import Icon, { type IconName } from '../components/Icon';
 import logoImg from '../assets/logo.png';
 import { computeTotals } from './pricing';
@@ -11,7 +12,7 @@ const NAV_LINKS: { to: string; label: string; icon: IconName; badge?: string }[]
   { to: '/mobiles', label: 'All Mobiles', icon: 'phone', badge: '18 Deals' },
   { to: '/accessories', label: 'Accessories', icon: 'headphones' },
   { to: '/services', label: 'Care & Repair', icon: 'tool' },
-  { to: '/track', label: 'Track Device', icon: 'search' },
+  { to: '/orders', label: 'Track & Orders', icon: 'truck' },
   { to: '/about', label: 'About Showroom', icon: 'award' },
   { to: '/contact', label: 'Stores & Contact', icon: 'pin' },
 ];
@@ -19,7 +20,7 @@ const NAV_LINKS: { to: string; label: string; icon: IconName; badge?: string }[]
 export default function SiteLayout() {
   const { pathname } = useLocation();
   const nav = useNavigate();
-  const { cart, cartCount, wishlist, products, logo } = useStore();
+  const { cart, cartCount, wishlist, products, logo, orders, user, logoutUser } = useStore();
   const [drawer, setDrawer] = useState(false);
   const [searching, setSearching] = useState(false);
   const [mobileSearch, setMobileSearch] = useState(false);
@@ -28,6 +29,7 @@ export default function SiteLayout() {
   const prevCount = useRef(cartCount);
 
   const totals = computeTotals(cart, products, '');
+  const footerBrands = useMemo(() => getUniqueProductBrands(products), [products]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -267,7 +269,7 @@ export default function SiteLayout() {
               </button>
 
               <button
-                onClick={() => nav('/account')}
+                onClick={() => nav('/orders')}
                 className="tap"
                 style={{
                   display: 'flex',
@@ -282,37 +284,147 @@ export default function SiteLayout() {
                   fontWeight: 700,
                 }}
               >
-                <Icon name="user" size={15} />
-                <span>Orders</span>
+                <Icon name="truck" size={15} color={orders.length > 0 ? C.accent : '#fff'} />
+                <span>Orders {orders.length > 0 ? `(${orders.length})` : ''}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Sidebar Footer info */}
-        <div style={{ marginTop: 'auto', paddingTop: 16 }}>
-          <button
-            onClick={() => nav('/admin')}
-            className="tap"
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              padding: '10px 12px',
-              borderRadius: 12,
-              background: 'rgba(246,196,69,0.15)',
-              border: '1px solid rgba(246,196,69,0.3)',
-              color: C.accent,
-              fontWeight: 800,
-              fontSize: 12.5,
-              marginBottom: 10,
-              cursor: 'pointer',
-            }}
-          >
-            <Icon name="zap" size={15} /> Admin Portal ⚡
-          </button>
+        {/* Sidebar Footer: User Profile & Logout */}
+        <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          {user ? (
+            <div
+              style={{
+                padding: '12px 14px',
+                borderRadius: 14,
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                marginBottom: 10,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    background: C.accent,
+                    color: C.primaryDark,
+                    fontWeight: 900,
+                    fontSize: 15,
+                    display: 'grid',
+                    placeItems: 'center',
+                    flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  }}
+                >
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: 13, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {user.name}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.65)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {user.phone || user.email}
+                  </div>
+                </div>
+                {user.role === 'admin' && (
+                  <span style={{ fontSize: 9.5, fontWeight: 800, background: C.accent, color: C.primaryDark, padding: '2px 6px', borderRadius: 99 }}>
+                    ADMIN
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <button
+                  onClick={() => nav('/orders')}
+                  className="tap"
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    borderRadius: 8,
+                    background: 'rgba(255,255,255,0.12)',
+                    color: '#fff',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  My Orders
+                </button>
+                <button
+                  onClick={logoutUser}
+                  className="tap"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    padding: '6px 10px',
+                    borderRadius: 8,
+                    background: 'rgba(229,72,77,0.22)',
+                    color: '#ff8589',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    border: '1px solid rgba(229,72,77,0.35)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Icon name="logout" size={13} color="#ff8589" /> Logout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => nav('/login')}
+              className="tap"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '11px 14px',
+                borderRadius: 12,
+                background: C.accent,
+                color: C.primaryDark,
+                fontWeight: 800,
+                fontSize: 13,
+                marginBottom: 10,
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+              }}
+            >
+              <Icon name="user" size={16} /> Sign In / Login
+            </button>
+          )}
+
+          {user?.role === 'admin' && (
+            <button
+              onClick={() => nav('/admin')}
+              className="tap"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '10px 12px',
+                borderRadius: 12,
+                background: 'rgba(246,196,69,0.15)',
+                border: '1px solid rgba(246,196,69,0.3)',
+                color: C.accent,
+                fontWeight: 800,
+                fontSize: 12.5,
+                marginBottom: 10,
+                cursor: 'pointer',
+              }}
+            >
+              <Icon name="zap" size={15} /> Admin Portal ⚡
+            </button>
+          )}
 
           <div
             style={{
@@ -628,7 +740,28 @@ export default function SiteLayout() {
           </div>
 
           {/* Quick Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              onClick={() => nav('/orders')}
+              className="tap"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                padding: '9px 15px',
+                borderRadius: 14,
+                background: C.tint,
+                color: C.primary,
+                fontWeight: 800,
+                fontSize: 13,
+                border: `1px solid ${C.border}`,
+                cursor: 'pointer',
+              }}
+            >
+              <Icon name="truck" size={16} color={C.primary} />
+              <span>Track &amp; Orders</span>
+            </button>
+
             <button
               onClick={() => nav('/cart')}
               className="tap"
@@ -650,6 +783,48 @@ export default function SiteLayout() {
               <span>Cart ({cartCount})</span>
               {totals.payable > 0 && <span style={{ color: C.accent }}>• {money(totals.payable)}</span>}
             </button>
+
+            {user ? (
+              <button
+                onClick={() => nav('/orders')}
+                className="tap"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '7px 12px',
+                  borderRadius: 14,
+                  background: C.tint2,
+                  border: `1.5px solid ${C.border}`,
+                  cursor: 'pointer',
+                }}
+              >
+                <div style={{ width: 26, height: 26, borderRadius: '50%', background: C.accent, color: C.primaryDark, fontSize: 12, fontWeight: 900, display: 'grid', placeItems: 'center' }}>
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: C.primaryDark }}>{user.name.split(' ')[0]}</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => nav('/login')}
+                className="tap"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 14px',
+                  borderRadius: 14,
+                  background: C.tint,
+                  color: C.primary,
+                  fontWeight: 800,
+                  fontSize: 12.5,
+                  border: `1px solid ${C.border}`,
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon name="user" size={15} /> Sign In
+              </button>
+            )}
           </div>
         </header>
 
@@ -659,16 +834,17 @@ export default function SiteLayout() {
         </main>
 
         {/* Desktop / Mobile Responsive Footer */}
-        <footer
-          className="desktop-footer"
-          style={{
-            background: `linear-gradient(170deg, ${C.primaryDark}, #052622)`,
-            color: '#fff',
-            marginTop: 50,
-            borderTop: '3px solid #d4af37',
-            padding: '48px 36px 24px',
-          }}
-        >
+        {pathname !== '/login' && (
+          <footer
+            className="desktop-footer"
+            style={{
+              background: `linear-gradient(170deg, ${C.primaryDark}, #052622)`,
+              color: '#fff',
+              marginTop: 50,
+              borderTop: '3px solid #d4af37',
+              padding: '48px 36px 24px',
+            }}
+          >
           <div
             style={{
               maxWidth: 1320,
@@ -716,10 +892,10 @@ export default function SiteLayout() {
                 POPULAR 5G BRANDS
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
-                {['Redmi 5G', 'OPPO 5G', 'Vivo 5G', 'Nothing 5G', 'Samsung Galaxy', 'Poco 5G', 'Fast Chargers', 'ANC Audio'].map((b) => (
+                {footerBrands.map((b) => (
                   <button
                     key={b}
-                    onClick={() => nav('/mobiles')}
+                    onClick={() => nav(`/mobiles?brand=${encodeURIComponent(b)}`)}
                     style={{
                       textAlign: 'left',
                       color: 'rgba(255,255,255,0.8)',
@@ -727,6 +903,8 @@ export default function SiteLayout() {
                       fontSize: 13,
                       cursor: 'pointer',
                       transition: 'color .2s ease',
+                      border: 'none',
+                      background: 'none',
                     }}
                   >
                     › {b}
@@ -807,6 +985,7 @@ export default function SiteLayout() {
             </div>
           </div>
         </footer>
+        )}
       </div>
 
       {/* Slide-out Mobile Drawer */}
@@ -874,9 +1053,149 @@ export default function SiteLayout() {
                 )}
               </NavLink>
             ))}
-            <div style={{ marginTop: 'auto', padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 12.5 }}>
-              <div style={{ fontWeight: 800, color: C.accent, marginBottom: 2 }}>Need Help?</div>
-              Call / WhatsApp: +91 95434 34344
+            {/* Mobile Drawer Bottom: User Profile & Logout */}
+            <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              {user ? (
+                <div
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    marginBottom: 10,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        background: C.accent,
+                        color: C.primaryDark,
+                        fontWeight: 900,
+                        fontSize: 15,
+                        display: 'grid',
+                        placeItems: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 800, fontSize: 13.5, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {user.name}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {user.phone || user.email}
+                      </div>
+                    </div>
+                    {user.role === 'admin' && (
+                      <span style={{ fontSize: 9.5, fontWeight: 800, background: C.accent, color: C.primaryDark, padding: '2px 6px', borderRadius: 99 }}>
+                        ADMIN
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <button
+                      onClick={() => {
+                        setDrawer(false);
+                        nav('/orders');
+                      }}
+                      className="tap"
+                      style={{
+                        flex: 1,
+                        padding: '7px 8px',
+                        borderRadius: 8,
+                        background: 'rgba(255,255,255,0.12)',
+                        color: '#fff',
+                        fontSize: 11.5,
+                        fontWeight: 700,
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Track Orders
+                    </button>
+                    {user.role === 'admin' && (
+                      <button
+                        onClick={() => {
+                          setDrawer(false);
+                          nav('/admin');
+                        }}
+                        className="tap"
+                        style={{
+                          padding: '7px 10px',
+                          borderRadius: 8,
+                          background: 'rgba(246,196,69,0.2)',
+                          color: C.accent,
+                          fontSize: 11.5,
+                          fontWeight: 800,
+                          border: 'none',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Admin
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        logoutUser();
+                        setDrawer(false);
+                      }}
+                      className="tap"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        padding: '7px 12px',
+                        borderRadius: 8,
+                        background: 'rgba(229,72,77,0.22)',
+                        color: '#ff8589',
+                        fontSize: 11.5,
+                        fontWeight: 800,
+                        border: '1px solid rgba(229,72,77,0.35)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Icon name="logout" size={13} color="#ff8589" /> Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setDrawer(false);
+                    nav('/login');
+                  }}
+                  className="tap"
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '12px 14px',
+                    borderRadius: 12,
+                    background: C.accent,
+                    color: C.primaryDark,
+                    fontWeight: 900,
+                    fontSize: 13.5,
+                    marginBottom: 10,
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+                  }}
+                >
+                  <Icon name="user" size={17} /> Sign In / Login
+                </button>
+              )}
+
+              <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(0,0,0,0.25)', color: '#fff', fontSize: 11 }}>
+                <div style={{ fontWeight: 800, color: C.accent, marginBottom: 2 }}>Need Help?</div>
+                Call / WhatsApp: +91 95434 34344
+              </div>
             </div>
           </aside>
         </>

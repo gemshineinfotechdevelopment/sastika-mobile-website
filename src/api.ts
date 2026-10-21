@@ -20,10 +20,14 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    throw new Error(errorBody.error || `Request failed with status ${response.status}`);
+    throw new Error(errorBody.message || errorBody.error || `Request failed with status ${response.status}`);
   }
 
-  return response.json();
+  const json = await response.json();
+  if (json && typeof json === 'object' && 'data' in json && json.data !== undefined) {
+    return json.data as T;
+  }
+  return json as T;
 }
 
 export const api = {
@@ -93,5 +97,17 @@ export const api = {
     request<Ticket>(`/tickets/${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
+    }),
+
+  // Auth
+  login: (creds: { email: string; password: string }) =>
+    request<{ token: string; user: any }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(creds),
+    }),
+  register: (info: { name: string; email: string; password: string; phone?: string; role?: string }) =>
+    request<{ token: string; user: any }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(info),
     }),
 };

@@ -91,3 +91,12 @@ export interface FlashDealConfig {
   items: FlashDealItem[];
 }
 
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'customer' | 'admin';
+  phone?: string;
+  avatar?: string;
+}
+

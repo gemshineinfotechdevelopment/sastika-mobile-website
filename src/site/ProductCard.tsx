@@ -26,6 +26,8 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
       className="lift"
       style={{
         width,
+        height: '100%',
+        boxSizing: 'border-box',
         flexShrink: 0,
         background: '#fff',
         borderRadius: 20,
@@ -53,21 +55,40 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
         <Icon name="heart" size={16} color={wished ? C.danger : C.muted} fill={wished ? C.danger : 'none'} />
       </button>
 
-      <div onClick={() => nav(`/product/${p.id}`)} style={{ cursor: 'pointer' }}>
-        <div style={{ height: compact ? 110 : 140, borderRadius: 14, background: `linear-gradient(160deg, ${C.tint2}, ${C.tint})`, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
+      <div onClick={() => nav(`/product/${p.id}`)} style={{ cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ height: compact ? 110 : 140, borderRadius: 14, background: `linear-gradient(160deg, ${C.tint2}, ${C.tint})`, display: 'grid', placeItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
           <ProductArt category={p.category} color={p.color} size={compact ? 92 : 118} image={p.image} alt={p.name} />
         </div>
-        <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, marginTop: 10 }}>{p.brand.toUpperCase()}</div>
-        <div style={{ fontSize: 13.5, fontWeight: 700, lineHeight: 1.25, minHeight: 34, marginTop: 2 }}>{p.name}</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 5, fontSize: 11, color: C.muted }}>
+        <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, marginTop: 10, height: 16, lineHeight: '16px' }}>{p.brand.toUpperCase()}</div>
+        <div
+          style={{
+            fontSize: 13.5,
+            fontWeight: 700,
+            lineHeight: 1.25,
+            minHeight: 34,
+            maxHeight: 34,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            marginTop: 2,
+          }}
+        >
+          {p.name}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 5, minHeight: 18, fontSize: 11, color: C.muted }}>
           <Stars value={p.rating} size={11} /> {p.rating}
         </div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 6, minHeight: 22 }}>
           <span style={{ fontSize: 16.5, fontWeight: 800 }}>{money(p.price)}</span>
           {p.mrp > p.price && <span style={{ fontSize: 11, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp)}</span>}
         </div>
-        {p.stock <= p.reorderAt && p.stock > 0 && <div style={{ fontSize: 10.5, color: C.danger, fontWeight: 700, marginTop: 3 }}>Only {p.stock} left</div>}
-        {p.stock === 0 && <div style={{ fontSize: 10.5, color: C.danger, fontWeight: 700, marginTop: 3 }}>Out of stock</div>}
+        <div style={{ minHeight: 18, display: 'flex', alignItems: 'center', marginTop: 3 }}>
+          {p.stock <= p.reorderAt && p.stock > 0 && <span style={{ fontSize: 10.5, color: C.danger, fontWeight: 700 }}>Only {p.stock} left</span>}
+          {p.stock === 0 && <span style={{ fontSize: 10.5, color: C.danger, fontWeight: 700 }}>Out of stock</span>}
+          {p.stock > p.reorderAt && <span style={{ fontSize: 10.5, color: C.success, fontWeight: 700 }}>In stock</span>}
+        </div>
       </div>
 
       <button
@@ -75,7 +96,7 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
         disabled={p.stock === 0}
         onClick={add}
         style={{
-          marginTop: 10,
+          marginTop: 'auto',
           padding: '10px 0',
           borderRadius: 12,
           background: added ? C.success : C.primary,
