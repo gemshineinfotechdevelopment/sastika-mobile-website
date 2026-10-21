@@ -38,6 +38,7 @@ export interface Order {
   id: string;
   customer: string;
   phone: string;
+  email?: string;
   city: string;
   address: string;
   items: OrderItem[];

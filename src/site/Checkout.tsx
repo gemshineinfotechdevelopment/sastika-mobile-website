@@ -37,45 +37,55 @@ export default function Checkout() {
 
   const hasPhone = cart.some((l) => getProduct(l.id)?.category === 'phone');
 
-  const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const set = (k: keyof typeof form, v: string) => {
+    if (error) setError('');
+    setForm((f) => ({ ...f, [k]: v }));
+  };
 
   const next = async () => {
     setError('');
 
     // Step 0: Account / Contact Authentication
     if (step === 0) {
-      if (!user) {
-        if (authMode === 'register') {
-          if (form.name.trim().length < 2) return setError('Please enter your full name');
-          if (!/^\d{10}$/.test(form.phone.trim())) return setError('Enter a valid 10-digit mobile number');
-          if (!form.email.includes('@')) return setError('Enter a valid email address');
-          if (password.length < 4) return setError('Please choose a password (minimum 4 characters)');
+      if (!user && authMode === 'login') {
+        if (!form.email.trim()) return setError('Enter your registered email address (Mandatory)');
+        if (!password) return setError('Enter your account password (Mandatory)');
 
-          setAuthBusy(true);
-          const res = await register({
-            name: form.name.trim(),
-            email: form.email.trim(),
-            phone: '+91 ' + form.phone.trim(),
-            password,
-          });
-          setAuthBusy(false);
-          if (!res.success) {
-            return setError(res.message || 'Account registration failed. Please try again.');
-          }
-        } else {
-          if (!form.email.trim()) return setError('Enter your registered email address');
-          if (!password) return setError('Enter your account password');
-
-          setAuthBusy(true);
-          const res = await login(form.email.trim(), password);
-          setAuthBusy(false);
-          if (!res.success) {
-            return setError(res.message || 'Login failed. Please check your credentials.');
-          }
+        setAuthBusy(true);
+        const res = await login(form.email.trim(), password);
+        setAuthBusy(false);
+        if (!res.success) {
+          return setError(res.message || 'Login failed. Please check your credentials.');
         }
-      } else {
-        if (form.name.trim().length < 2) return setError('Please enter your full name');
-        if (!/^\d{10}$/.test(form.phone.trim())) return setError('Enter a valid 10-digit mobile number');
+        return;
+      }
+
+      // Name, Phone, and Email are strictly mandatory
+      const cleanName = form.name.trim();
+      const cleanPhone = form.phone.trim();
+      const cleanEmail = form.email.trim();
+
+      if (!cleanName) return setError('Please enter your full name (Mandatory)');
+      if (cleanName.length < 2) return setError('Name must be at least 2 characters');
+      if (!cleanPhone) return setError('Please enter your 10-digit mobile number (Mandatory)');
+      if (!/^\d{10}$/.test(cleanPhone)) return setError('Enter a valid 10-digit mobile number');
+      if (!cleanEmail) return setError('Please enter your email address (Mandatory)');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) return setError('Enter a valid email address (e.g. name@example.com)');
+
+      if (!user && password.trim()) {
+        if (password.length < 4) return setError('Please choose a password (minimum 4 characters)');
+
+        setAuthBusy(true);
+        const res = await register({
+          name: cleanName,
+          email: cleanEmail,
+          phone: '+91 ' + cleanPhone,
+          password,
+        });
+        setAuthBusy(false);
+        if (!res.success) {
+          return setError(res.message || 'Account registration failed. Please try again.');
+        }
       }
     }
 
@@ -92,10 +102,11 @@ export default function Checkout() {
     setBusy(true);
     window.setTimeout(() => {
       const id = placeOrder({
-        name: form.name || user?.name || 'Customer',
-        phone: '+91 ' + (form.phone || user?.phone || '9876543210'),
-        address: `${form.address}, ${form.city} ${form.pin}`,
-        city: form.city,
+        name: form.name.trim() || user?.name || 'Customer',
+        phone: '+91 ' + (form.phone.trim() || (user?.phone ? user.phone.replace('+91 ', '') : '9876543210')),
+        email: form.email.trim() || user?.email || '',
+        address: `${form.address.trim()}, ${form.city.trim()} ${form.pin.trim()}`,
+        city: form.city.trim(),
         payment: form.payment,
         discount: t.couponDiscount,
       });
@@ -211,27 +222,74 @@ export default function Checkout() {
 
             {(!user && authMode === 'login') ? (
               <>
-                <Field label="Registered email address">
-                  <input style={input} type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" />
+                <Field label="Registered email address" required>
+                  <input
+                    style={input}
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => set('email', e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && next()}
+                    placeholder="you@example.com"
+                    required
+                  />
                 </Field>
-                <Field label="Account password">
-                  <input style={input} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your account password" />
+                <Field label="Account password" required>
+                  <input
+                    style={input}
+                    type="password"
+                    value={password}
+                    onChange={(e) => { setError(''); setPassword(e.target.value); }}
+                    onKeyDown={(e) => e.key === 'Enter' && next()}
+                    placeholder="Your account password"
+                    required
+                  />
                 </Field>
               </>
             ) : (
               <>
-                <Field label="Full name">
-                  <input style={input} value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Rajesh Kumar" />
+                <Field label="Full name" required>
+                  <input
+                    style={input}
+                    value={form.name}
+                    onChange={(e) => set('name', e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && next()}
+                    placeholder="Rajesh Kumar"
+                    required
+                  />
                 </Field>
-                <Field label="Mobile number (10 digits for WhatsApp & delivery SMS)">
-                  <input style={input} inputMode="numeric" value={form.phone} onChange={(e) => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="98765 43210" />
+                <Field label="Mobile number (10 digits for WhatsApp & delivery SMS)" required>
+                  <input
+                    style={input}
+                    inputMode="numeric"
+                    maxLength={10}
+                    value={form.phone}
+                    onChange={(e) => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    onKeyDown={(e) => e.key === 'Enter' && next()}
+                    placeholder="98765 43210"
+                    required
+                  />
                 </Field>
-                <Field label="Email address (for GST Tax Invoice)">
-                  <input style={input} type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="rajesh@example.com" />
+                <Field label="Email address (for GST Tax Invoice & warranty)" required>
+                  <input
+                    style={input}
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => set('email', e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && next()}
+                    placeholder="rajesh@example.com"
+                    required
+                  />
                 </Field>
                 {!user && (
-                  <Field label="Create account password">
-                    <input style={input} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Choose a password (min 4 characters)" />
+                  <Field label="Create account password (optional)">
+                    <input
+                      style={input}
+                      type="password"
+                      value={password}
+                      onChange={(e) => { setError(''); setPassword(e.target.value); }}
+                      onKeyDown={(e) => e.key === 'Enter' && next()}
+                      placeholder="Choose a password (optional)"
+                    />
                   </Field>
                 )}
               </>
@@ -292,6 +350,7 @@ export default function Checkout() {
             <Card title="Delivering to">
               <div style={{ fontSize: 13, lineHeight: 1.55 }}>
                 <b>{form.name}</b> · +91 {form.phone}<br />
+                <span style={{ color: C.muted }}>Email:</span> <b>{form.email}</b><br />
                 {form.address}, {form.city} {form.pin}<br />
                 <span style={{ color: C.muted }}>Paying via {form.payment}</span>
               </div>
@@ -299,7 +358,26 @@ export default function Checkout() {
           </>
         )}
 
-        {error && <div style={{ marginTop: 10, color: C.danger, fontSize: 12.5, fontWeight: 700, animation: 'fadeUp .3s ease' }}>{error}</div>}
+        {error && (
+          <div
+            style={{
+              marginTop: 12,
+              padding: '10px 14px',
+              borderRadius: 12,
+              background: C.dangerSoft,
+              color: C.danger,
+              fontSize: 12.5,
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              animation: 'fadeUp .3s ease',
+            }}
+          >
+            <Icon name="alert" size={16} />
+            {error}
+          </div>
+        )}
 
         <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
           {step > 0 && <Btn variant="light" onClick={() => setStep((s) => s - 1)} style={{ flex: 1 }}>Back</Btn>}
@@ -307,10 +385,8 @@ export default function Checkout() {
             <Btn onClick={next} disabled={authBusy} style={{ flex: 2 }}>
               {authBusy ? (
                 <>
-                  <span style={{ width: 16, height: 16, borderRadius: 99, border: '2.5px solid rgba(255,255,255,.4)', borderTopColor: '#fff', animation: 'spin .8s linear infinite' }} /> Processing Account…
+                  <span style={{ width: 16, height: 16, borderRadius: 99, border: '2.5px solid rgba(255,255,255,.4)', borderTopColor: '#fff', animation: 'spin .8s linear infinite' }} /> Processing…
                 </>
-              ) : !user && authMode === 'register' ? (
-                <>Create Account &amp; Continue <Icon name="right" size={16} /></>
               ) : !user && authMode === 'login' ? (
                 <>Sign In &amp; Continue <Icon name="right" size={16} /></>
               ) : (

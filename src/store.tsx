@@ -65,6 +65,7 @@ function useLocalState<T>(key: string, initial: T): [T, React.Dispatch<React.Set
 export interface CheckoutInfo {
   name: string;
   phone: string;
+  email?: string;
   address: string;
   city: string;
   payment: string;
@@ -463,6 +464,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           id,
           customer: info.name,
           phone: info.phone,
+          email: info.email,
           city: info.city,
           address: info.address,
           items,
@@ -484,6 +486,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         api.createOrder({
           customer: info.name,
           phone: info.phone,
+          email: info.email,
           city: info.city,
           address: info.address,
           items: items.map((item) => ({

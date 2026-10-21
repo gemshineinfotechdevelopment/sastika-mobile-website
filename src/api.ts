@@ -64,6 +64,7 @@ export const api = {
   createOrder: (order: {
     customer: string;
     phone: string;
+    email?: string;
     city: string;
     address: string;
     items: Array<{ productId: string; name: string; qty: number; price: number }>;

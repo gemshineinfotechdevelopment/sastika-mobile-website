@@ -37,6 +37,7 @@ router.post('/', (req, res) => {
     id,
     customer,
     phone,
+    email: req.body.email || '',
     city: city || 'Chennai',
     address: address || '',
     items,
