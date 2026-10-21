@@ -40,7 +40,7 @@ export const getOrderById = async (req, res) => {
 
 export const createOrder = async (req, res) => {
   try {
-    const { customer, phone, city, address, items, total, payment } = req.body;
+    const { customer, phone, email, city, address, items, total, payment } = req.body;
     if (!customer || !phone || !items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Customer details and items are required' });
     }
@@ -50,6 +50,7 @@ export const createOrder = async (req, res) => {
       id: orderId,
       customer,
       phone,
+      email: email || '',
       city: city || 'Chennai',
       address: address || '',
       items,
@@ -88,22 +89,33 @@ export const createOrder = async (req, res) => {
 
 export const updateOrderStatus = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const rawId = decodeURIComponent(req.params.id);
+    const { status, cancelReason } = req.body;
 
     if (!['Placed', 'Packed', 'Shipped', 'Delivered', 'Cancelled'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid order status' });
     }
 
+    const patch = { status };
+    if (cancelReason !== undefined) {
+      patch.cancelReason = cancelReason;
+    }
+
     if (getDbStatus()) {
-      const updated = await Order.findOneAndUpdate({ id }, { status }, { new: true });
+      const updated = await Order.findOneAndUpdate(
+        { $or: [{ id: rawId }, { id: '#' + rawId }, { id: rawId.replace(/^#/, '') }] },
+        patch,
+        { new: true }
+      );
       if (!updated) return res.status(404).json({ success: false, message: 'Order not found' });
       return res.json({ success: true, data: updated });
     }
 
-    const idx = memoryOrders.findIndex((o) => o.id === id);
+    const idx = memoryOrders.findIndex(
+      (o) => o.id === rawId || o.id === '#' + rawId || o.id.replace(/^#/, '') === rawId.replace(/^#/, '')
+    );
     if (idx === -1) return res.status(404).json({ success: false, message: 'Order not found' });
-    memoryOrders[idx] = { ...memoryOrders[idx], status };
+    memoryOrders[idx] = { ...memoryOrders[idx], ...patch };
     return res.json({ success: true, data: memoryOrders[idx] });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

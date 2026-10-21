@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { C, money } from '../theme';
 import { useStore } from '../store';
+import { api } from '../api';
 import type { OrderStatus, TicketStatus } from '../types';
 import Icon, { type IconName } from '../components/Icon';
 import ProductArt from '../components/ProductArt';
@@ -28,14 +29,35 @@ const getTicketStage = (st: TicketStatus): number => {
 export default function Account() {
   const nav = useNavigate();
   const [params] = useSearchParams();
-  const { orders, wishlist, products, tickets, cartCount, user, logout } = useStore();
+  const { orders, wishlist, products, tickets, cartCount, user, logout, setOrders } = useStore();
+
+  // Auto-sync orders every 3 seconds so admin status changes & cancellations show in real-time
+  useEffect(() => {
+    let active = true;
+    const fetchLatest = async () => {
+      try {
+        const fresh = await api.getOrders();
+        if (active && Array.isArray(fresh) && fresh.length > 0) {
+          setOrders(fresh);
+        }
+      } catch {
+        // silent fallback
+      }
+    };
+    fetchLatest();
+    const interval = setInterval(fetchLatest, 3000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [setOrders]);
 
   const initialTab = (params.get('tab') as 'orders' | 'wishlist' | 'service') || 'orders';
   const [tab, setTab] = useState<'orders' | 'wishlist' | 'service'>(
     ['orders', 'wishlist', 'service'].includes(initialTab) ? initialTab : 'orders'
   );
 
-  const [open, setOpen] = useState<string | null>(orders[0]?.id ?? null);
+  const [open, setOpen] = useState<string | null>(null);
   const [q, setQ] = useState(params.get('id') ?? '');
   const [statusFilter, setStatusFilter] = useState<'All' | OrderStatus>('All');
 
@@ -72,10 +94,62 @@ export default function Account() {
     });
   }, [tickets]);
 
-  // Filtered orders list
+  // User's own orders strictly matching logged-in customer's email or 10-digit mobile number
+  const userOrders = useMemo(() => {
+    if (!user || !Array.isArray(orders)) return [];
+
+    const userEmail = (user.email || '').trim().toLowerCase();
+    const userPhoneClean = (user.phone || '').replace(/\D/g, '').slice(-10);
+    const userName = (user.name || '').trim().toLowerCase();
+
+    return orders.filter((o: any) => {
+      const orderEmail = (o.email || '').trim().toLowerCase();
+      const orderPhoneClean = (o.phone || '').replace(/\D/g, '').slice(-10);
+      const orderCustomer = (o.customer || '').trim().toLowerCase();
+
+      // Match email if both exist
+      if (userEmail && orderEmail && userEmail === orderEmail) return true;
+
+      // Match 10-digit phone number if both exist
+      if (userPhoneClean.length >= 10 && orderPhoneClean.length >= 10 && userPhoneClean === orderPhoneClean) {
+        return true;
+      }
+
+      // Fallback match by exact customer name ONLY if order has no email or phone
+      if (!orderEmail && !orderPhoneClean && userName && orderCustomer && userName === orderCustomer) {
+        return true;
+      }
+
+      return false;
+    });
+  }, [orders, user]);
+
+  // User's own care tickets strictly matching logged-in customer's phone or name
+  const userTickets = useMemo(() => {
+    if (!user || !Array.isArray(normalizedTickets)) return [];
+
+    const userPhoneClean = (user.phone || '').replace(/\D/g, '').slice(-10);
+    const userName = (user.name || '').trim().toLowerCase();
+
+    return normalizedTickets.filter((t: any) => {
+      const tPhoneClean = (t.phone || '').replace(/\D/g, '').slice(-10);
+      const tCustomer = (t.customer || '').trim().toLowerCase();
+
+      if (userPhoneClean.length >= 10 && tPhoneClean.length >= 10 && userPhoneClean === tPhoneClean) {
+        return true;
+      }
+
+      if (userName && tCustomer && (userName === tCustomer || tCustomer.includes(userName) || userName.includes(tCustomer))) {
+        return true;
+      }
+
+      return false;
+    });
+  }, [normalizedTickets, user]);
+
+  // Filtered orders list (only from user's own orders)
   const filteredOrders = useMemo(() => {
-    if (!Array.isArray(orders)) return [];
-    return orders.filter((o) => {
+    return userOrders.filter((o) => {
       const matchStatus = statusFilter === 'All' || o.status === statusFilter;
       const matchQuery =
         !q.trim() ||
@@ -84,11 +158,11 @@ export default function Account() {
         (o.items || []).some((item) => (item.name || '').toLowerCase().includes(q.toLowerCase()));
       return matchStatus && matchQuery;
     });
-  }, [orders, q, statusFilter]);
+  }, [userOrders, q, statusFilter]);
 
-  // Filtered care tickets list
+  // Filtered care tickets list (only from user's own tickets)
   const filteredTickets = useMemo(() => {
-    return normalizedTickets.filter((t) => {
+    return userTickets.filter((t) => {
       const matchStatus = ticketFilter === 'All' || t.status === ticketFilter;
       const qLower = ticketQ.trim().toLowerCase();
       const matchQuery =
@@ -99,7 +173,7 @@ export default function Account() {
         t.issue.toLowerCase().includes(qLower);
       return matchStatus && matchQuery;
     });
-  }, [normalizedTickets, ticketFilter, ticketQ]);
+  }, [userTickets, ticketFilter, ticketQ]);
 
   return (
     <div className="site-page-container" style={{ maxWidth: 1080, margin: '0 auto', paddingBottom: 40 }}>
@@ -111,43 +185,46 @@ export default function Account() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: 16,
-              padding: '20px 22px',
-              borderRadius: 24,
+              gap: 12,
+              padding: '16px 16px',
+              borderRadius: 20,
               background: `linear-gradient(135deg, #072a25 0%, ${C.primaryDark} 50%, #052622 100%)`,
               color: '#fff',
               boxShadow: '0 8px 24px rgba(7,42,37,0.22)',
               border: '1px solid rgba(255,255,255,0.1)',
               animation: 'fadeUp .5s ease both',
               flexWrap: 'wrap',
-              marginBottom: 16,
+              marginBottom: 14,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
               <div
                 style={{
-                  width: 54,
-                  height: 54,
+                  width: 48,
+                  height: 48,
                   borderRadius: '50%',
                   background: C.accent,
                   color: C.primaryDark,
                   display: 'grid',
                   placeItems: 'center',
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: 900,
+                  flexShrink: 0,
                   boxShadow: '0 4px 12px rgba(246,196,69,0.3)',
                 }}
               >
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <div>
-                <div style={{ fontWeight: 850, fontSize: 18, letterSpacing: 0.2 }}>{user.name}</div>
-                <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontWeight: 850, fontSize: 16, letterSpacing: 0.2 }}>
+                  {user.name}
+                </div>
+                <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 2, wordBreak: 'break-word' }}>
                   {user.phone ? user.phone : 'Mobile verified'} · {user.email}
                 </div>
-                <div style={{ marginTop: 6, display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ marginTop: 6, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                   <Pill tone="accent">GOLD CLUB MEMBER</Pill>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>✓ Official Warranty Enrolled</span>
+                  <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap' }}>✓ Warranty Enrolled</span>
                 </div>
               </div>
             </div>
@@ -159,18 +236,19 @@ export default function Account() {
                 background: 'rgba(239, 68, 68, 0.18)',
                 color: '#fca5a5',
                 border: '1px solid rgba(239, 68, 68, 0.4)',
-                padding: '8px 16px',
-                borderRadius: 12,
-                fontSize: 12.5,
+                padding: '7px 14px',
+                borderRadius: 10,
+                fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 5,
                 transition: 'all .2s ease',
+                flexShrink: 0,
               }}
             >
-              <Icon name="logout" size={14} color="#fca5a5" />
+              <Icon name="logout" size={13} color="#fca5a5" />
               Sign Out
             </button>
           </div>
@@ -182,42 +260,43 @@ export default function Account() {
               alignItems: 'center',
               justifyContent: 'space-between',
               flexWrap: 'wrap',
-              gap: 16,
-              padding: '24px 22px',
-              borderRadius: 24,
+              gap: 12,
+              padding: '18px 16px',
+              borderRadius: 20,
               background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primarySoft})`,
               color: '#fff',
               boxShadow: '0 8px 30px rgba(11,74,67,0.14)',
               position: 'relative',
               overflow: 'hidden',
-              marginBottom: 16,
+              marginBottom: 14,
             }}
           >
             <div style={{ position: 'absolute', right: -30, top: -30, width: 140, height: 140, borderRadius: '50%', background: 'rgba(246,196,69,.15)', pointerEvents: 'none' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
               <div
                 style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 18,
+                  width: 46,
+                  height: 46,
+                  borderRadius: 14,
                   background: C.accent,
                   color: C.primaryDark,
                   display: 'grid',
                   placeItems: 'center',
                   boxShadow: '0 4px 14px rgba(0,0,0,.15)',
+                  flexShrink: 0,
                 }}
               >
-                <Icon name="truck" size={28} />
+                <Icon name="truck" size={24} />
               </div>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, color: C.accent }}>
-                  REAL-TIME DISPATCH &amp; CARE TRACKING
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.2, color: C.accent }}>
+                  REAL-TIME DISPATCH &amp; CARE
                 </div>
-                <h1 style={{ margin: '4px 0 2px', fontSize: 24, fontWeight: 900, letterSpacing: -0.5 }}>
+                <h1 style={{ margin: '2px 0 2px', fontSize: 20, fontWeight: 900, letterSpacing: -0.4 }}>
                   Track &amp; Orders
                 </h1>
-                <div style={{ fontSize: 12.5, opacity: 0.85 }}>
-                  Check live shipping stages, service repair progress, ETA and Sivakasi GST tax invoices
+                <div style={{ fontSize: 11.5, opacity: 0.85, lineHeight: 1.3 }}>
+                  Check live shipping stages, ETA &amp; invoices
                 </div>
               </div>
             </div>
@@ -228,63 +307,63 @@ export default function Account() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 7,
-                padding: '10px 18px',
-                borderRadius: 14,
+                gap: 6,
+                padding: '8px 16px',
+                borderRadius: 12,
                 background: C.accent,
                 color: C.primaryDark,
                 fontWeight: 800,
-                fontSize: 13,
+                fontSize: 12.5,
                 border: 'none',
                 cursor: 'pointer',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                flexShrink: 0,
               }}
             >
-              <Icon name="user" size={16} /> Sign In
+              <Icon name="user" size={15} /> Sign In
             </button>
           </div>
         )}
 
-        {/* Quick Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
+        {/* Quick Stats Grid - Compact responsive 3-col */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 14 }}>
           {[
-            { l: 'Total Orders', v: orders.length, ic: 'truck' as const },
-            { l: 'Saved Wishlist', v: wishlist.length, ic: 'heart' as const },
-            { l: 'Care Repairs', v: normalizedTickets.length, ic: 'tool' as const },
+            { l: 'Orders', v: userOrders.length, ic: 'truck' as const },
+            { l: 'Wishlist', v: wishlist.length, ic: 'heart' as const },
+            { l: 'Repairs', v: userTickets.length, ic: 'tool' as const },
           ].map((s, idx) => (
             <Reveal key={s.l} delay={idx * 80}>
               <div
                 style={{
                   background: '#fff',
                   border: `1.5px solid ${C.border}`,
-                  borderRadius: 18,
-                  padding: '14px 16px',
+                  borderRadius: 16,
+                  padding: '10px 6px',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: 12,
+                  textAlign: 'center',
+                  gap: 3,
                 }}
               >
                 <div
                   style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 12,
+                    width: 30,
+                    height: 30,
+                    borderRadius: 10,
                     background: C.tint,
                     color: C.primary,
                     display: 'grid',
                     placeItems: 'center',
-                    flexShrink: 0,
                   }}
                 >
-                  <Icon name={s.ic} size={18} />
+                  <Icon name={s.ic} size={15} />
                 </div>
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: C.primaryDark, lineHeight: 1.1 }}>
-                    <CountUp to={s.v} duration={800} />
-                  </div>
-                  <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, marginTop: 2 }}>{s.l}</div>
+                <div style={{ fontSize: 17, fontWeight: 900, color: C.primaryDark, lineHeight: 1.1 }}>
+                  <CountUp to={s.v} duration={800} />
                 </div>
+                <div style={{ fontSize: 11, color: C.muted, fontWeight: 700 }}>{s.l}</div>
               </div>
             </Reveal>
           ))}
@@ -298,12 +377,12 @@ export default function Account() {
               width: '100%',
               marginTop: 4,
               marginBottom: 12,
-              padding: '12px 16px',
+              padding: '10px 14px',
               borderRadius: 14,
               background: C.warnSoft,
               color: C.warn,
               fontWeight: 800,
-              fontSize: 13,
+              fontSize: 12.5,
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -311,20 +390,20 @@ export default function Account() {
               cursor: 'pointer',
             }}
           >
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Icon name="cart" size={16} /> You have {cartCount} item{cartCount > 1 ? 's' : ''} in your cart ready for checkout
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <Icon name="cart" size={15} /> {cartCount} item{cartCount > 1 ? 's' : ''} in cart ready for checkout
             </span>
-            <Icon name="right" size={16} />
+            <Icon name="right" size={15} />
           </button>
         )}
 
-        {/* Tab Buttons */}
-        <div style={{ marginTop: 14, display: 'flex', gap: 6, background: C.tint, padding: 5, borderRadius: 16 }}>
+        {/* Tab Buttons - Compact labels that never wrap awkwardly */}
+        <div style={{ marginTop: 12, display: 'flex', gap: 5, background: C.tint, padding: 4, borderRadius: 14 }}>
           {(
             [
-              { k: 'orders' as const, l: `Orders & Warranty (${orders.length})`, ic: 'truck' as IconName },
-              { k: 'wishlist' as const, l: `Saved Items (${wishlist.length})`, ic: 'heart' as IconName },
-              { k: 'service' as const, l: `Care Tickets (${normalizedTickets.length})`, ic: 'tool' as IconName },
+              { k: 'orders' as const, l: `Orders (${userOrders.length})`, ic: 'truck' as IconName },
+              { k: 'wishlist' as const, l: `Wishlist (${wishlist.length})`, ic: 'heart' as IconName },
+              { k: 'service' as const, l: `Care (${userTickets.length})`, ic: 'tool' as IconName },
             ]
           ).map(({ k, l, ic }) => (
             <button
@@ -334,24 +413,26 @@ export default function Account() {
               onClick={() => setTab(k)}
               style={{
                 flex: 1,
-                padding: '11px 8px',
-                borderRadius: 12,
+                minWidth: 0,
+                padding: '8px 2px',
+                borderRadius: 10,
                 fontWeight: 800,
-                fontSize: 13,
+                fontSize: 11.5,
                 background: tab === k ? '#fff' : 'transparent',
                 color: tab === k ? C.primary : C.muted,
-                boxShadow: tab === k ? '0 2px 10px rgba(11,74,67,.12)' : 'none',
+                boxShadow: tab === k ? '0 2px 8px rgba(11,74,67,.12)' : 'none',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all .2s ease',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6,
+                gap: 5,
+                whiteSpace: 'nowrap',
               }}
             >
-              <Icon name={ic} size={15} color={tab === k ? C.primary : C.muted} />
-              <span>{l}</span>
+              <Icon name={ic} size={14} color={tab === k ? C.primary : C.muted} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{l}</span>
             </button>
           ))}
         </div>
@@ -414,7 +495,7 @@ export default function Account() {
                       WebkitAppearance: 'none',
                     }}
                   >
-                    <option value="All">All ({orders.length})</option>
+                    <option value="All">All ({userOrders.length})</option>
                     <option value="Placed">Placed</option>
                     <option value="Packed">Packed</option>
                     <option value="Shipped">Shipped</option>
@@ -491,16 +572,16 @@ export default function Account() {
                         animation: `fadeUp .35s ease ${idx * 40}ms both`,
                       }}
                     >
-                      {/* Order Summary Header Row */}
+                      {/* Order Summary Header Row - 2-tier mobile-first layout */}
                       <button
                         type="button"
                         onClick={() => setOpen(isOpen ? null : o.id)}
                         style={{
                           width: '100%',
                           display: 'flex',
-                          alignItems: 'center',
-                          gap: 14,
-                          padding: '16px 18px',
+                          flexDirection: 'column',
+                          gap: 10,
+                          padding: '14px 14px',
                           textAlign: 'left',
                           background: isOpen ? C.tint2 : '#fff',
                           border: 'none',
@@ -508,91 +589,139 @@ export default function Account() {
                           transition: 'background .2s ease',
                         }}
                       >
+                        {/* Top Tier: Product Thumbnail + ID/Date + Price/Pill + Chevron */}
+                        <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 10 }}>
+                          <div
+                            style={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: 12,
+                              background: '#fff',
+                              border: `1px solid ${C.border}`,
+                              display: 'grid',
+                              placeItems: 'center',
+                              flexShrink: 0,
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {first ? (
+                              <ProductArt category={first.category} color={first.color} size={36} image={first.image} alt={first.name} />
+                            ) : (
+                              <Icon name="box" size={22} color={C.primary} />
+                            )}
+                          </div>
+
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 900, fontSize: 14, color: C.primaryDark, letterSpacing: -0.2, whiteSpace: 'nowrap' }}>
+                              {o.id}
+                            </div>
+                            <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
+                              📅 {o.date}
+                            </div>
+                          </div>
+
+                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                            <div style={{ fontWeight: 900, fontSize: 14.5, color: C.primaryDark }}>
+                              {money(o.total)}
+                            </div>
+                            <div style={{ marginTop: 2 }}>
+                              <Pill tone={tone(o.status)}>{o.status.toUpperCase()}</Pill>
+                            </div>
+                          </div>
+
+                          <span style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .25s ease', color: C.muted, flexShrink: 0 }}>
+                            <Icon name="down" size={15} />
+                          </span>
+                        </div>
+
+                        {/* Bottom Tier: Items Summary Preview */}
                         <div
                           style={{
-                            width: 52,
-                            height: 52,
-                            borderRadius: 14,
-                            background: '#fff',
-                            border: `1px solid ${C.border}`,
-                            display: 'grid',
-                            placeItems: 'center',
-                            flexShrink: 0,
+                            width: '100%',
+                            fontSize: 12,
+                            color: C.text,
+                            fontWeight: 600,
+                            paddingTop: 8,
+                            borderTop: `1px dashed ${C.border}`,
                             overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
                           }}
                         >
-                          {first ? (
-                            <ProductArt category={first.category} color={first.color} size={42} image={first.image} alt={first.name} />
-                          ) : (
-                            <Icon name="box" size={26} color={C.primary} />
-                          )}
-                        </div>
-
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                            <span style={{ fontWeight: 900, fontSize: 15, color: C.primaryDark }}>{o.id}</span>
-                            <span style={{ fontSize: 11.5, color: C.muted }}>📅 {o.date}</span>
-                          </div>
-                          <div style={{ fontSize: 12.5, color: C.text, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 3 }}>
+                          <span style={{ color: C.muted, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>Items:</span>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
                             {(o.items || []).map((i) => `${i.name} (x${i.qty})`).join(', ')}
-                          </div>
+                          </span>
                         </div>
-
-                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                          <div style={{ fontWeight: 900, fontSize: 16, color: C.primaryDark }}>{money(o.total)}</div>
-                          <div style={{ marginTop: 3 }}>
-                            <Pill tone={tone(o.status)}>{o.status.toUpperCase()}</Pill>
-                          </div>
-                        </div>
-
-                        <span style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .25s ease', color: C.muted, marginLeft: 4 }}>
-                          <Icon name="down" size={16} />
-                        </span>
                       </button>
 
                       {/* Expandable Order Details & Tracking Progress */}
                       {isOpen && (
-                        <div style={{ padding: '18px 20px 22px', borderTop: `1px solid ${C.border}`, background: '#fff' }}>
+                        <div style={{ padding: '14px 14px 18px', borderTop: `1px solid ${C.border}`, background: '#fff' }}>
                           {/* Live Visual Tracking Stepper */}
-                          <div style={{ marginBottom: 20 }}>
-                            <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: 1.2, color: C.primarySoft, marginBottom: 12, textTransform: 'uppercase' }}>
+                          <div style={{ marginBottom: 18 }}>
+                            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.1, color: C.primarySoft, marginBottom: 10, textTransform: 'uppercase' }}>
                               Live Order Tracking Status
                             </div>
 
                             {o.status === 'Cancelled' ? (
-                              <div style={{ padding: '12px 16px', background: C.dangerSoft, color: C.danger, borderRadius: 12, fontWeight: 700, fontSize: 13 }}>
-                                ✕ This order was cancelled. Refund has been initiated to your original payment method.
+                              <div
+                                style={{
+                                  padding: '14px 16px',
+                                  background: 'rgba(239, 68, 68, 0.08)',
+                                  color: '#b91c1c',
+                                  borderRadius: 14,
+                                  border: '1.5px solid rgba(239, 68, 68, 0.25)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: 6,
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 850, fontSize: 13.5 }}>
+                                  <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#ef4444', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 900, flexShrink: 0 }}>✕</span>
+                                  <span>Order Cancelled</span>
+                                </div>
+                                <div style={{ fontSize: 12.5, lineHeight: 1.4, color: '#7f1d1d', paddingLeft: 30 }}>
+                                  <b>Order cancelled because: </b>
+                                  <span style={{ fontWeight: 600 }}>{o.cancelReason ? o.cancelReason : 'Order cancelled by store administration.'}</span>
+                                </div>
+                                <div style={{ fontSize: 11, color: '#991b1b', opacity: 0.85, paddingLeft: 30 }}>
+                                  Refund has been initiated to your original payment method. For support, call +91 95434 34344.
+                                </div>
                               </div>
                             ) : (
-                              <div style={{ display: 'flex', alignItems: 'center', padding: '10px 4px 6px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', padding: '8px 2px 4px', width: '100%', boxSizing: 'border-box' }}>
                                 {FLOW.map((s, i) => {
                                   const isDone = i <= stage;
                                   const isCurrent = i === stage;
                                   return (
                                     <div key={s} style={{ display: 'flex', alignItems: 'center', flex: i < 3 ? 1 : 0 }}>
-                                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                                         <div
                                           style={{
-                                            width: 28,
-                                            height: 28,
+                                            width: 24,
+                                            height: 24,
                                             borderRadius: '50%',
                                             background: isDone ? C.success : '#fff',
                                             border: `2px solid ${isDone ? C.success : C.border}`,
                                             display: 'grid',
                                             placeItems: 'center',
-                                            boxShadow: isCurrent ? '0 0 0 5px rgba(34,197,94,0.2)' : 'none',
+                                            boxShadow: isCurrent ? '0 0 0 4px rgba(34,197,94,0.2)' : 'none',
                                             transition: 'all .3s ease',
                                           }}
                                         >
                                           {isDone ? (
-                                            <Icon name="check" size={15} color="#fff" stroke={3.5} />
+                                            <Icon name="check" size={13} color="#fff" stroke={3.5} />
                                           ) : (
-                                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.muted }} />
+                                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.muted }} />
                                           )}
                                         </div>
                                         <span
                                           style={{
-                                            fontSize: 11,
+                                            fontSize: 10,
                                             fontWeight: isCurrent ? 800 : 700,
                                             color: isDone ? (isCurrent ? C.primaryDark : C.success) : C.muted,
                                             whiteSpace: 'nowrap',
@@ -605,8 +734,8 @@ export default function Account() {
                                         <div
                                           style={{
                                             flex: 1,
-                                            height: 4,
-                                            margin: '0 8px 20px',
+                                            height: 3,
+                                            margin: '0 4px 16px',
                                             background: i < stage ? C.success : C.tint2,
                                             borderRadius: 99,
                                             transition: 'background .3s ease',
@@ -762,7 +891,7 @@ export default function Account() {
                       WebkitAppearance: 'none',
                     }}
                   >
-                    <option value="All">All ({normalizedTickets.length})</option>
+                    <option value="All">All ({userTickets.length})</option>
                     <option value="Open">Open</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Ready">Ready</option>
@@ -875,39 +1004,39 @@ export default function Account() {
 
                       {/* Live Repair Progress Stepper */}
                       <div style={{ marginBottom: 16 }}>
-                        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, color: C.primarySoft, marginBottom: 10, textTransform: 'uppercase' }}>
+                        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.1, color: C.primarySoft, marginBottom: 10, textTransform: 'uppercase' }}>
                           Live Repair Progress
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', padding: '6px 4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', padding: '6px 2px', width: '100%', boxSizing: 'border-box' }}>
                           {TICKET_FLOW.map((step, i) => {
                             const isDone = i <= stage;
                             const isCurrent = i === stage;
                             return (
                               <div key={step.s} style={{ display: 'flex', alignItems: 'center', flex: i < 3 ? 1 : 0 }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                                   <div
                                     style={{
-                                      width: 28,
-                                      height: 28,
+                                      width: 24,
+                                      height: 24,
                                       borderRadius: '50%',
                                       background: isDone ? (isCurrent ? C.accent : C.success) : '#fff',
                                       color: isDone ? (isCurrent ? C.primaryDark : '#fff') : C.muted,
                                       border: `2px solid ${isDone ? (isCurrent ? C.accentDark : C.success) : C.border}`,
                                       display: 'grid',
                                       placeItems: 'center',
-                                      boxShadow: isCurrent ? '0 0 0 5px rgba(246,196,69,0.3)' : 'none',
+                                      boxShadow: isCurrent ? '0 0 0 4px rgba(246,196,69,0.3)' : 'none',
                                       transition: 'all .3s ease',
                                     }}
                                   >
                                     {isDone && !isCurrent ? (
-                                      <Icon name="check" size={15} color="#fff" stroke={3.5} />
+                                      <Icon name="check" size={13} color="#fff" stroke={3.5} />
                                     ) : (
-                                      <span style={{ fontSize: 11, fontWeight: 900 }}>{i + 1}</span>
+                                      <span style={{ fontSize: 10, fontWeight: 900 }}>{i + 1}</span>
                                     )}
                                   </div>
                                   <span
                                     style={{
-                                      fontSize: 11,
+                                      fontSize: 10,
                                       fontWeight: isCurrent ? 800 : 700,
                                       color: isDone ? (isCurrent ? C.primaryDark : C.success) : C.muted,
                                       whiteSpace: 'nowrap',
@@ -920,8 +1049,8 @@ export default function Account() {
                                   <div
                                     style={{
                                       flex: 1,
-                                      height: 4,
-                                      margin: '0 8px 18px',
+                                      height: 3,
+                                      margin: '0 4px 16px',
                                       background: i < stage ? C.success : C.tint2,
                                       borderRadius: 99,
                                       transition: 'background .3s ease',

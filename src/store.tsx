@@ -52,6 +52,7 @@ function useLocalState<T>(key: string, initial: T): [T, React.Dispatch<React.Set
       return initial;
     }
   });
+
   useEffect(() => {
     try {
       localStorage.setItem('sastika:' + key, JSON.stringify(value));
@@ -59,6 +60,19 @@ function useLocalState<T>(key: string, initial: T): [T, React.Dispatch<React.Set
       /* storage unavailable */
     }
   }, [key, value]);
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'sastika:' + key && e.newValue) {
+        try {
+          setValue(JSON.parse(e.newValue));
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [key]);
+
   return [value, setValue];
 }
 
@@ -90,8 +104,9 @@ interface StoreShape {
   setCoupon: (c: string) => void;
 
   orders: Order[];
+  setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
   placeOrder: (info: CheckoutInfo) => string;
-  updateOrderStatus: (id: string, status: OrderStatus) => void;
+  updateOrderStatus: (id: string, status: OrderStatus, cancelReason?: string) => void;
 
   tickets: Ticket[];
   addTicket: (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'>) => string;
@@ -128,13 +143,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
   const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v2', DEFAULT_FLASH_DEAL);
-  const [user, setUser] = useLocalState<AuthUser | null>('auth_user_v2', {
-    id: 'u_hari',
-    name: 'Hariharan S.',
-    email: 'hari@sastikamobiles.com',
-    phone: '+91 95434 34344',
-    role: 'customer',
-  });
+  const [user, setUser] = useLocalState<AuthUser | null>('auth_user_v3', null);
   const [token, setToken] = useLocalState<string | null>('customer_token', null);
 
   // Auto-migrate from any legacy dummy products
@@ -180,8 +189,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     syncBackend();
+
+    // Live continuous sync so admin updates reflect on website without page refresh
+    const pollTimer = setInterval(async () => {
+      if (!mounted) return;
+      try {
+        const serverOrders = await api.getOrders().catch(() => null);
+        const cleanOrders = Array.isArray(serverOrders) ? serverOrders : (serverOrders as any)?.data;
+        if (cleanOrders && Array.isArray(cleanOrders) && cleanOrders.length > 0) {
+          setOrders(cleanOrders);
+        }
+      } catch {}
+    }, 4000);
+
     return () => {
       mounted = false;
+      clearInterval(pollTimer);
     };
   }, [setProducts, setOrders, setTickets, setFlashDeal]);
 
@@ -333,9 +356,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const updateOrderStatus = useCallback(
-    (id: string, status: OrderStatus) => {
-      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
-      api.updateOrderStatus(id, status).catch(() => {});
+    (id: string, status: OrderStatus, cancelReason?: string) => {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === id
+            ? { ...o, status, ...(cancelReason !== undefined ? { cancelReason } : {}) }
+            : o,
+        ),
+      );
+      api.updateOrderStatus(id, status, cancelReason).catch(() => {});
     },
     [setOrders],
   );
@@ -501,6 +530,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         return id;
       },
+      setOrders,
       updateOrderStatus,
 
       tickets,

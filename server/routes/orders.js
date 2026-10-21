@@ -66,8 +66,11 @@ router.post('/', (req, res) => {
 
 // PATCH / PUT update order status
 router.patch('/:id', (req, res) => {
+  const rawId = decodeURIComponent(req.params.id);
   const orders = readData(ORDERS_FILE);
-  const index = orders.findIndex((o) => o.id === req.params.id);
+  const index = orders.findIndex(
+    (o) => o.id === rawId || o.id === '#' + rawId || o.id.replace(/^#/, '') === rawId.replace(/^#/, '')
+  );
   if (index === -1) {
     return res.status(404).json({ error: 'Order not found' });
   }

@@ -238,7 +238,7 @@ function Hero({ onShop, onGear }: { onShop: () => void; onGear: () => void; colo
                 lineHeight: 1.25,
               }}
             >
-              Explore Mobiles (78 In Stock)
+              Explore Mobiles
             </button>
             <button
               className="tap hero-btn hero-btn-secondary"

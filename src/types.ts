@@ -44,6 +44,7 @@ export interface Order {
   items: OrderItem[];
   total: number;
   status: OrderStatus;
+  cancelReason?: string;
   payment: string;
   date: string;
 }

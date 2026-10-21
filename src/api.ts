@@ -75,10 +75,10 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(order),
     }),
-  updateOrderStatus: (id: string, status: OrderStatus) =>
-    request<Order>(`/orders/${id}`, {
+  updateOrderStatus: (id: string, status: OrderStatus, cancelReason?: string) =>
+    request<Order>(`/orders/${encodeURIComponent(id)}`, {
       method: 'PATCH',
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, ...(cancelReason !== undefined ? { cancelReason } : {}) }),
     }),
 
   // Tickets

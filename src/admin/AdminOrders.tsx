@@ -14,6 +14,8 @@ export default function AdminOrders() {
   const [filter, setFilter] = useState<'All' | OrderStatus>('All');
   const [q, setQ] = useState('');
   const [sel, setSel] = useState<string | null>(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
+  const [cancelReasonText, setCancelReasonText] = useState('');
 
   const list = useMemo(
     () => orders.filter((o) => (filter === 'All' || o.status === filter) && (o.id + o.customer + o.city).toLowerCase().includes(q.toLowerCase())),
@@ -80,7 +82,16 @@ export default function AdminOrders() {
               <b>{order.customer}</b><br />{order.phone}<br />{order.address}
             </div>
 
-            {order.status !== 'Cancelled' && (
+            {order.status === 'Cancelled' ? (
+              <div style={{ padding: '12px 14px', borderRadius: 12, background: C.dangerSoft, border: `1.5px solid ${C.danger}40`, marginBottom: 14, color: C.danger }}>
+                <div style={{ fontWeight: 850, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <Icon name="alert" size={15} /> Order Cancelled
+                </div>
+                <div style={{ fontSize: 12.5, color: C.text }}>
+                  <b>Reason:</b> {order.cancelReason || 'Cancelled by store administration'}
+                </div>
+              </div>
+            ) : (
               <div style={{ margin: '0 0 16px' }}>
                 {FLOW.map((s, i) => (
                   <div key={s} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
@@ -110,11 +121,138 @@ export default function AdminOrders() {
               {order.status === 'Placed' && <AButton onClick={() => updateOrderStatus(order.id, 'Packed')}>Mark as Packed</AButton>}
               {order.status === 'Packed' && <AButton variant="accent" onClick={() => updateOrderStatus(order.id, 'Shipped')}>Dispatch Shipment</AButton>}
               {order.status === 'Shipped' && <AButton onClick={() => updateOrderStatus(order.id, 'Delivered')}>Mark Delivered</AButton>}
-              {(order.status === 'Placed' || order.status === 'Packed') && <AButton variant="danger" onClick={() => updateOrderStatus(order.id, 'Cancelled')}>Cancel Order</AButton>}
+              {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
+                <AButton
+                  variant="danger"
+                  onClick={() => {
+                    setCancellingOrderId(order.id);
+                    setCancelReasonText('');
+                  }}
+                >
+                  Cancel Order
+                </AButton>
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* Cancellation Reason Modal */}
+      {cancellingOrderId && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'grid',
+            placeItems: 'center',
+            zIndex: 9999,
+            padding: 16,
+            backdropFilter: 'blur(3px)',
+            animation: 'fadeIn .2s ease',
+          }}
+          onClick={() => setCancellingOrderId(null)}
+        >
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: 20,
+              padding: 24,
+              maxWidth: 480,
+              width: '100%',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
+              border: `1.5px solid ${C.border}`,
+              animation: 'scaleUp .25s ease',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: C.dangerSoft, color: C.danger, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <Icon name="alert" size={20} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: C.primaryDark }}>Cancel Order {cancellingOrderId}</h3>
+                <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                  Enter the cancellation description. This reason will be shown to the customer on the website.
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 12.5, fontWeight: 800, color: C.text, marginBottom: 6 }}>
+                Cancellation Reason / Description <span style={{ color: C.danger }}>*</span>
+              </label>
+              <textarea
+                value={cancelReasonText}
+                onChange={(e) => setCancelReasonText(e.target.value)}
+                placeholder="e.g. Item out of stock in Sivakasi warehouse / Customer requested cancellation..."
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '11px 13px',
+                  borderRadius: 11,
+                  border: `1.5px solid ${C.border}`,
+                  background: '#fff',
+                  fontSize: 13,
+                  fontFamily: 'inherit',
+                  resize: 'vertical',
+                  boxSizing: 'border-box',
+                  outline: 'none',
+                }}
+              />
+            </div>
+
+            {/* Quick Suggestion Chips */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: 'uppercase', marginBottom: 6 }}>
+                Quick Suggestions:
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {[
+                  'Customer requested cancellation',
+                  'Item out of stock in warehouse',
+                  'Delivery address unreachable',
+                  'Pricing or billing discrepancy',
+                ].map((txt) => (
+                  <button
+                    key={txt}
+                    type="button"
+                    onClick={() => setCancelReasonText(txt)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: 8,
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      background: C.tint,
+                      color: C.primary,
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    + {txt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <AButton variant="ghost" onClick={() => setCancellingOrderId(null)}>
+                Dismiss
+              </AButton>
+              <AButton
+                variant="danger"
+                onClick={() => {
+                  const finalReason = cancelReasonText.trim() || 'Customer requested order cancellation';
+                  updateOrderStatus(cancellingOrderId, 'Cancelled', finalReason);
+                  setCancellingOrderId(null);
+                }}
+              >
+                Confirm Cancellation
+              </AButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -55,7 +55,7 @@ export default function Login() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const redirectTo = params.get('redirect') || '/orders';
+  const redirectTo = params.get('redirect') || '/';
 
   const handleSignIn = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
