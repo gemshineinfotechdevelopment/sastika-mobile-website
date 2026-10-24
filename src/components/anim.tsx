@@ -134,14 +134,52 @@ export function Typewriter({ words, speed = 90, pause = 1400 }: { words: string[
   );
 }
 
-/** Infinite horizontal ticker. */
-export function Marquee({ children, speed = 26 }: { children: ReactNode; speed?: number }) {
+/** Infinite horizontal ticker with seamless continuous rotation. */
+export function Marquee({
+  children,
+  speed = 28,
+  pauseOnHover = true,
+  repeat = 4,
+}: {
+  children: ReactNode;
+  speed?: number;
+  pauseOnHover?: boolean;
+  repeat?: number;
+}) {
+  const reps = Array.from({ length: Math.max(1, repeat) });
   return (
-    <div style={{ overflow: 'hidden', width: '100%' }}>
-      <div style={{ display: 'flex', width: 'max-content', animation: `marquee ${speed}s linear infinite` }}>
-        <div style={{ display: 'flex', gap: 12, paddingRight: 12 }}>{children}</div>
-        <div style={{ display: 'flex', gap: 12, paddingRight: 12 }} aria-hidden>
-          {children}
+    <div
+      className={pauseOnHover ? 'marquee-wrap' : ''}
+      style={{
+        overflow: 'hidden',
+        width: '100%',
+        position: 'relative',
+        maskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)',
+      }}
+    >
+      <div
+        className="marquee-track"
+        style={{
+          display: 'flex',
+          width: 'max-content',
+          animation: `marquee ${speed}s linear infinite`,
+          willChange: 'transform',
+        }}
+      >
+        <div style={{ display: 'flex', gap: 12, paddingRight: 12, alignItems: 'center' }}>
+          {reps.map((_, i) => (
+            <div key={`track1-grp-${i}`} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              {children}
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 12, paddingRight: 12, alignItems: 'center' }} aria-hidden="true">
+          {reps.map((_, i) => (
+            <div key={`track2-grp-${i}`} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              {children}
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -837,7 +837,20 @@ export default function Account() {
         {/* ==================== WISHLIST TAB ==================== */}
         {tab === 'wishlist' && (
           <div>
-            {wished.length === 0 ? (
+            {!user ? (
+              <div style={{ textAlign: 'center', padding: '50px 20px', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}` }}>
+                <div style={{ width: 64, height: 64, borderRadius: '50%', background: C.tint, display: 'grid', placeItems: 'center', margin: '0 auto 14px', color: C.primary }}>
+                  <Icon name="heart" size={32} />
+                </div>
+                <h3 style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 800 }}>Sign in to View Your Wishlist</h3>
+                <p style={{ margin: '0 0 16px', fontSize: 13, color: C.muted, maxWidth: 380, marginInline: 'auto' }}>
+                  Please sign in with your email or Google account to access your saved wishlist and sync it across all your devices.
+                </p>
+                <Btn onClick={() => nav('/login?redirect=' + encodeURIComponent('/account?tab=wishlist'))}>
+                  <Icon name="user" size={16} /> Sign In to Your Account
+                </Btn>
+              </div>
+            ) : wished.length === 0 ? (
               <Empty icon="heart" text="No saved items in wishlist yet. Tap the heart on any product to save it here." />
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>

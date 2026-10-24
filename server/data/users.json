@@ -13,7 +13,9 @@
     "email": "hari@sastikamobiles.com",
     "passwordHash": "$2a$08$8xP1g1gkjHaUlR9YKNGSG.TAiR.reHKFEaaiBEINPACa7S6CdPgGe",
     "role": "customer",
-    "phone": "+91 95434 34344"
+    "phone": "+91 95434 34344",
+    "cart": [],
+    "wishlist": []
   },
   {
     "id": "6ad86ed5b3168ad3e824cffb",
@@ -23,5 +25,35 @@
     "phone": "+91 9876501234",
     "role": "customer",
     "createdAt": "2026-10-21T07:50:45.606Z"
+  },
+  {
+    "id": "6adb40f8cfc6e0f7e5816a80",
+    "name": "Murugan K",
+    "email": "murugan.sivakasi@gmail.com",
+    "passwordHash": "$2a$10$Y4srvzyY688BHXKaXNCMkerVM0LWzGYggscaffmdlbNBw975k2mW6",
+    "phone": "9840199887",
+    "role": "customer",
+    "createdAt": "2026-10-23T11:11:52.476Z"
+  },
+  {
+    "id": "6adb54779cac9bfebf827b2f",
+    "name": "Google Customer",
+    "email": "customer.google@gmail.com",
+    "passwordHash": "$2a$10$l1d0mw24W.5rauLdzrUOAuFOK09csVZCepQE9YhIELbxxcihr.mp.",
+    "phone": "",
+    "role": "customer",
+    "createdAt": "2026-10-23T12:35:04.074Z"
+  },
+  {
+    "id": "6adc6199861942bb55bb1eb0",
+    "name": "Hariharasudhan R",
+    "email": "hariharasudhanr777@gmail.com",
+    "googleId": "107220311615752061387",
+    "avatar": "https://lh3.googleusercontent.com/a/ACg8ocKunTrVThXsJ3FbpXeNmw74pyUw3Ca6AwXApw69J-oH9WhZQA=s96-c",
+    "authProvider": "google",
+    "role": "customer",
+    "createdAt": "2026-10-24T07:43:21.295Z",
+    "cart": [],
+    "wishlist": []
   }
 ]

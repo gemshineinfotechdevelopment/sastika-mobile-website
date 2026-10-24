@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { C } from '../theme';
 import { useStore } from '../store';
 import Icon, { type IconName } from '../components/Icon';
@@ -20,6 +20,18 @@ export default function AdminLayout() {
   const { pathname } = useLocation();
   const { products, orders, tickets, logo } = useStore();
   const [q, setQ] = useState('');
+
+  const adminToken = localStorage.getItem('sastika_admin_token') || sessionStorage.getItem('sastika_admin_token');
+  if (!adminToken) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('sastika_admin_token');
+    localStorage.removeItem('sastika_admin_user');
+    sessionStorage.removeItem('sastika_admin_token');
+    nav('/admin/login', { replace: true });
+  };
 
   const low = products.filter((p) => p.stock <= p.reorderAt).length;
   const openOrders = orders.filter((o) => o.status === 'Placed' || o.status === 'Packed').length;
@@ -76,12 +88,34 @@ export default function AdminLayout() {
           <button className="tap" onClick={() => nav('/')} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '11px 12px', borderRadius: 12, background: 'rgba(255,255,255,.08)', color: '#fff', fontWeight: 700, fontSize: 13, marginBottom: 10 }}>
             <Icon name="external" size={16} /> View Storefront
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, borderRadius: 14, background: 'rgba(0,0,0,.2)' }}>
-            <div style={{ width: 36, height: 36, borderRadius: 99, background: C.accent, color: C.primaryDark, display: 'grid', placeItems: 'center', fontWeight: 800 }}>A</div>
-            <div style={{ lineHeight: 1.2 }}>
-              <div style={{ fontWeight: 800, fontSize: 13 }}>Super Admin</div>
-              <div style={{ fontSize: 11, opacity: 0.7 }}>Store Manager</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: 12, borderRadius: 14, background: 'rgba(0,0,0,.2)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 99, background: C.accent, color: C.primaryDark, display: 'grid', placeItems: 'center', fontWeight: 800 }}>A</div>
+              <div style={{ lineHeight: 1.2 }}>
+                <div style={{ fontWeight: 800, fontSize: 13 }}>Super Admin</div>
+                <div style={{ fontSize: 11, opacity: 0.7 }}>Store Manager</div>
+              </div>
             </div>
+            <button
+              onClick={handleAdminLogout}
+              className="tap"
+              title="Sign Out from Admin"
+              style={{
+                background: 'rgba(239, 68, 68, 0.22)',
+                border: '1px solid rgba(239, 68, 68, 0.45)',
+                color: '#fca5a5',
+                padding: '6px 10px',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontSize: 11,
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <Icon name="logout" size={13} color="#fca5a5" /> Exit
+            </button>
           </div>
         </div>
       </aside>
@@ -113,6 +147,25 @@ export default function AdminLayout() {
             <Icon name="bell" size={20} />
             {low > 0 && <span style={{ position: 'absolute', top: -4, right: -5, width: 9, height: 9, borderRadius: 9, background: C.danger, animation: 'pulseDot 1.4s infinite' }} />}
           </div>
+          <button
+            onClick={handleAdminLogout}
+            className="tap"
+            style={{
+              background: '#fef2f2',
+              color: '#dc2626',
+              border: '1px solid #fecaca',
+              padding: '8px 12px',
+              borderRadius: 10,
+              fontSize: 12.5,
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              cursor: 'pointer',
+            }}
+          >
+            <Icon name="logout" size={14} color="#dc2626" /> Logout
+          </button>
         </header>
 
         <div key={pathname} style={{ padding: '26px 28px 40px', maxWidth: 1500 }}>

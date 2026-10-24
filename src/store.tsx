@@ -95,13 +95,18 @@ interface StoreShape {
 
   cart: CartLine[];
   cartCount: number;
-  addToCart: (id: string, qty?: number) => void;
+  addToCart: (id: string, qty?: number) => boolean;
   setQty: (id: string, qty: number) => void;
   removeFromCart: (id: string) => void;
   wishlist: string[];
-  toggleWish: (id: string) => void;
+  toggleWish: (id: string) => boolean;
   coupon: string;
   setCoupon: (c: string) => void;
+
+  authPromptModal: { open: boolean; title: string; message: string; redirectUrl?: string };
+  setAuthPromptModal: (modal: { open: boolean; title: string; message: string; redirectUrl?: string }) => void;
+  closeAuthPrompt: () => void;
+  requireAuth: (actionName?: string, redirectUrl?: string) => boolean;
 
   orders: Order[];
   setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
@@ -135,20 +140,85 @@ const Ctx = createContext<StoreShape | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useLocalState<Product[]>('products_v4', PRODUCTS);
-  const [cart, setCart] = useLocalState<CartLine[]>('cart', []);
-  const [wishlist, setWishlist] = useLocalState<string[]>('wishlist', ['p1']);
+  const [user, setUser] = useLocalState<AuthUser | null>('auth_user_v3', null);
+  const [token, setToken] = useLocalState<string | null>('customer_token', null);
+
+  // Helper to load user-specific storage or empty for guests
+  const getInitialCart = (): CartLine[] => {
+    try {
+      localStorage.removeItem('sastika:cart');
+      const rawUser = localStorage.getItem('sastika:auth_user_v3');
+      if (rawUser) {
+        const u = JSON.parse(rawUser);
+        if (u && u.id) {
+          const userCart = localStorage.getItem(`sastika_cart_${u.id}`);
+          if (userCart) return JSON.parse(userCart);
+          if (Array.isArray(u.cart)) return u.cart;
+        }
+      }
+    } catch {}
+    return [];
+  };
+
+  const getInitialWishlist = (): string[] => {
+    try {
+      localStorage.removeItem('sastika:wishlist');
+      const rawUser = localStorage.getItem('sastika:auth_user_v3');
+      if (rawUser) {
+        const u = JSON.parse(rawUser);
+        if (u && u.id) {
+          const userWish = localStorage.getItem(`sastika_wishlist_${u.id}`);
+          if (userWish) return JSON.parse(userWish);
+          if (Array.isArray(u.wishlist)) return u.wishlist;
+        }
+      }
+    } catch {}
+    return [];
+  };
+
+  const [cart, setCart] = useState<CartLine[]>(getInitialCart);
+  const [wishlist, setWishlist] = useState<string[]>(getInitialWishlist);
   const [coupon, setCoupon] = useLocalState<string>('coupon', '');
   const [orders, setOrders] = useLocalState<Order[]>('orders', SEED_ORDERS);
   const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
   const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v2', DEFAULT_FLASH_DEAL);
-  const [user, setUser] = useLocalState<AuthUser | null>('auth_user_v3', null);
-  const [token, setToken] = useLocalState<string | null>('customer_token', null);
 
-  // Auto-migrate from any legacy dummy products
+  const [authPromptModal, setAuthPromptModal] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    redirectUrl?: string;
+  }>({
+    open: false,
+    title: '',
+    message: '',
+  });
+
+  const closeAuthPrompt = useCallback(() => {
+    setAuthPromptModal((prev) => ({ ...prev, open: false }));
+  }, []);
+
+  const requireAuth = useCallback(
+    (actionName?: string, redirectUrl?: string): boolean => {
+      if (!user) {
+        setAuthPromptModal({
+          open: true,
+          title: 'Sign In Required 🔒',
+          message: `Please sign in with your email or Google account to ${actionName || 'perform this action'}. Once signed in, all your saved items will sync across all your devices!`,
+          redirectUrl: redirectUrl || window.location.hash.replace(/^#/, '') || '/',
+        });
+        return false;
+      }
+      return true;
+    },
+    [user],
+  );
+
+  // Initialize default products only if empty
   useEffect(() => {
-    if (!products || products.length !== 18 || !products.some((p) => p.name.includes('Redmi A7 Pro'))) {
+    if (!products || products.length === 0) {
       setProducts(PRODUCTS);
     }
   }, [products, setProducts]);
@@ -177,8 +247,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
         if (mounted) {
           if (Array.isArray(cleanProducts) && cleanProducts.length > 0) setProducts(cleanProducts);
-          if (Array.isArray(cleanOrders) && cleanOrders.length > 0) setOrders(cleanOrders);
-          if (Array.isArray(cleanTickets) && cleanTickets.length > 0) setTickets(cleanTickets);
+          if (Array.isArray(cleanOrders)) setOrders(cleanOrders);
+          if (Array.isArray(cleanTickets)) setTickets(cleanTickets);
           if (serverFlashDeal && serverFlashDeal.items) setFlashDeal(serverFlashDeal);
         }
       } catch {
@@ -190,17 +260,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     syncBackend();
 
-    // Live continuous sync so admin updates reflect on website without page refresh
+    // Live continuous sync so admin updates (products, orders, tickets, flash deal) reflect on website in real-time
     const pollTimer = setInterval(async () => {
       if (!mounted) return;
       try {
-        const serverOrders = await api.getOrders().catch(() => null);
+        const [serverProducts, serverOrders, serverTickets, serverFlashDeal] = await Promise.all([
+          api.getProducts().catch(() => null),
+          api.getOrders().catch(() => null),
+          api.getTickets().catch(() => null),
+          apiGetFlashDeal().catch(() => null),
+        ]);
+
+        const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
         const cleanOrders = Array.isArray(serverOrders) ? serverOrders : (serverOrders as any)?.data;
-        if (cleanOrders && Array.isArray(cleanOrders) && cleanOrders.length > 0) {
-          setOrders(cleanOrders);
-        }
+        const cleanTickets = Array.isArray(serverTickets) ? serverTickets : (serverTickets as any)?.data;
+
+        if (Array.isArray(cleanProducts) && cleanProducts.length > 0) setProducts(cleanProducts);
+        if (Array.isArray(cleanOrders)) setOrders(cleanOrders);
+        if (Array.isArray(cleanTickets)) setTickets(cleanTickets);
+        if (serverFlashDeal && serverFlashDeal.items) setFlashDeal(serverFlashDeal);
       } catch {}
-    }, 4000);
+    }, 3000);
 
     return () => {
       mounted = false;
@@ -369,6 +449,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [setOrders],
   );
 
+  const syncWithBackend = useCallback(
+    (newCart: CartLine[], newWishlist: string[]) => {
+      if (!user) return;
+      try {
+        localStorage.setItem(`sastika_cart_${user.id}`, JSON.stringify(newCart));
+        localStorage.setItem(`sastika_wishlist_${user.id}`, JSON.stringify(newWishlist));
+      } catch {}
+      api.syncUserData({ cart: newCart, wishlist: newWishlist }, token || undefined).catch(() => {});
+    },
+    [user, token],
+  );
+
   const loginUser = useCallback(
     (u: AuthUser, tok?: string) => {
       setUser(u);
@@ -376,6 +468,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setToken(tok);
         localStorage.setItem('auth_token', tok);
       }
+      const userCart = Array.isArray(u.cart) ? u.cart : [];
+      const userWishlist = Array.isArray(u.wishlist) ? u.wishlist : [];
+      setCart(userCart);
+      setWishlist(userWishlist);
+      try {
+        localStorage.setItem(`sastika_cart_${u.id}`, JSON.stringify(userCart));
+        localStorage.setItem(`sastika_wishlist_${u.id}`, JSON.stringify(userWishlist));
+      } catch {}
+
+      // Background fresh fetch from server
+      api.getMe(tok).then((res) => {
+        if (res && res.user) {
+          if (Array.isArray(res.user.cart)) {
+            setCart(res.user.cart);
+            try { localStorage.setItem(`sastika_cart_${u.id}`, JSON.stringify(res.user.cart)); } catch {}
+          }
+          if (Array.isArray(res.user.wishlist)) {
+            setWishlist(res.user.wishlist);
+            try { localStorage.setItem(`sastika_wishlist_${u.id}`, JSON.stringify(res.user.wishlist)); } catch {}
+          }
+        }
+      }).catch(() => {});
     },
     [setUser, setToken],
   );
@@ -383,8 +497,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const logoutUser = useCallback(() => {
     setUser(null);
     setToken(null);
+    setCart([]);
+    setWishlist([]);
     localStorage.removeItem('auth_token');
     localStorage.removeItem('customer_token');
+    localStorage.removeItem('sastika:customer_token');
+    localStorage.removeItem('sastika:auth_user_v3');
+    localStorage.removeItem('sastika:cart');
+    localStorage.removeItem('sastika:wishlist');
   }, [setUser, setToken]);
 
   const login = useCallback(
@@ -463,21 +583,67 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       cart,
       cartCount: cart.reduce((n, l) => n + l.qty, 0),
-      addToCart: (id, qty = 1) =>
+      addToCart: (id, qty = 1): boolean => {
+        if (!user) {
+          setAuthPromptModal({
+            open: true,
+            title: 'Sign In Required 🔒',
+            message: 'Please sign in with your email or Google account to add items to your cart. Once signed in, all your cart items will sync across all your devices!',
+            redirectUrl: window.location.hash.replace(/^#/, '') || '/',
+          });
+          return false;
+        }
         setCart((prev) => {
           const found = prev.find((l) => l.id === id);
-          return found
+          const updated = found
             ? prev.map((l) => (l.id === id ? { ...l, qty: l.qty + qty } : l))
             : [...prev, { id, qty }];
-        }),
-      setQty: (id, qty) =>
-        setCart((prev) => (qty <= 0 ? prev.filter((l) => l.id !== id) : prev.map((l) => (l.id === id ? { ...l, qty } : l)))),
-      removeFromCart: (id) => setCart((prev) => prev.filter((l) => l.id !== id)),
+          syncWithBackend(updated, wishlist);
+          return updated;
+        });
+        return true;
+      },
+      setQty: (id, qty) => {
+        if (!user) return;
+        setCart((prev) => {
+          const updated = qty <= 0 ? prev.filter((l) => l.id !== id) : prev.map((l) => (l.id === id ? { ...l, qty } : l));
+          syncWithBackend(updated, wishlist);
+          return updated;
+        });
+      },
+      removeFromCart: (id) => {
+        if (!user) return;
+        setCart((prev) => {
+          const updated = prev.filter((l) => l.id !== id);
+          syncWithBackend(updated, wishlist);
+          return updated;
+        });
+      },
       wishlist,
-      toggleWish: (id) =>
-        setWishlist((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])),
+      toggleWish: (id): boolean => {
+        if (!user) {
+          setAuthPromptModal({
+            open: true,
+            title: 'Sign In Required 🔒',
+            message: 'Please sign in with your email or Google account to save items to your wishlist. Your saved wishlist will sync across all your devices!',
+            redirectUrl: window.location.hash.replace(/^#/, '') || '/',
+          });
+          return false;
+        }
+        setWishlist((prev) => {
+          const updated = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+          syncWithBackend(cart, updated);
+          return updated;
+        });
+        return true;
+      },
       coupon,
       setCoupon,
+
+      authPromptModal,
+      setAuthPromptModal,
+      closeAuthPrompt,
+      requireAuth,
 
       orders,
       placeOrder: (info) => {
@@ -510,6 +676,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           }),
         );
         setCart([]);
+        syncWithBackend([], wishlist);
         setCoupon('');
 
         api.createOrder({
@@ -583,11 +750,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
-      setCart,
-      setWishlist,
       setCoupon,
       setOrders,
       setProducts,
+      authPromptModal,
+      closeAuthPrompt,
+      requireAuth,
+      syncWithBackend,
     ],
   );
 

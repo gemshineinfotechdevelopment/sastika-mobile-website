@@ -111,5 +111,29 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(userData),
     }),
+  googleLogin: (data: { credential?: string; code?: string; redirectUri?: string; accessToken?: string }) =>
+    request<{ success: boolean; token: string; user: any; message?: string }>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getGoogleAuthUrl: () =>
+    request<{ success: boolean; configured: boolean; url?: string; clientId?: string; message?: string }>(
+      '/auth/google/url'
+    ),
+  getMe: (token?: string) => {
+    const t = token || localStorage.getItem('auth_token') || localStorage.getItem('sastika:customer_token');
+    return request<{ success: boolean; user: any }>('/auth/me', {
+      method: 'GET',
+      headers: t ? { Authorization: `Bearer ${t.replace(/^"|"$/g, '')}` } : {},
+    });
+  },
+  syncUserData: (data: { cart: Array<{ id: string; qty: number }>; wishlist: string[] }, token?: string) => {
+    const t = token || localStorage.getItem('auth_token') || localStorage.getItem('sastika:customer_token');
+    return request<{ success: boolean; cart: any[]; wishlist: string[] }>('/auth/sync', {
+      method: 'PUT',
+      headers: t ? { Authorization: `Bearer ${t.replace(/^"|"$/g, '')}` } : {},
+      body: JSON.stringify(data),
+    });
+  },
 };
 

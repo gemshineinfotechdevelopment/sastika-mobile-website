@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
     rating: { type: Number, default: 4.5 },
     reviews: { type: Number, default: 0 },
     color: { type: String, default: '#333333' },
+    colors: [{ type: String }],
     badge: { type: String },
     specs: [{ type: String }],
     stock: { type: Number, default: 0 },
@@ -19,6 +20,7 @@ const productSchema = new mongoose.Schema(
     description: { type: String, default: '' },
     storage: [{ type: String }],
     image: { type: String },
+    emi: { type: Number },
   },
   { timestamps: true }
 );

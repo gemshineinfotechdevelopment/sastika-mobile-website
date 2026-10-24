@@ -17,8 +17,8 @@ export let memoryProducts = loadSeedProducts();
 
 export const getProducts = async (req, res) => {
   try {
-    // If memory products were somehow empty or stale, re-read
-    if (!memoryProducts || memoryProducts.length !== 18) {
+    // If memory products were empty, re-read
+    if (!memoryProducts || memoryProducts.length === 0) {
       memoryProducts = loadSeedProducts();
     }
     const { category, brand, search } = req.query;

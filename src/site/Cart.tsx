@@ -10,7 +10,7 @@ import { COUPONS, computeTotals } from './pricing';
 
 export default function Cart() {
   const nav = useNavigate();
-  const { cart, products, getProduct, setQty, removeFromCart, coupon, setCoupon } = useStore();
+  const { cart, products, getProduct, setQty, removeFromCart, coupon, setCoupon, user } = useStore();
   const [code, setCode] = useState(coupon);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [leaving, setLeaving] = useState<string | null>(null);
@@ -32,6 +32,14 @@ export default function Cart() {
       removeFromCart(id);
       setLeaving(null);
     }, 300);
+  };
+
+  const handleProceedToCheckout = () => {
+    if (!user) {
+      nav('/login?redirect=/checkout');
+    } else {
+      nav('/checkout');
+    }
   };
 
   if (t.lines.length === 0) {
@@ -148,9 +156,49 @@ export default function Cart() {
               🎉 You are saving {money(t.saved)} on this purchase!
             </div>
 
-            <div style={{ display: 'grid', gap: 10, marginTop: 18 }}>
-              <Btn full onClick={() => nav('/checkout')} style={{ padding: '14px 0', fontSize: 14, fontWeight: 800 }}>
-                Proceed to Checkout · {money(t.payable)} <Icon name="right" size={16} />
+            {/* Account Status / Sign In requirement banner */}
+            {!user ? (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: '10px 12px',
+                  borderRadius: 12,
+                  background: '#fffbeb',
+                  border: '1.5px solid #fde68a',
+                  color: '#92400e',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <span style={{ fontSize: 16 }}>🔒</span>
+                <span>Sign in or create an account to proceed to checkout.</span>
+              </div>
+            ) : (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: '8px 12px',
+                  borderRadius: 10,
+                  background: C.successSoft,
+                  color: C.success,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <Icon name="check" size={14} color={C.success} stroke={3} />
+                <span>Signed in as <strong>{user.name}</strong></span>
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gap: 10, marginTop: 14 }}>
+              <Btn full onClick={handleProceedToCheckout} style={{ padding: '14px 0', fontSize: 14, fontWeight: 800 }}>
+                {!user ? 'Sign In & Proceed to Checkout' : 'Proceed to Checkout'} · {money(t.payable)} <Icon name="right" size={16} />
               </Btn>
               <Btn full variant="light" onClick={() => nav('/mobiles')} style={{ padding: '11px 0', fontSize: 13 }}>
                 Continue Shopping

@@ -13,7 +13,7 @@ const COLORS = ['#2f7d6d', '#1c1f24', '#e8e9ec'];
 export default function ProductDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const { getProduct, products, addToCart, wishlist, toggleWish } = useStore();
+  const { getProduct, products, addToCart, wishlist, toggleWish, user } = useStore();
   const p = getProduct(id ?? '');
   const [color, setColor] = useState<string | null>(null);
   const [storage, setStorage] = useState(0);
@@ -33,10 +33,10 @@ export default function ProductDetail() {
 
   const art = color ?? p.color;
   const off = discount(p.price, p.mrp);
-  const emi = Math.round(p.price / 12);
+  const emi = p.emi && p.emi > 0 ? p.emi : Math.round(p.price / 12);
   const similar = products.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4);
   const wished = wishlist.includes(p.id);
-  const colors = [p.color, ...COLORS.filter((c) => c !== p.color)].slice(0, 3);
+  const colors = (p.colors && p.colors.length > 0) ? p.colors : [p.color, ...COLORS.filter((c) => c !== p.color)].slice(0, 3);
 
   const rating = p.rating ?? 4.8;
   const reviews = p.reviews ?? 148;
@@ -64,9 +64,11 @@ export default function ProductDetail() {
   };
 
   const add = () => {
-    addToCart(p.id);
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 1500);
+    const ok = addToCart(p.id);
+    if (ok) {
+      setAdded(true);
+      window.setTimeout(() => setAdded(false), 1500);
+    }
   };
 
   return (
@@ -314,8 +316,10 @@ export default function ProductDetail() {
               full
               disabled={p.stock === 0}
               onClick={() => {
-                addToCart(p.id);
-                nav('/cart');
+                const ok = addToCart(p.id);
+                if (ok) {
+                  nav('/cart');
+                }
               }}
               style={{ flex: 1, padding: '14px 0', fontSize: 14, fontWeight: 800 }}
             >

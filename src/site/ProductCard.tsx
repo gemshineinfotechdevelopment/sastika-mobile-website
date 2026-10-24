@@ -16,9 +16,11 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
   const off = discount(p.price, p.mrp);
 
   const add = () => {
-    addToCart(p.id);
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 1400);
+    const ok = addToCart(p.id);
+    if (ok) {
+      setAdded(true);
+      window.setTimeout(() => setAdded(false), 1400);
+    }
   };
 
   return (
@@ -84,6 +86,27 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
           <span style={{ fontSize: 16.5, fontWeight: 800 }}>{money(p.price)}</span>
           {p.mrp > p.price && <span style={{ fontSize: 11, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp)}</span>}
         </div>
+        <div style={{ fontSize: 11, color: C.primarySoft, fontWeight: 700, marginTop: 1, minHeight: 16 }}>
+          EMI from {money(p.emi && p.emi > 0 ? p.emi : Math.round(p.price / 12))}/mo
+        </div>
+        {p.colors && p.colors.length > 1 && (
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 2 }}>
+            {p.colors.map((c, idx) => (
+              <span
+                key={idx}
+                style={{
+                  width: 9,
+                  height: 9,
+                  borderRadius: 99,
+                  background: c,
+                  border: '1px solid rgba(0,0,0,0.18)',
+                  display: 'inline-block',
+                }}
+              />
+            ))}
+            <span style={{ fontSize: 10, color: C.muted, marginLeft: 2 }}>{p.colors.length} colours</span>
+          </div>
+        )}
         <div style={{ minHeight: 18, display: 'flex', alignItems: 'center', marginTop: 3 }}>
           {p.stock <= p.reorderAt && p.stock > 0 && <span style={{ fontSize: 10.5, color: C.danger, fontWeight: 700 }}>Only {p.stock} left</span>}
           {p.stock === 0 && <span style={{ fontSize: 10.5, color: C.danger, fontWeight: 700 }}>Out of stock</span>}

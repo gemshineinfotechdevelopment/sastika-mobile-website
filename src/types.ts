@@ -10,6 +10,7 @@ export interface Product {
   rating: number;
   reviews: number;
   color: string;
+  colors?: string[];
   badge?: string;
   specs: string[];
   stock: number;
@@ -18,6 +19,7 @@ export interface Product {
   description: string;
   storage?: string[];
   image?: string;
+  emi?: number;
 }
 
 export interface CartLine {
@@ -99,6 +101,8 @@ export interface AuthUser {
   role: 'customer' | 'admin' | string;
   phone?: string;
   avatar?: string;
+  cart?: CartLine[];
+  wishlist?: string[];
 }
 
 export type UserProfile = AuthUser;

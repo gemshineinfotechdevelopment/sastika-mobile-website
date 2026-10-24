@@ -57,6 +57,7 @@ export function AButton({
   small,
   disabled,
   type = 'button',
+  title,
 }: {
   children: ReactNode;
   onClick?: () => void;
@@ -64,6 +65,7 @@ export function AButton({
   small?: boolean;
   disabled?: boolean;
   type?: 'button' | 'submit';
+  title?: string;
 }) {
   const v: Record<string, CSSProperties> = {
     primary: { background: C.primary, color: '#fff' },
@@ -78,6 +80,7 @@ export function AButton({
       className="tap"
       disabled={disabled}
       onClick={onClick}
+      title={title}
       style={{
         padding: small ? '7px 12px' : '10px 16px',
         borderRadius: 11,

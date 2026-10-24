@@ -13,6 +13,7 @@ import Contact from './site/Contact';
 import Login from './site/Login';
 
 import AdminLayout from './admin/AdminLayout';
+import AdminLogin from './admin/AdminLogin';
 import Dashboard from './admin/Dashboard';
 import AdminProducts from './admin/AdminProducts';
 import AdminOrders from './admin/AdminOrders';
@@ -42,7 +43,10 @@ export default function App() {
         <Route path="contact" element={<Contact />} />
       </Route>
 
-      {/* Admin — desktop view */}
+      {/* Admin Login — independent standalone route */}
+      <Route path="admin/login" element={<AdminLogin />} />
+
+      {/* Admin — protected control portal */}
       <Route path="admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="flash-deals" element={<AdminFlashDeals />} />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SERVICES } from '../data';
 import { C, money } from '../theme';
@@ -18,12 +18,158 @@ const ISSUES = [
   'Other',
 ];
 
+const ISSUE_OPTIONS = [
+  { id: 'Cracked Screen', label: 'Cracked Screen', icon: '🔧' },
+  { id: 'Battery Drain', label: 'Battery Drain', icon: '🔋' },
+  { id: "Won't Turn On", label: "Won't Turn On", icon: '⚡' },
+  { id: 'Water Damage', label: 'Water Damage', icon: '💧' },
+  { id: 'Camera Issue', label: 'Camera Issue', icon: '📷' },
+  { id: 'Charging Port Issue', label: 'Charging Port Issue', icon: '🔌' },
+  { id: 'Speaker / Mic Issue', label: 'Speaker / Mic Issue', icon: '🔊' },
+  { id: 'Other', label: 'Other Problem (Specify below)', icon: '✏️' },
+];
+
+const SLOT_OPTIONS = [
+  { id: 'Today (Express) — Within 90 mins', label: 'Today (Express) — Within 90 mins', icon: '⚡' },
+  { id: 'Today Evening (4:00 PM – 6:00 PM)', label: 'Today Evening (4:00 PM – 6:00 PM)', icon: '🕒' },
+  { id: 'Tomorrow Morning (10:00 AM – 12:00 PM)', label: 'Tomorrow Morning (10:00 AM – 12:00 PM)', icon: '🌅' },
+  { id: 'Tomorrow Afternoon (2:00 PM – 4:00 PM)', label: 'Tomorrow Afternoon (2:00 PM – 4:00 PM)', icon: '🌇' },
+];
+
+function CustomDropdown({
+  value,
+  options,
+  icon,
+  onChange,
+}: {
+  value: string;
+  options: { id: string; label: string; icon?: string }[];
+  icon: IconName;
+  onChange: (val: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [open]);
+
+  const selected = options.find((o) => o.id === value);
+
+  return (
+    <div ref={ref} style={{ position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="tap"
+        style={{
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          padding: '13px 38px 13px 42px',
+          borderRadius: 14,
+          border: `1.5px solid ${open ? C.primary : C.border}`,
+          background: '#fff',
+          fontSize: 13.5,
+          fontWeight: 700,
+          color: C.primaryDark,
+          textAlign: 'left',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'relative',
+          boxShadow: open ? '0 0 0 3px rgba(11,74,67,0.1)' : 'none',
+          transition: 'all .2s ease',
+        }}
+      >
+        <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: C.primary, display: 'flex' }}>
+          <Icon name={icon} size={17} />
+        </span>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
+          {selected?.icon && <span>{selected.icon}</span>}
+          <span>{selected?.label || value}</span>
+        </span>
+        <span style={{ position: 'absolute', right: 14, top: '50%', transform: `translateY(-50%) rotate(${open ? 180 : 0}deg)`, color: C.muted, transition: 'transform .2s ease', display: 'flex' }}>
+          <Icon name="down" size={15} />
+        </span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 5px)',
+            left: 0,
+            right: 0,
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            background: '#fff',
+            border: `1.5px solid ${C.primary}`,
+            borderRadius: 14,
+            boxShadow: '0 12px 30px rgba(0,0,0,0.18)',
+            zIndex: 100,
+            maxHeight: 220,
+            overflowY: 'auto',
+            padding: '5px 0',
+            animation: 'fadeUp .18s ease',
+          }}
+        >
+          {options.map((opt) => {
+            const isSelected = opt.id === value;
+            return (
+              <div
+                key={opt.id}
+                onClick={() => {
+                  onChange(opt.id);
+                  setOpen(false);
+                }}
+                className="row-hover"
+                style={{
+                  padding: '10px 14px',
+                  fontSize: 13,
+                  fontWeight: isSelected ? 800 : 600,
+                  color: isSelected ? C.primary : C.text,
+                  background: isSelected ? C.tint : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  transition: 'background .15s ease',
+                  borderBottom: `1px solid ${C.tint2}`,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
+                  {opt.icon && <span style={{ fontSize: 13.5 }}>{opt.icon}</span>}
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {opt.label}
+                  </span>
+                </div>
+                {isSelected && <Icon name="check" size={14} color={C.primary} stroke={3} />}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Services() {
   const nav = useNavigate();
   const { addTicket } = useStore();
   const [svc, setSvc] = useState<string>(SERVICES[0].id);
   const [issue, setIssue] = useState(ISSUES[0]);
-  const [problemText, setProblemText] = useState(ISSUES[0]);
+  const [problemText, setProblemText] = useState('');
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [name, setName] = useState('');
@@ -38,11 +184,12 @@ export default function Services() {
   const submit = () => {
     if (!brand.trim()) return setError('Brand is required. Please enter device brand.');
     if (!model.trim()) return setError('Model is required. Please enter device model.');
+    if (issue === 'Other' && !problemText.trim()) return setError('Please describe your problem in the details box.');
     if (!name.trim() || name.trim().length < 2) return setError('Your name is required. Please enter your name.');
     if (!phone.trim()) return setError('Mobile number is required. Please enter 10-digit number.');
     if (!/^\d{10}$/.test(phone)) return setError('Enter a valid 10-digit mobile number.');
     setError('');
-    const finalProblem = problemText.trim() || issue || 'General Repair';
+    const finalProblem = issue === 'Other' ? problemText.trim() : (problemText.trim() && problemText.trim() !== issue ? `${issue} (${problemText.trim()})` : issue);
     const id = addTicket({
       customer: name.trim(),
       phone: '+91 ' + phone.trim(),
@@ -113,15 +260,15 @@ export default function Services() {
       </div>
 
       <Reveal>
-        <div style={{ margin: '24px 0 0', width: '100%', boxSizing: 'border-box', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}`, padding: '24px 20px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+        <div className="service-booking-card" style={{ margin: '24px 0 0', width: '100%', maxWidth: '100%', boxSizing: 'border-box', background: '#fff', borderRadius: 24, border: `1px solid ${C.border}`, padding: '24px 20px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
           <h2 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 800 }}>Book a Device Service</h2>
           <p style={{ margin: '0 0 16px', fontSize: 12.5, color: C.muted }}>Selected Service: <b style={{ color: C.primary }}>{selected?.title}</b></p>
 
-          {/* Brand & Model (Required) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+          {/* Brand & Model (Responsive Row) */}
+          <div className="service-form-row">
             <Field label="Brand" required>
               <input
-                style={input}
+                style={{ ...input, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
                 required
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
@@ -130,7 +277,7 @@ export default function Services() {
             </Field>
             <Field label="Model" required>
               <input
-                style={input}
+                style={{ ...input, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
                 required
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
@@ -139,53 +286,72 @@ export default function Services() {
             </Field>
           </div>
 
-          {/* Problem section: Text box + Dropdown */}
-          <div style={{ marginBottom: 14 }}>
+          {/* Problem section: Styled Full-Width Dropdown + Quick Chips + Optional Remarks */}
+          <div style={{ marginBottom: 14, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>
               Problem / Issue Description <span style={{ color: C.danger, fontWeight: 800 }}>*</span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
-              {/* Text Box */}
-              <div>
-                <input
-                  style={input}
-                  value={problemText}
-                  onChange={(e) => setProblemText(e.target.value)}
-                  placeholder="Type issue details (e.g. screen broken, battery drain)..."
-                />
-              </div>
 
-              {/* Dropdown with options */}
-              <div style={{ position: 'relative' }}>
-                <select
-                  style={{
-                    ...input,
-                    appearance: 'none',
-                    WebkitAppearance: 'none',
-                    paddingRight: 34,
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    color: C.primary,
-                  }}
-                  value={issue}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setIssue(val);
-                    if (val && val !== 'Other') {
-                      setProblemText(val);
-                    } else if (val === 'Other') {
+            {/* Custom Dropdown — Stays 100% within the container, never overflows */}
+            <CustomDropdown
+              value={issue}
+              options={ISSUE_OPTIONS}
+              icon="tool"
+              onChange={(val) => {
+                setIssue(val);
+                if (val === 'Other') setProblemText('');
+              }}
+            />
+
+            {/* Quick Issue Chips */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+              {ISSUES.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  className="tap"
+                  onClick={() => {
+                    setIssue(opt);
+                    if (opt === 'Other') {
                       setProblemText('');
                     }
                   }}
+                  style={{
+                    padding: '5px 11px',
+                    borderRadius: 99,
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    background: issue === opt ? C.primary : C.tint,
+                    color: issue === opt ? '#fff' : C.primary,
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all .2s ease',
+                  }}
                 >
-                  {ISSUES.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-                <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: C.muted }}>
-                  <Icon name="down" size={15} />
-                </div>
-              </div>
+                  {opt}
+                </button>
+              ))}
+            </div>
+
+            {/* Optional Specific Notes / Custom Text */}
+            <div style={{ marginTop: 10, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+              <input
+                style={{
+                  ...input,
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                  fontSize: 13,
+                  borderRadius: 12,
+                }}
+                value={problemText}
+                onChange={(e) => setProblemText(e.target.value)}
+                placeholder={
+                  issue === 'Other'
+                    ? 'Please describe your specific problem details here (Required)...'
+                    : 'Additional issue details or remarks (Optional, e.g. dropped in water, touch lag)...'
+                }
+              />
             </div>
           </div>
 
@@ -197,42 +363,15 @@ export default function Services() {
             ))}
           </div>
 
-          {/* Preferred Slot - Modern Redesigned UI */}
-          <div style={{ marginBottom: 14 }}>
+          {/* Preferred Slot - Custom Constrained Dropdown */}
+          <div style={{ marginBottom: 14, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 6 }}>Preferred Time Slot</div>
-            <div style={{ position: 'relative', width: '100%', boxSizing: 'border-box' }}>
-              <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: C.primary }}>
-                <Icon name="clock" size={18} />
-              </div>
-              <select
-                value={slot}
-                onChange={(e) => setSlot(e.target.value)}
-                style={{
-                  ...input,
-                  width: '100%',
-                  maxWidth: '100%',
-                  boxSizing: 'border-box',
-                  paddingLeft: 42,
-                  paddingRight: 36,
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  color: C.primaryDark,
-                  background: '#fff',
-                  border: `1.5px solid ${C.border}`,
-                  borderRadius: 14,
-                }}
-              >
-                <option value="Today (Express) — Within 90 mins">⚡ Today (Express) — Within 90 mins</option>
-                <option value="Today Evening (4:00 PM – 6:00 PM)">🕒 Today Evening (4:00 PM – 6:00 PM)</option>
-                <option value="Tomorrow Morning (10:00 AM – 12:00 PM)">🌅 Tomorrow Morning (10:00 AM – 12:00 PM)</option>
-                <option value="Tomorrow Afternoon (2:00 PM – 4:00 PM)">🌇 Tomorrow Afternoon (2:00 PM – 4:00 PM)</option>
-              </select>
-              <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: C.muted }}>
-                <Icon name="down" size={16} />
-              </div>
-            </div>
+            <CustomDropdown
+              value={slot}
+              options={SLOT_OPTIONS}
+              icon="clock"
+              onChange={(val) => setSlot(val)}
+            />
 
             {/* Quick Slot Selector Chips */}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
@@ -265,11 +404,11 @@ export default function Services() {
             </div>
           </div>
 
-          {/* Customer Name & Phone (Required) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+          {/* Customer Name & Phone (Responsive Row) */}
+          <div className="service-form-row">
             <Field label="Your name" required>
               <input
-                style={input}
+                style={{ ...input, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -278,7 +417,7 @@ export default function Services() {
             </Field>
             <Field label="Mobile number" required>
               <input
-                style={input}
+                style={{ ...input, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
                 required
                 inputMode="numeric"
                 value={phone}

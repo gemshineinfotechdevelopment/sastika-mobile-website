@@ -43,7 +43,7 @@ export default function Home() {
             <span>TOP CERTIFIED 5G BRANDS IN STOCK</span>
             <span style={{ color: C.success }}>100% ORIGINAL &amp; SEALED WITH WARRANTY</span>
           </div>
-          <Marquee>
+          <Marquee speed={55} repeat={4}>
             {brandList.map((b) => (
               <div
                 key={b}
@@ -52,12 +52,25 @@ export default function Home() {
                   padding: '10px 24px',
                   borderRadius: 99,
                   background: '#fff',
-                  border: `1px solid ${C.border}`,
+                  border: `1.5px solid ${C.border}`,
                   fontWeight: 800,
                   fontSize: 14,
                   color: C.primary,
                   cursor: 'pointer',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                  whiteSpace: 'nowrap',
+                  userSelect: 'none',
+                  transition: 'all .2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.borderColor = C.accent;
+                  e.currentTarget.style.boxShadow = '0 6px 14px rgba(11,74,67,0.12)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.borderColor = C.border;
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
                 }}
               >
                 {b}

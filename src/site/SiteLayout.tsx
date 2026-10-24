@@ -19,7 +19,7 @@ const NAV_LINKS: { to: string; label: string; icon: IconName; badge?: string }[]
 export default function SiteLayout() {
   const { pathname } = useLocation();
   const nav = useNavigate();
-  const { cart, cartCount, wishlist, products, logo, user, logoutUser } = useStore();
+  const { cart, cartCount, wishlist, products, logo, user, logoutUser, authPromptModal, closeAuthPrompt } = useStore();
   const [drawer, setDrawer] = useState(false);
   const [searching, setSearching] = useState(false);
   const [mobileSearch, setMobileSearch] = useState(false);
@@ -121,24 +121,6 @@ export default function SiteLayout() {
                 <Icon name="user" size={13} /> Sign In
               </button>
             )}
-            <span style={{ color: 'rgba(255,255,255,0.4)' }}>•</span>
-            <button
-              onClick={() => nav('/admin')}
-              className="tap"
-              style={{
-                color: C.accent,
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-                fontSize: 12,
-                cursor: 'pointer',
-                background: 'none',
-                border: 'none',
-              }}
-            >
-              <Icon name="zap" size={13} color={C.accent} /> Admin Portal ⚡
-            </button>
           </div>
         </div>
       </div>
@@ -228,7 +210,10 @@ export default function SiteLayout() {
 
           {/* Wishlist Button */}
           <button
-            onClick={() => nav('/account?tab=wishlist')}
+            onClick={() => {
+              if (!user) nav('/login?redirect=/account?tab=wishlist');
+              else nav('/account?tab=wishlist');
+            }}
             className="tap"
             aria-label="Wishlist"
             title="Wishlist"
@@ -674,7 +659,10 @@ export default function SiteLayout() {
 
             {/* Wishlist Button */}
             <button
-              onClick={() => nav('/account?tab=wishlist')}
+              onClick={() => {
+                if (!user) nav('/login?redirect=/account?tab=wishlist');
+                else nav('/account?tab=wishlist');
+              }}
               className="tap"
               title="Saved / Wishlist"
               aria-label="Wishlist"
@@ -992,7 +980,6 @@ export default function SiteLayout() {
             <span style={{ color: C.accent }}>● 100% Secure Checkout</span>
             <button onClick={() => nav('/about')} style={{ color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer' }}>About Us</button>
             <button onClick={() => nav('/contact')} style={{ color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', cursor: 'pointer' }}>Contact</button>
-            <button onClick={() => nav('/admin')} style={{ color: C.accent, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>Admin Login</button>
           </div>
         </div>
       </footer>
@@ -1089,7 +1076,7 @@ export default function SiteLayout() {
                   cursor: 'pointer',
                 }}
               >
-                <Icon name="user" size={16} /> Sign In / Register
+                <Icon name="user" size={16} /> Sign In
               </button>
             )}
 
@@ -1147,6 +1134,113 @@ export default function SiteLayout() {
             </div>
           </aside>
         </>
+      )}
+
+      {/* Global Auth Prompt Modal */}
+      {authPromptModal.open && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 10000,
+            background: 'rgba(6, 42, 37, 0.65)',
+            backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 16,
+            animation: 'fadeIn .2s ease',
+          }}
+          onClick={closeAuthPrompt}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: 390,
+              background: '#ffffff',
+              borderRadius: 20,
+              padding: '24px 22px 20px',
+              boxShadow: '0 20px 45px rgba(0,0,0,0.25)',
+              border: `1.5px solid ${C.border}`,
+              textAlign: 'center',
+              animation: 'pop .25s cubic-bezier(.2,.8,.2,1)',
+            }}
+          >
+            <div
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: '50%',
+                background: C.tint,
+                border: `2px solid ${C.primarySoft}`,
+                display: 'grid',
+                placeItems: 'center',
+                margin: '0 auto 14px',
+                color: C.primary,
+                fontSize: 26,
+                boxShadow: '0 4px 14px rgba(11,74,67,0.12)',
+              }}
+            >
+              🔒
+            </div>
+
+            <h3 style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 900, color: C.text }}>
+              {authPromptModal.title || 'Sign In Required'}
+            </h3>
+
+            <p style={{ margin: '0 0 20px', fontSize: 13, color: '#4b5563', lineHeight: 1.55 }}>
+              {authPromptModal.message}
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const target = authPromptModal.redirectUrl ? `?redirect=${encodeURIComponent(authPromptModal.redirectUrl)}` : '';
+                  closeAuthPrompt();
+                  nav(`/login${target}`);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 18px',
+                  borderRadius: 12,
+                  background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primarySoft})`,
+                  color: '#ffffff',
+                  fontSize: 14,
+                  fontWeight: 800,
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(11,74,67,0.25)',
+                  transition: 'transform .15s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
+              >
+                Sign In to Account →
+              </button>
+
+              <button
+                type="button"
+                onClick={closeAuthPrompt}
+                style={{
+                  width: '100%',
+                  padding: '10px 18px',
+                  borderRadius: 12,
+                  background: 'none',
+                  color: C.muted,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  border: `1px solid ${C.border}`,
+                  cursor: 'pointer',
+                }}
+              >
+                Keep Browsing (View Only)
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

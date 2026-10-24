@@ -29,6 +29,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid ${C.primarySoft};outli
 @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(246,196,69,.65)}70%{box-shadow:0 0 0 16px rgba(246,196,69,0)}100%{box-shadow:0 0 0 0 rgba(246,196,69,0)}}
 @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-track{display:flex;width:max-content;will-change:transform}
+.marquee-wrap:hover .marquee-track{animation-play-state:paused}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes sheen{0%{transform:translateX(-120%) skewX(-20deg)}60%,100%{transform:translateX(220%) skewX(-20deg)}}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
@@ -100,6 +102,14 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   .brand-ticker-head { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; font-size: 11px !important; }
   .flash-deal-box { padding: 16px 12px !important; margin: 18px 0 0 !important; border-radius: 18px !important; }
   .desktop-footer { padding: 28px 16px 36px !important; }
+  .service-booking-card { padding: 20px 14px !important; border-radius: 20px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; overflow: hidden !important; }
+  .service-form-row { display: grid !important; grid-template-columns: 1fr !important; gap: 10px !important; width: 100% !important; box-sizing: border-box !important; }
+}
+
+.service-booking-card { width: 100%; max-width: 100%; box-sizing: border-box; }
+.service-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; box-sizing: border-box; }
+@media (max-width: 560px) {
+  .service-form-row { grid-template-columns: 1fr !important; gap: 10px !important; }
 }
 `;
 
