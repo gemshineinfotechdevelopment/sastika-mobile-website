@@ -37,14 +37,14 @@ export default function ServiceDesk() {
         actions={<AButton onClick={() => setOpen(true)}><Icon name="plus" size={15} /> New Ticket</AButton>}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 18 }}>
+      <div className="admin-kpi-grid">
         <Kpi icon="tool" label="Active tickets" value={active.length} tone="amber" delay={0} />
         <Kpi icon="clock" label="Waiting to start" value={tickets.filter((t) => t.status === 'Open').length} delay={70} />
         <Kpi icon="check" label="Ready for pickup" value={tickets.filter((t) => t.status === 'Ready').length} delay={140} />
         <Kpi icon="chart" label="Repair revenue" value={revenue} prefix="₹" delay={210} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, alignItems: 'start' }}>
+      <div className="admin-kanban-grid">
         {COLS.map((col, ci) => {
           const items = tickets.filter((t) => t.status === col.s);
           return (

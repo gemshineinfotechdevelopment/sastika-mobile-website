@@ -56,7 +56,7 @@ export default function Dashboard() {
       />
 
       {/* Real-time KPI Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 18 }}>
+      <div className="admin-kpi-grid">
         <Kpi
           icon="chart"
           label="Total Realized Revenue"
@@ -94,33 +94,22 @@ export default function Dashboard() {
       </div>
 
       {/* Additional telemetry bar */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 16,
-          marginBottom: 18,
-          background: '#fff',
-          borderRadius: 18,
-          border: `1px solid ${C.border}`,
-          padding: '14px 20px',
-        }}
-      >
-        <div style={{ borderRight: `1px solid ${C.border}` }}>
+      <div className="admin-telemetry-bar">
+        <div style={{ borderRight: `1px solid ${C.border}`, paddingRight: 8 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>AVERAGE ORDER VALUE (AOV)</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.primary, marginTop: 2 }}>{money(avgOrderValue)}</div>
         </div>
-        <div style={{ borderRight: `1px solid ${C.border}`, paddingLeft: 10 }}>
+        <div style={{ borderRight: `1px solid ${C.border}`, paddingLeft: 8, paddingRight: 8 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>CRITICAL REORDER ALERTS</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: lowStock.length ? C.danger : C.success, marginTop: 2 }}>
             {lowStock.length} Items {lowStock.length > 0 ? '⚠️' : '✓'}
           </div>
         </div>
-        <div style={{ borderRight: `1px solid ${C.border}`, paddingLeft: 10 }}>
+        <div style={{ borderRight: `1px solid ${C.border}`, paddingLeft: 8, paddingRight: 8 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>CARE DESK ACTIVE TICKETS</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.primarySoft, marginTop: 2 }}>{openTickets.length} Repairs</div>
         </div>
-        <div style={{ paddingLeft: 10 }}>
+        <div style={{ paddingLeft: 8 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>ORDER STATUS RATE</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.success, marginTop: 2 }}>
             {orders.length > 0 ? Math.round((deliveredOrders.length / orders.length) * 100) : 100}% Delivered
@@ -129,9 +118,9 @@ export default function Dashboard() {
       </div>
 
       {/* Dynamic 7-Day Revenue Trend & Brand Share Donut */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 18 }}>
+      <div className="admin-split-grid">
         <div style={{ ...panel, animation: 'fadeUp .5s ease .2s both' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
             <div>
               <div style={{ fontWeight: 800, fontSize: 17 }}>Real-Time 7-Day Sales & Revenue Trend</div>
               <div style={{ fontSize: 12, color: C.muted }}>
@@ -156,9 +145,9 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Orders & Fulfilment Queue */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16 }}>
+      <div className="admin-split-orders">
         <div style={{ ...panel, padding: 0, animation: 'fadeUp .5s ease .35s both' }}>
-          <div style={{ padding: '18px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ padding: '16px 18px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${C.border}`, flexWrap: 'wrap', gap: 10 }}>
             <div>
               <div style={{ fontWeight: 800, fontSize: 17 }}>Live Customer Orders ({orders.length})</div>
               <div style={{ fontSize: 12, color: C.muted }}>Instant checkout orders placed through storefront</div>
@@ -167,7 +156,8 @@ export default function Dashboard() {
               Manage All Orders
             </AButton>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="admin-table-scroll">
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 620 }}>
             <thead>
               <tr>
                 {['ORDER ID', 'CUSTOMER & CITY', 'MOBILE MODELS ORDERED', 'REAL AMOUNT', 'STATUS', 'ACTION'].map((h) => (
@@ -228,6 +218,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Right Side: Critical Stock & Care Desk */}

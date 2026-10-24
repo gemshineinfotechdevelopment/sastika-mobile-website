@@ -40,12 +40,28 @@ export const field: CSSProperties = {
 
 export function PageTitle({ title, sub, actions }: { title: string; sub?: string; actions?: ReactNode }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 22, animation: 'fadeUp .45s ease both' }}>
-      <div>
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: -0.7 }}>{title}</h1>
-        {sub && <p style={{ margin: '5px 0 0', color: C.muted, fontSize: 13.5 }}>{sub}</p>}
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+        flexWrap: 'wrap',
+        gap: 12,
+        animation: 'fadeUp .45s ease both',
+      }}
+    >
+      <div style={{ flex: '1 1 280px', minWidth: 0 }}>
+        <h1 style={{ margin: 0, fontSize: 'clamp(20px, 3.5vw, 28px)', fontWeight: 800, letterSpacing: -0.7, wordBreak: 'break-word' }}>
+          {title}
+        </h1>
+        {sub && <p style={{ margin: '5px 0 0', color: C.muted, fontSize: 13, lineHeight: 1.4 }}>{sub}</p>}
       </div>
-      <div style={{ display: 'flex', gap: 10 }}>{actions}</div>
+      {actions && (
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

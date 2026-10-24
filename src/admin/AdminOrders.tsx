@@ -33,24 +33,27 @@ export default function AdminOrders() {
         actions={<AButton variant="ghost" onClick={() => window.print()}><Icon name="download" size={15} /> Print Queue</AButton>}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 18 }}>
+      <div className="admin-kpi-grid">
         <Kpi icon="box" label="New orders" value={count('Placed')} tone="amber" delay={0} />
         <Kpi icon="grid" label="Packed · awaiting dispatch" value={count('Packed')} delay={70} />
         <Kpi icon="truck" label="In transit" value={count('Shipped')} delay={140} />
         <Kpi icon="check" label="Delivered" value={count('Delivered')} delay={210} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1fr', gap: 16, alignItems: 'start' }}>
+      <div className="admin-split-orders">
         <div style={{ ...panel, padding: 0, animation: 'fadeUp .5s ease .2s both' }}>
-          <div style={{ display: 'flex', gap: 8, padding: 16, alignItems: 'center', borderBottom: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
-            {FILTERS.map((f) => (
-              <button key={f} className="tap" onClick={() => setFilter(f)} style={{ padding: '7px 13px', borderRadius: 99, fontWeight: 700, fontSize: 12.5, background: filter === f ? C.primary : C.tint, color: filter === f ? '#fff' : C.primary, transition: 'all .25s ease' }}>
-                {f}
-              </button>
-            ))}
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search order, customer, city…" style={{ marginLeft: 'auto', padding: '9px 12px', borderRadius: 11, border: `1.5px solid ${C.border}`, width: 240, fontSize: 13 }} />
+          <div style={{ display: 'flex', gap: 8, padding: '14px 16px', alignItems: 'center', borderBottom: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+              {FILTERS.map((f) => (
+                <button key={f} className="tap" onClick={() => setFilter(f)} style={{ padding: '6px 12px', borderRadius: 99, fontWeight: 700, fontSize: 12, background: filter === f ? C.primary : C.tint, color: filter === f ? '#fff' : C.primary, transition: 'all .25s ease' }}>
+                  {f}
+                </button>
+              ))}
+            </div>
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search order, customer, city…" style={{ marginLeft: 'auto', padding: '8px 12px', borderRadius: 11, border: `1.5px solid ${C.border}`, flex: '1 1 180px', maxWidth: '100%', fontSize: 12.5 }} />
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="admin-table-scroll">
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
             <thead>
               <tr>{['ORDER', 'CUSTOMER', 'DATE', 'PAYMENT', 'AMOUNT', 'STATUS'].map((h) => <th key={h} style={th}>{h}</th>)}</tr>
             </thead>
@@ -67,6 +70,7 @@ export default function AdminOrders() {
               ))}
             </tbody>
           </table>
+          </div>
           {list.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: C.muted }}>No orders in this view.</div>}
         </div>
 

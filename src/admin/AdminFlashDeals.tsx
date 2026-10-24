@@ -143,7 +143,7 @@ export default function AdminFlashDeals() {
   };
 
   return (
-    <div style={{ padding: '28px 32px', maxWidth: 1280, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1280, margin: '0 auto', width: '100%' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 14 }}>
         <div>
@@ -152,7 +152,7 @@ export default function AdminFlashDeals() {
               <Icon name="zap" size={20} color="#fff" fill="#fff" />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: C.primary, letterSpacing: -0.5 }}>
+              <h1 style={{ margin: 0, fontSize: 'clamp(20px, 3vw, 24px)', fontWeight: 800, color: C.primary, letterSpacing: -0.5 }}>
                 Flash Deal Drop Manager
               </h1>
               <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>
@@ -171,13 +171,13 @@ export default function AdminFlashDeals() {
               updateFlashDeal({ isActive: next });
             }}
             style={{
-              padding: '10px 18px',
+              padding: '9px 16px',
               borderRadius: 99,
               background: isActive ? '#e8f5e9' : '#ffebee',
               color: isActive ? '#2e7d32' : '#c62828',
               border: `1.5px solid ${isActive ? '#a5d6a7' : '#ef9a9a'}`,
               fontWeight: 800,
-              fontSize: 13,
+              fontSize: 12.5,
               display: 'flex',
               alignItems: 'center',
               gap: 8,
@@ -190,17 +190,17 @@ export default function AdminFlashDeals() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 24, alignItems: 'start' }}>
+      <div className="admin-split-grid" style={{ gap: 20 }}>
         {/* Left Column: Festival Settings & Add Product Form */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* 1. Campaign Settings Card */}
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, border: `1px solid ${C.border}`, boxShadow: '0 4px 20px rgba(0,0,0,.03)' }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 20, border: `1px solid ${C.border}`, boxShadow: '0 4px 20px rgba(0,0,0,.03)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <Icon name="award" size={19} color={C.primary} />
               <div style={{ fontWeight: 800, fontSize: 16 }}>Festival / Campaign Settings</div>
             </div>
 
-            <form onSubmit={handleSaveSettings} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <form onSubmit={handleSaveSettings} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 6 }}>
                   FESTIVAL / CAMPAIGN NAME

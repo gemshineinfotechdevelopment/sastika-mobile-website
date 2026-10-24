@@ -329,21 +329,40 @@ export const syncUserData = async (req, res) => {
   }
 };
 
+// Helpers for Google OAuth configuration
+const getGoogleClientId = () => {
+  return (process.env.GOOGLE_CLIENT_ID || '').trim();
+};
+
+const getGoogleClientSecret = () => {
+  return (process.env.GOOGLE_CLIENT_SECRET || '').trim();
+};
+
+const getGoogleRedirectUri = (req) => {
+  if (process.env.GOOGLE_REDIRECT_URI && process.env.GOOGLE_REDIRECT_URI.trim()) {
+    return process.env.GOOGLE_REDIRECT_URI.trim();
+  }
+  const host = req?.get ? req.get('host') : '';
+  if (host && host.includes('gemshine.tech')) {
+    return 'https://sastika-mobiles.gemshine.tech/api/auth/google/callback';
+  }
+  const proto = req?.headers?.['x-forwarded-proto'] || req?.protocol || 'http';
+  return `${proto}://${host || 'localhost:5000'}/api/auth/google/callback`;
+};
+
 /**
  * Get Google OAuth consent URL based on GOOGLE_CLIENT_ID in server/.env
  */
 export const getGoogleAuthUrl = (req, res) => {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  if (!clientId || clientId.trim() === '' || clientId.includes('your_google_client_id')) {
+  const clientId = getGoogleClientId();
+  if (!clientId || clientId.includes('your_google_client_id')) {
     return res.json({
       success: false,
       configured: false,
       message: 'GOOGLE_CLIENT_ID is not configured in server/.env',
     });
   }
-
-  const redirectUri =
-    process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+  const redirectUri = getGoogleRedirectUri(req);
 
   const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
   const options = {
@@ -376,8 +395,8 @@ export const googleLogin = async (req, res) => {
     const { credential, code, redirectUri, accessToken } = req.body;
     let googleUser = null;
 
-    const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || '').trim();
-    const GOOGLE_CLIENT_SECRET = (process.env.GOOGLE_CLIENT_SECRET || '').trim();
+    const GOOGLE_CLIENT_ID = getGoogleClientId();
+    const GOOGLE_CLIENT_SECRET = getGoogleClientSecret();
 
     // Case 1: Google Identity Services ID Token (Credential)
     if (credential) {
@@ -414,10 +433,7 @@ export const googleLogin = async (req, res) => {
         });
       }
 
-      const redirect =
-        redirectUri ||
-        process.env.GOOGLE_REDIRECT_URI ||
-        `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+      const redirect = redirectUri || getGoogleRedirectUri(req);
 
       const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -618,7 +634,9 @@ export const googleLogin = async (req, res) => {
  * Handle Google OAuth redirect callback (GET /api/auth/google/callback)
  */
 export const googleCallback = async (req, res) => {
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const host = req?.get ? req.get('host') : '';
+  const isProduction = host && host.includes('gemshine.tech');
+  const clientUrl = process.env.CLIENT_URL || (isProduction ? 'https://sastika-mobiles.gemshine.tech' : 'http://localhost:5173');
   try {
     const { code, error } = req.query;
     if (error) {
@@ -630,16 +648,9 @@ export const googleCallback = async (req, res) => {
       );
     }
 
-    const clientId = (process.env.GOOGLE_CLIENT_ID || '').trim();
-    const clientSecret = (process.env.GOOGLE_CLIENT_SECRET || '').trim();
-    const redirectUri =
-      process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
-
-    if (!clientId || !clientSecret) {
-      return res.redirect(
-        `${clientUrl}/#/login?error=${encodeURIComponent('Google credentials not set in server/.env')}`
-      );
-    }
+    const clientId = getGoogleClientId();
+    const clientSecret = getGoogleClientSecret();
+    const redirectUri = getGoogleRedirectUri(req);
 
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',

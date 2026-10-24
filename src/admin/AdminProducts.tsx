@@ -122,7 +122,7 @@ export default function AdminProducts() {
         actions={<AButton onClick={() => setCreating(true)}>+ Add New Product</AButton>}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 18 }}>
+      <div className="admin-kpi-grid">
         <Kpi icon="grid" label="Total products" value={products.length} delay={0} />
         <Kpi icon="phone" label="Smartphones" value={products.filter((p) => p.category === 'phone').length} delay={70} />
         <Kpi icon="headphones" label="Accessories & audio" value={products.filter((p) => p.category !== 'phone').length} delay={140} />
@@ -130,16 +130,19 @@ export default function AdminProducts() {
       </div>
 
       <div style={{ ...panel, padding: 0, animation: 'fadeUp .5s ease .2s both' }}>
-        <div style={{ display: 'flex', gap: 10, padding: 16, alignItems: 'center', borderBottom: `1px solid ${C.border}` }}>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter by name, brand or SKU…" style={{ ...field, maxWidth: 340 }} />
-          {(['all', 'phone', 'accessory', 'audio'] as const).map((c) => (
-            <button key={c} className="tap" onClick={() => setCat(c)} style={{ padding: '8px 14px', borderRadius: 99, fontWeight: 700, fontSize: 12.5, textTransform: 'capitalize', background: cat === c ? C.primary : C.tint, color: cat === c ? '#fff' : C.primary, transition: 'all .25s ease' }}>
-              {c === 'all' ? 'All products' : c === 'phone' ? 'Smartphones' : c === 'audio' ? 'Audio' : 'Accessories'}
-            </button>
-          ))}
-          <div style={{ marginLeft: 'auto', fontSize: 12.5, color: C.muted, fontWeight: 600 }}>{list.length} shown</div>
+        <div style={{ display: 'flex', gap: 10, padding: '14px 16px', alignItems: 'center', borderBottom: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter by name, brand or SKU…" style={{ ...field, flex: '1 1 200px', maxWidth: '100%' }} />
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+            {(['all', 'phone', 'accessory', 'audio'] as const).map((c) => (
+              <button key={c} className="tap" onClick={() => setCat(c)} style={{ padding: '7px 13px', borderRadius: 99, fontWeight: 700, fontSize: 12, textTransform: 'capitalize', background: cat === c ? C.primary : C.tint, color: cat === c ? '#fff' : C.primary, transition: 'all .25s ease' }}>
+                {c === 'all' ? 'All' : c === 'phone' ? 'Mobiles' : c === 'audio' ? 'Audio' : 'Accessories'}
+              </button>
+            ))}
+          </div>
+          <div style={{ marginLeft: 'auto', fontSize: 12, color: C.muted, fontWeight: 700 }}>{list.length} shown</div>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="admin-table-scroll">
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
           <thead>
             <tr>{['PRODUCT', 'BRAND', 'SKU', 'PRICE & EMI', 'DISCOUNT', 'STOCK', 'STATUS', 'ACTIONS'].map((h) => <th key={h} style={th}>{h}</th>)}</tr>
           </thead>
@@ -202,6 +205,7 @@ export default function AdminProducts() {
             })}
           </tbody>
         </table>
+        </div>
         {list.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: C.muted }}>No products match.</div>}
       </div>
 

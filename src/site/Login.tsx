@@ -175,27 +175,29 @@ export default function Login() {
         return;
       }
 
-      // 2. Check Vite frontend env
-      const viteClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) || '';
-      if (viteClientId && !viteClientId.includes('your_google_client_id') && viteClientId.trim() !== '') {
-        const redirectUri = `${window.location.origin}/api/auth/google/callback`;
-        const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
-        const qs = new URLSearchParams({
-          client_id: viteClientId.trim(),
-          redirect_uri: redirectUri,
-          response_type: 'code',
-          scope: 'openid email profile',
-          prompt: 'select_account',
-        }).toString();
-        window.location.href = `${rootUrl}?${qs}`;
+      // 2. Direct client Google OAuth URL fallback
+      const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) || '';
+      if (!clientId || clientId.includes('your_google_client_id')) {
+        setShowGoogleSetupModal(true);
         return;
       }
 
-      // 3. Not yet configured in .env -> show setup helper modal
-      setShowGoogleSetupModal(true);
+      const isLiveDomain = window.location.hostname.includes('gemshine.tech');
+      const redirectUri = isLiveDomain
+        ? 'https://sastika-mobiles.gemshine.tech/api/auth/google/callback'
+        : `${window.location.origin}/api/auth/google/callback`;
+
+      const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+      const qs = new URLSearchParams({
+        client_id: clientId.trim(),
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'openid email profile',
+        prompt: 'select_account',
+      }).toString();
+      window.location.href = `${rootUrl}?${qs}`;
     } catch (err: any) {
       setError(err?.message || 'Failed to start Google sign in');
-    } finally {
       setLoading(false);
     }
   };

@@ -114,7 +114,7 @@ export default function Settings() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* Row 1: Brand Logo & Tax Invoice Profile Card */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
+        <div className="admin-split-grid" style={{ alignItems: 'stretch' }}>
           {/* Brand Logo & Identity (Text Removed) */}
           <div style={{ ...panel, animation: 'fadeUp .5s ease .05s both', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>

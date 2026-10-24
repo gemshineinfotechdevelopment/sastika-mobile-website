@@ -104,7 +104,7 @@ export default function AdminLogin() {
           backdropFilter: 'blur(20px)',
           border: '1.5px solid rgba(246, 196, 69, 0.25)',
           borderRadius: 24,
-          padding: '36px 30px',
+          padding: 'clamp(24px, 5vw, 36px) clamp(18px, 5vw, 30px)',
           boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(11, 74, 67, 0.4)',
           boxSizing: 'border-box',
           position: 'relative',

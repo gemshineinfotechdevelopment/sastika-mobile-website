@@ -57,14 +57,14 @@ export default function Inventory() {
     <div>
       <PageTitle title="Inventory Intelligence & Stock Alerts" sub="Track stock levels, raise purchase orders and audit movements." />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 18 }}>
+      <div className="admin-kpi-grid">
         <Kpi icon="grid" label="Total units on hand" value={units} delay={0} />
         <Kpi icon="chart" label="Stock value" value={value} prefix="₹" delay={70} />
         <Kpi icon="alert" label="Below reorder level" value={low.length} tone={low.length ? 'red' : 'green'} delay={140} />
         <Kpi icon="truck" label="Open purchase orders" value={pos.filter((p) => p.status === 'Sent').length} tone="amber" delay={210} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 16, alignItems: 'start' }}>
+      <div className="admin-split-inventory">
         <div style={{ display: 'grid', gap: 16 }}>
           <div style={{ ...panel, animation: 'fadeUp .5s ease .2s both' }}>
             <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 14 }}>Critical Low Stock & Auto-Reorder Queue</div>
