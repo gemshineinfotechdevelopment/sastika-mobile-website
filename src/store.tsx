@@ -6,41 +6,12 @@ import { apiGetFlashDeal, apiUpdateFlashDeal, apiAddFlashDealItem, apiDeleteFlas
 import defaultLogo from './assets/logo.png';
 
 const DEFAULT_FLASH_DEAL: FlashDealConfig = {
-  isActive: true,
+  isActive: false,
   title: 'Flash Deal Drop',
   subtitle: 'LIMITED STOCK LEFT',
-  festivalName: 'Festive Mega Drop',
-  endTime: new Date(Date.now() + 5 * 3600 * 1000).toISOString(),
-  items: [
-    {
-      id: 'p3',
-      name: 'OPPO K14x 5G (6GB + 128GB) Blue',
-      brand: 'OPPO',
-      category: 'phone',
-      price: 13999,
-      mrp: 17999,
-      color: '#0284c7',
-      badge: 'Festive Offer',
-      stock: 2,
-      claimedPct: 74,
-      image: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=600&q=80',
-      description: 'Festival special drop on OPPO K14x 5G Prism Blue with 45W fast charge.',
-    },
-    {
-      id: 'p1',
-      name: 'Redmi A7 Pro 5G (4GB + 64GB) Orange',
-      brand: 'Redmi',
-      category: 'phone',
-      price: 9499,
-      mrp: 12999,
-      color: '#ea580c',
-      badge: 'Mega Saver',
-      stock: 6,
-      claimedPct: 62,
-      image: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?auto=format&fit=crop&w=600&q=80',
-      description: 'Exclusive festival pricing on Redmi A7 Pro 5G in vibrant Orange.',
-    },
-  ],
+  festivalName: 'Festival Mega Drop',
+  endTime: '',
+  items: [],
 };
 
 function useLocalState<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
@@ -183,7 +154,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
-  const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v2', DEFAULT_FLASH_DEAL);
+  const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v4', DEFAULT_FLASH_DEAL);
 
   const [authPromptModal, setAuthPromptModal] = useState<{
     open: boolean;

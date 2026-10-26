@@ -26,41 +26,12 @@ const DB_NAME = process.env.DB_NAME || 'sastika_mobiles';
 
 const DEFAULT_FLASH_DEAL = {
   dealId: 'main_flash_deal',
-  isActive: true,
+  isActive: false,
   title: 'Flash Deal Drop',
   subtitle: 'LIMITED STOCK LEFT',
   festivalName: 'Diwali & Festival Mega Drop',
-  endTime: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-  items: [
-    {
-      id: 'fd1',
-      name: 'OnePlus Nord CE4 5G',
-      brand: 'OnePlus',
-      category: 'phone',
-      price: 21999,
-      mrp: 26999,
-      color: '#4b6b5a',
-      image: '',
-      badge: 'Festive Offer',
-      stock: 14,
-      claimedPct: 74,
-      description: 'Festival special drop with instant bank discount included.',
-    },
-    {
-      id: 'fd2',
-      name: 'Redmi Note 13 Pro+ 5G',
-      brand: 'Xiaomi',
-      category: 'phone',
-      price: 27999,
-      mrp: 33999,
-      color: '#3a4a7a',
-      image: '',
-      badge: 'Mega Saver',
-      stock: 8,
-      claimedPct: 62,
-      description: 'Exclusive festival pricing with free tempered glass and warranty.',
-    },
-  ],
+  endTime: '',
+  items: [],
 };
 
 async function seedDatabase() {

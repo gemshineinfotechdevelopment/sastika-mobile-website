@@ -3,7 +3,7 @@ import { C, money } from '../theme';
 import { useStore } from '../store';
 import type { OrderStatus } from '../types';
 import Icon from '../components/Icon';
-import { AButton, Kpi, PageTitle, Tag, panel, td, th } from './ui';
+import { AButton, AdminTableScroll, Kpi, PageTitle, Tag, panel, td, th } from './ui';
 import { orderTone } from './Dashboard';
 
 const FLOW: OrderStatus[] = ['Placed', 'Packed', 'Shipped', 'Delivered'];
@@ -52,7 +52,7 @@ export default function AdminOrders() {
             </div>
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search order, customer, city…" style={{ marginLeft: 'auto', padding: '8px 12px', borderRadius: 11, border: `1.5px solid ${C.border}`, flex: '1 1 180px', maxWidth: '100%', fontSize: 12.5 }} />
           </div>
-          <div className="admin-table-scroll">
+          <AdminTableScroll>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
             <thead>
               <tr>{['ORDER', 'CUSTOMER', 'DATE', 'PAYMENT', 'AMOUNT', 'STATUS'].map((h) => <th key={h} style={th}>{h}</th>)}</tr>
@@ -70,7 +70,7 @@ export default function AdminOrders() {
               ))}
             </tbody>
           </table>
-          </div>
+          </AdminTableScroll>
           {list.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: C.muted }}>No orders in this view.</div>}
         </div>
 

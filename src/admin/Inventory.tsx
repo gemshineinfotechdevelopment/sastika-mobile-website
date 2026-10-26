@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { C, money } from '../theme';
 import { useStore } from '../store';
 import { FillBar } from '../components/anim';
-import { AButton, FieldRow, Kpi, PageTitle, Tag, field, panel, td, th } from './ui';
+import { AButton, AdminTableScroll, FieldRow, Kpi, PageTitle, Tag, field, panel, td, th } from './ui';
 
 interface PO {
   id: string;
@@ -87,7 +87,8 @@ export default function Inventory() {
 
           <div style={{ ...panel, padding: 0, animation: 'fadeUp .5s ease .3s both' }}>
             <div style={{ padding: '18px 20px 6px', fontWeight: 800, fontSize: 17 }}>Stock Ledger</div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <AdminTableScroll>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 620 }}>
               <thead><tr>{['PRODUCT', 'SKU', 'ON HAND', 'REORDER AT', 'VALUE', 'LEVEL'].map((h) => <th key={h} style={th}>{h}</th>)}</tr></thead>
               <tbody>
                 {products.map((p) => (
@@ -111,6 +112,7 @@ export default function Inventory() {
                 ))}
               </tbody>
             </table>
+            </AdminTableScroll>
           </div>
         </div>
 

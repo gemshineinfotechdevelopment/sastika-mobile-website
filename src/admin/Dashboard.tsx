@@ -4,7 +4,7 @@ import { C, money } from '../theme';
 import { useStore } from '../store';
 import type { Order, OrderStatus, Product } from '../types';
 import { useInView } from '../components/anim';
-import { AButton, Kpi, PageTitle, Tag, panel, td, th } from './ui';
+import { AButton, AdminTableScroll, Kpi, PageTitle, Tag, panel, td, th } from './ui';
 import Icon from '../components/Icon';
 
 export const orderTone = (s: OrderStatus): 'green' | 'red' | 'amber' | 'blue' =>
@@ -62,7 +62,7 @@ export default function Dashboard() {
           label="Total Realized Revenue"
           value={totalRevenue}
           prefix="₹"
-          delta={`${validOrders.length} paid orders`}
+          delta={`${validOrders.length} paid`}
           tone="green"
           delay={0}
         />
@@ -71,7 +71,7 @@ export default function Dashboard() {
           label="Today's Live Sales"
           value={todayRevenue}
           prefix="₹"
-          delta={`${todayOrders.length} orders placed today`}
+          delta={`${todayOrders.length} today`}
           tone="amber"
           delay={70}
         />
@@ -79,7 +79,7 @@ export default function Dashboard() {
           icon="box"
           label="Orders to Fulfil"
           value={pendingOrders.length}
-          delta={`${shippedOrders.length} in transit • ${deliveredOrders.length} delivered`}
+          delta={`${pendingOrders.length} open`}
           tone={pendingOrders.length ? 'amber' : 'green'}
           delay={140}
         />
@@ -88,7 +88,7 @@ export default function Dashboard() {
           label="Current Stock Value"
           value={stockValue}
           prefix="₹"
-          delta={`${totalStockUnits} units in stock (${products.length} models)`}
+          delta={`${totalStockUnits} units`}
           delay={210}
         />
       </div>
@@ -156,7 +156,7 @@ export default function Dashboard() {
               Manage All Orders
             </AButton>
           </div>
-          <div className="admin-table-scroll">
+          <AdminTableScroll>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 620 }}>
             <thead>
               <tr>
@@ -218,7 +218,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
-          </div>
+          </AdminTableScroll>
         </div>
 
         {/* Right Side: Critical Stock & Care Desk */}

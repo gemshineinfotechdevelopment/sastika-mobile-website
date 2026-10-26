@@ -5,7 +5,7 @@ import { useStore } from '../store';
 import { getUniqueProductBrands } from '../data';
 import type { Category, Product } from '../types';
 import ProductArt from '../components/ProductArt';
-import { AButton, FieldRow, Kpi, Modal, PageTitle, Tag, field, panel, td, th } from './ui';
+import { AButton, AdminTableScroll, FieldRow, Kpi, Modal, PageTitle, Tag, field, panel, td, th } from './ui';
 
 export function generateSku(brand?: string, name?: string): string {
   const b = (brand || 'SAS')
@@ -141,7 +141,7 @@ export default function AdminProducts() {
           </div>
           <div style={{ marginLeft: 'auto', fontSize: 12, color: C.muted, fontWeight: 700 }}>{list.length} shown</div>
         </div>
-        <div className="admin-table-scroll">
+        <AdminTableScroll>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
           <thead>
             <tr>{['PRODUCT', 'BRAND', 'SKU', 'PRICE & EMI', 'DISCOUNT', 'STOCK', 'STATUS', 'ACTIONS'].map((h) => <th key={h} style={th}>{h}</th>)}</tr>
@@ -205,7 +205,7 @@ export default function AdminProducts() {
             })}
           </tbody>
         </table>
-        </div>
+        </AdminTableScroll>
         {list.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: C.muted }}>No products match.</div>}
       </div>
 

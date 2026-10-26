@@ -3,41 +3,12 @@ import { getDbStatus } from '../config/db.js';
 
 const DEFAULT_FLASH_DEAL = {
   dealId: 'main_flash_deal',
-  isActive: true,
+  isActive: false,
   title: 'Flash Deal Drop',
   subtitle: 'LIMITED STOCK LEFT',
   festivalName: 'Festival Mega Drop',
-  endTime: new Date(Date.now() + 5 * 3600 * 1000).toISOString(),
-  items: [
-    {
-      id: 'fd1',
-      name: 'OnePlus Nord CE4 5G',
-      brand: 'OnePlus',
-      category: 'phone',
-      price: 21999,
-      mrp: 26999,
-      color: '#4b6b5a',
-      image: '',
-      badge: 'Festive Offer',
-      stock: 14,
-      claimedPct: 74,
-      description: 'Festival special drop with bank discount included.',
-    },
-    {
-      id: 'fd2',
-      name: 'Redmi Note 13 Pro+ 5G',
-      brand: 'Xiaomi',
-      category: 'phone',
-      price: 27999,
-      mrp: 33999,
-      color: '#3a4a7a',
-      image: '',
-      badge: 'Mega Saver',
-      stock: 8,
-      claimedPct: 62,
-      description: 'Exclusive festival pricing with free tempered glass.',
-    },
-  ],
+  endTime: '',
+  items: [],
 };
 
 let memoryFlashDeal = { ...DEFAULT_FLASH_DEAL };
@@ -48,6 +19,12 @@ export const getFlashDeal = async (req, res) => {
       let deal = await FlashDeal.findOne({ dealId: 'main_flash_deal' });
       if (!deal) {
         deal = await FlashDeal.create(DEFAULT_FLASH_DEAL);
+      } else if (deal.items?.some((i) => i.id === 'fd1' || i.id === 'fd2' || i.id === 'p1' || i.id === 'p3')) {
+        // Clean up legacy demo seed so flash deal is not automatically active
+        deal.items = [];
+        deal.isActive = false;
+        deal.endTime = '';
+        await deal.save();
       }
       return res.json({ success: true, data: deal });
     }

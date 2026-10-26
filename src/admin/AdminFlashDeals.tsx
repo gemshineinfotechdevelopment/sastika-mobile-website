@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
 import { C, discount, money } from '../theme';
 import { useStore } from '../store';
 import Icon from '../components/Icon';
@@ -19,6 +19,15 @@ export default function AdminFlashDeals() {
     flashDeal.endTime || new Date(Date.now() + 24 * 3600 * 1000).toISOString()
   );
   const [savedMsg, setSavedMsg] = useState(false);
+
+  // Sync state if flashDeal updates from store
+  useEffect(() => {
+    setIsActive(flashDeal.isActive);
+    if (flashDeal.title) setTitle(flashDeal.title);
+    if (flashDeal.subtitle) setSubtitle(flashDeal.subtitle);
+    if (flashDeal.festivalName) setFestivalName(flashDeal.festivalName);
+    if (flashDeal.endTime) setEndTime(flashDeal.endTime);
+  }, [flashDeal.isActive, flashDeal.title, flashDeal.subtitle, flashDeal.festivalName, flashDeal.endTime]);
 
   // Live countdown timer driven by current endTime
   const countdown = useCountdown(endTime);
@@ -76,13 +85,16 @@ export default function AdminFlashDeals() {
   // Save campaign settings
   const handleSaveSettings = (e: FormEvent) => {
     e.preventDefault();
+    const finalEnd = endTime || new Date(Date.now() + 24 * 3600 * 1000).toISOString();
+    setEndTime(finalEnd);
     updateFlashDeal({
-      isActive,
+      isActive: true,
       title,
       subtitle,
       festivalName,
-      endTime,
+      endTime: finalEnd,
     });
+    setIsActive(true);
     setSavedMsg(true);
     setTimeout(() => setSavedMsg(false), 3000);
   };

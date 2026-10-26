@@ -142,8 +142,8 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   flex: 1;
   min-width: 0;
   width: 100%;
-  max-width: 100vw;
-  overflow-x: clip;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .admin-header {
@@ -166,6 +166,7 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .admin-kpi-grid {
@@ -216,9 +217,71 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
 }
 
 .admin-table-scroll {
+  display: block;
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  scroll-behavior: smooth;
+  position: relative;
+  scrollbar-width: auto;
+  scrollbar-color: #0b4a43 #e2e8f0;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+/* Prominent, always visible horizontal scrollbar for Chromium / WebKit */
+.admin-table-scroll::-webkit-scrollbar {
+  height: 9px !important;
+  width: 9px !important;
+  display: block !important;
+  -webkit-appearance: none !important;
+}
+
+.admin-table-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 99px !important;
+  border: 1px solid #e2e8f0 !important;
+  margin: 0 4px !important;
+}
+
+.admin-table-scroll::-webkit-scrollbar-thumb {
+  background: #0b4a43 !important;
+  border-radius: 99px !important;
+  border: 2px solid #f1f5f9 !important;
+}
+
+.admin-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: #07332e !important;
+}
+
+.admin-table-scroll table {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Table scroll hint bar with Left / Right quick scroll */
+.admin-scroll-hint {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0b4a43;
+  background: #e6f4f1;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid #b2dfdb;
+  margin: 6px 12px 10px;
+}
+
+@media (max-width: 1100px) {
+  .admin-scroll-hint {
+    display: flex !important;
+  }
 }
 
 .admin-mobile-only {
@@ -227,6 +290,13 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
 
 .admin-desktop-only {
   display: flex !important;
+}
+
+/* Admin form grid (used inside modals / product form) */
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
 @media (max-width: 960px) {
@@ -251,17 +321,29 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
     transform: translateX(0) !important;
   }
   .admin-header {
-    padding: 10px 14px !important;
-    gap: 10px !important;
+    padding: 10px 10px !important;
+    gap: 8px !important;
     justify-content: space-between !important;
   }
   .admin-page-body {
-    padding: 14px 12px 36px !important;
+    padding: 12px 10px 36px !important;
+    overflow-x: hidden !important;
   }
   .admin-kpi-grid {
+    display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px !important;
     margin-bottom: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  /* Force KPI cards to not overflow */
+  .admin-kpi-grid > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
   .admin-split-grid,
   .admin-split-orders,
@@ -278,14 +360,105 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
     gap: 12px 10px !important;
     padding: 12px !important;
   }
+  /* Remove border-right on telemetry items (they don't make sense on mobile when stacked) */
+  .admin-telemetry-bar > div {
+    border-right: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Table scrolling: ensure smooth horizontal touch scrolling with visible scrollbar */
+  .admin-table-scroll {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x pan-y !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #0b4a43 #e2e8f0 !important;
+    padding-bottom: 10px !important;
+  }
+  .admin-table-scroll::-webkit-scrollbar {
+    height: 8px !important;
+    display: block !important;
+    -webkit-appearance: none !important;
+  }
+  .admin-table-scroll::-webkit-scrollbar-track {
+    background: #e2e8f0 !important;
+    border-radius: 99px !important;
+  }
+  .admin-table-scroll::-webkit-scrollbar-thumb {
+    background: #0b4a43 !important;
+    border-radius: 99px !important;
+  }
+  .admin-scroll-hint {
+    display: inline-flex !important;
+  }
+  .admin-table-scroll table {
+    min-width: 600px !important;
+  }
+  /* Ensure panels don't overflow */
+  .admin-page-body > div {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  /* Panels should not overflow */
+  .admin-page-body [style*="borderRadius"] {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Admin form grids should stack on mobile */
+  .admin-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Settings page grids - force stack on mobile */
+  .admin-page-body [style*="repeat(auto-fit"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 @media (max-width: 560px) {
   .admin-kpi-grid {
-    grid-template-columns: 1fr !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .admin-kpi-grid > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
   .admin-telemetry-bar {
-    grid-template-columns: 1fr !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 10px 8px !important;
+    box-sizing: border-box !important;
+  }
+  .admin-page-body {
+    padding: 10px 8px 32px !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .admin-header {
+    padding: 8px 8px !important;
+    gap: 6px !important;
+  }
+  /* Kanban cards: tighter padding */
+  .admin-kanban-grid > div {
+    padding: 10px !important;
   }
 }
 `;

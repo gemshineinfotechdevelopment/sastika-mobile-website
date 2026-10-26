@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { C } from '../theme';
 import Icon, { type IconName } from '../components/Icon';
 import { CountUp } from '../components/anim';
@@ -154,25 +154,84 @@ export function Kpi({
 }) {
   const col = tone === 'green' ? C.success : tone === 'red' ? C.danger : C.warn;
   return (
-    <div className="lift" style={{ ...panel, padding: 18, animation: `fadeUp .5s ease ${delay}ms both` }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ width: 40, height: 40, borderRadius: 12, background: C.tint, display: 'grid', placeItems: 'center' }}>
-          <Icon name={icon} size={19} color={C.primary} />
+    <div
+      className="lift"
+      style={{
+        ...panel,
+        padding: 'clamp(10px, 2.5vw, 16px)',
+        animation: `fadeUp .5s ease ${delay}ms both`,
+        minWidth: 0,
+        maxWidth: '100%',
+        width: '100%',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, minWidth: 0 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 9, background: C.tint, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+          <Icon name={icon} size={15} color={C.primary} />
         </div>
-        {delta && <Tag tone={tone}>{delta}</Tag>}
+        {delta && (
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 800,
+              padding: '2px 7px',
+              borderRadius: 6,
+              background: tone === 'green' ? C.successSoft : tone === 'red' ? C.dangerSoft : C.warnSoft,
+              color: col,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: 'calc(100% - 38px)',
+              flexShrink: 1,
+            }}
+            title={delta}
+          >
+            {delta}
+          </span>
+        )}
       </div>
-      <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.8, margin: '14px 0 2px', color: tone === 'red' ? col : C.text }}>
+      <div
+        style={{
+          fontSize: 'clamp(16px, 4.2vw, 24px)',
+          fontWeight: 800,
+          letterSpacing: -0.5,
+          margin: '8px 0 2px',
+          color: tone === 'red' ? col : C.text,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          lineHeight: 1.15,
+        }}
+      >
         <CountUp to={value} prefix={prefix} suffix={suffix} decimals={decimals ?? 0} duration={1300} />
       </div>
-      <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{label}</div>
+      <div
+        style={{
+          fontSize: 'clamp(10.5px, 2.4vw, 12px)',
+          color: C.muted,
+          fontWeight: 600,
+          lineHeight: 1.25,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+        title={label}
+      >
+        {label}
+      </div>
     </div>
   );
 }
 
 export function Modal({ title, onClose, children, width = 560 }: { title: string; onClose: () => void; children: ReactNode; width?: number }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'grid', placeItems: 'center', background: 'rgba(6,51,46,.5)', animation: 'fadeIn .2s ease' }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width, maxWidth: '92vw', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: 22, padding: 24, animation: 'bounceIn .35s ease', boxShadow: '0 30px 80px rgba(0,0,0,.3)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'grid', placeItems: 'center', background: 'rgba(6,51,46,.5)', animation: 'fadeIn .2s ease', padding: 8 }} onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: 'clamp(16px, 3vw, 22px)', padding: 'clamp(14px, 3vw, 24px)', animation: 'bounceIn .35s ease', boxShadow: '0 30px 80px rgba(0,0,0,.3)', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>{title}</h2>
           <button onClick={onClose} aria-label="Close"><Icon name="x" size={22} /></button>
@@ -204,3 +263,71 @@ export function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) =
     </button>
   );
 }
+
+export function AdminTableScroll({ children }: { children: ReactNode }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const offset = direction === 'left' ? -280 : 280;
+      scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div style={{ width: '100%', maxWidth: '100%', position: 'relative' }}>
+      <div className="admin-scroll-hint">
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>↔</span> Scroll table horizontally
+        </span>
+        <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
+          <button
+            type="button"
+            onClick={() => scroll('left')}
+            className="tap"
+            style={{
+              padding: '3px 8px',
+              borderRadius: 6,
+              background: '#fff',
+              border: '1px solid #80cbc4',
+              color: '#0b4a43',
+              fontSize: 11,
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 3,
+            }}
+          >
+            ◀ Left
+          </button>
+          <button
+            type="button"
+            onClick={() => scroll('right')}
+            className="tap"
+            style={{
+              padding: '3px 8px',
+              borderRadius: 6,
+              background: '#0b4a43',
+              border: 'none',
+              color: '#fff',
+              fontSize: 11,
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 3,
+            }}
+          >
+            Right ▶
+          </button>
+        </div>
+      </div>
+
+      <div ref={scrollRef} className="admin-table-scroll">
+        {children}
+      </div>
+    </div>
+  );
+}
+
