@@ -10,6 +10,7 @@ const NAV_LINKS: { to: string; label: string; icon: IconName; badge?: string }[]
   { to: '/', label: 'Home', icon: 'home' },
   { to: '/mobiles', label: 'All Mobiles', icon: 'phone', badge: '18 Deals' },
   { to: '/accessories', label: 'Accessories', icon: 'headphones' },
+  { to: '/appliances', label: 'Home Appliances', icon: 'tv', badge: 'New' },
   { to: '/services', label: 'Care & Repair', icon: 'tool' },
   { to: '/orders', label: 'Track & Orders', icon: 'truck' },
   { to: '/about', label: 'About Showroom', icon: 'award' },
@@ -571,29 +572,27 @@ export default function SiteLayout() {
             )}
           </div>
 
-          {/* Quick Actions (User, Heart/Wishlist, Cart) */}
+          {/* Quick Actions (Warranty Badge, User, Heart/Wishlist, Cart) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-            {/* Track & Orders Button */}
-            <button
-              onClick={() => nav('/orders')}
-              className="tap"
+            {/* Sivakasi Official Brand Warranty Invoices Badge */}
+            <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: 7,
                 padding: '8px 14px',
                 borderRadius: 12,
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.14)',
-                color: '#fff',
+                background: 'rgba(246, 196, 69, 0.12)',
+                border: '1px solid rgba(246, 196, 69, 0.3)',
+                color: C.accent,
                 fontSize: 12.5,
-                fontWeight: 700,
-                cursor: 'pointer',
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
               }}
             >
-              <Icon name="truck" size={15} color={C.accent} />
-              <span>Track Orders</span>
-            </button>
+              <span>⚡</span>
+              <span>Sivakasi Official Brand Warranty Invoices</span>
+            </div>
 
             {/* User / Account Button */}
             {user ? (
@@ -772,11 +771,21 @@ export default function SiteLayout() {
               padding: '0 24px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 8,
+              width: '100%',
             }}
           >
-            <nav style={{ display: 'flex', alignItems: 'center', gap: 4, overflowX: 'auto' }}>
+            <nav
+              className="hide-scroll"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                width: '100%',
+                overflowX: 'auto',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
               {NAV_LINKS.map((l) => (
                 <NavLink key={l.to} to={l.to} end={l.to === '/'}>
                   {({ isActive }) => (
@@ -784,9 +793,9 @@ export default function SiteLayout() {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 7,
-                        padding: '11px 14px',
-                        fontSize: 13.5,
+                        gap: 6,
+                        padding: '10px 12px',
+                        fontSize: 13,
                         fontWeight: 700,
                         color: isActive ? C.accent : 'rgba(255,255,255,0.85)',
                         borderBottom: isActive ? `3px solid ${C.accent}` : '3px solid transparent',
@@ -802,9 +811,9 @@ export default function SiteLayout() {
                           style={{
                             background: C.accent,
                             color: C.primaryDark,
-                            fontSize: 10,
+                            fontSize: 9.5,
                             fontWeight: 800,
-                            padding: '2px 7px',
+                            padding: '2px 6px',
                             borderRadius: 99,
                             marginLeft: 2,
                           }}
@@ -817,11 +826,6 @@ export default function SiteLayout() {
                 </NavLink>
               ))}
             </nav>
-
-            {/* Right side tag in Tier 2 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.accent, fontWeight: 700 }}>
-              <span>⚡ Sivakasi Official Brand Warranty Invoices</span>
-            </div>
           </div>
         </div>
       </header>

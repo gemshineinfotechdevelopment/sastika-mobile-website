@@ -1,4 +1,4 @@
-export type Category = 'phone' | 'accessory' | 'audio';
+export type Category = 'phone' | 'accessory' | 'audio' | 'appliance';
 
 export interface Product {
   id: string;
@@ -19,6 +19,8 @@ export interface Product {
   description: string;
   storage?: string[];
   image?: string;
+  images?: string[];
+  subCategory?: string;
   emi?: number;
 }
 

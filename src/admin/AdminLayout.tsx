@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { C } from '../theme';
 import { useStore } from '../store';
@@ -9,6 +9,7 @@ const LINKS: { to: string; label: string; icon: IconName; end?: boolean }[] = [
   { to: '/admin', label: 'Overview', icon: 'chart', end: true },
   { to: '/admin/flash-deals', label: 'Flash Deal Drop', icon: 'zap' },
   { to: '/admin/products', label: 'Products', icon: 'phone' },
+  { to: '/admin/appliances', label: 'Home Appliances', icon: 'tv' },
   { to: '/admin/orders', label: 'Orders', icon: 'box' },
   { to: '/admin/inventory', label: 'Inventory & Stock', icon: 'grid' },
   { to: '/admin/service', label: 'Service Desk', icon: 'tool' },
@@ -21,6 +22,11 @@ export default function AdminLayout() {
   const { products, orders, tickets, logo } = useStore();
   const [q, setQ] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  useEffect(() => {
+    const mainEl = document.querySelector('.admin-main-content');
+    if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname]);
 
   const adminToken = localStorage.getItem('sastika_admin_token') || sessionStorage.getItem('sastika_admin_token');
   if (!adminToken) {

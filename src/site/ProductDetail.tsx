@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { C, discount, money } from '../theme';
 import { useStore } from '../store';
@@ -21,6 +21,12 @@ export default function ProductDetail() {
   const [pin, setPin] = useState('');
   const [pinResult, setPinResult] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
+  const [activeImgIdx, setActiveImgIdx] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  useEffect(() => {
+    setActiveImgIdx(0);
+  }, [p?.id]);
 
   if (!p) {
     return (
@@ -49,6 +55,34 @@ export default function ProductDetail() {
   ];
 
   const LOCAL_PINCODES = ['626123', '626124', '626189', '626130'];
+
+  const galleryImages = (
+    p.images && p.images.length > 0 ? p.images : [p.image]
+  ).filter((img): img is string => Boolean(img && img.trim()));
+  const imageList = galleryImages.length > 0 ? galleryImages : [p.image || ''];
+  const safeIdx = Math.min(activeImgIdx, Math.max(0, imageList.length - 1));
+  const currentImg = imageList[safeIdx] || p.image;
+
+  const nextImg = () => {
+    setActiveImgIdx((prev) => (prev + 1) % imageList.length);
+  };
+  const prevImg = () => {
+    setActiveImgIdx((prev) => (prev - 1 + imageList.length) % imageList.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX;
+    if (deltaX > 40) {
+      prevImg();
+    } else if (deltaX < -40) {
+      nextImg();
+    }
+    setTouchStartX(null);
+  };
 
   const checkPin = () => {
     const clean = pin.trim();
@@ -117,9 +151,11 @@ export default function ProductDetail() {
 
       {/* 2-Column Desktop Grid */}
       <div className="product-detail-grid">
-        {/* Left Column: Image Showcase */}
+        {/* Left Column: Image Showcase with Multi-Image Slider */}
         <div>
           <div
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
             style={{
               height: 440,
               borderRadius: 24,
@@ -130,6 +166,7 @@ export default function ProductDetail() {
               overflow: 'hidden',
               border: `1.5px solid ${C.border}`,
               boxShadow: '0 8px 30px rgba(11,74,67,0.08)',
+              userSelect: 'none',
             }}
           >
             <span
@@ -144,15 +181,150 @@ export default function ProductDetail() {
                 animation: 'orb 9s ease-in-out infinite',
               }}
             />
-            <div key={art} style={{ animation: 'bounceIn .6s ease both', filter: 'drop-shadow(0 20px 24px rgba(0,0,0,.22))' }}>
-              <ProductArt category={p.category} color={art} size={p.category === 'phone' ? 290 : 230} image={p.image} alt={p.name} float />
+            <div
+              key={`${art}-${currentImg}-${safeIdx}`}
+              style={{ animation: 'bounceIn .5s ease both', filter: 'drop-shadow(0 20px 24px rgba(0,0,0,.22))' }}
+            >
+              <ProductArt
+                category={p.category}
+                color={art}
+                size={p.category === 'phone' ? 290 : 230}
+                image={currentImg}
+                alt={p.name}
+                float={p.category === 'phone'}
+              />
             </div>
 
-            <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', gap: 6 }}>
+            {/* Badges */}
+            <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', gap: 6, zIndex: 4 }}>
               {off > 0 && <Pill tone="accent">{off}% OFF</Pill>}
               <Pill tone="dark">100% BRAND ORIGINAL</Pill>
             </div>
+
+            {/* Multi-Image Next / Prev Controls */}
+            {imageList.length > 1 && (
+              <>
+                {/* Previous Button */}
+                <button
+                  type="button"
+                  onClick={prevImg}
+                  style={{
+                    position: 'absolute',
+                    left: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 42,
+                    height: 42,
+                    borderRadius: 99,
+                    background: 'rgba(255,255,255,0.94)',
+                    border: `1.5px solid ${C.border}`,
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 6,
+                    fontSize: 22,
+                    fontWeight: 900,
+                    color: C.primary,
+                    transition: 'all .2s ease',
+                  }}
+                  aria-label="Previous product image"
+                >
+                  ‹
+                </button>
+
+                {/* Next Button */}
+                <button
+                  type="button"
+                  onClick={nextImg}
+                  style={{
+                    position: 'absolute',
+                    right: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: 42,
+                    height: 42,
+                    borderRadius: 99,
+                    background: 'rgba(255,255,255,0.94)',
+                    border: `1.5px solid ${C.border}`,
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 6,
+                    fontSize: 22,
+                    fontWeight: 900,
+                    color: C.primary,
+                    transition: 'all .2s ease',
+                  }}
+                  aria-label="Next product image"
+                >
+                  ›
+                </button>
+
+                {/* Counter indicator */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 14,
+                    right: 14,
+                    background: 'rgba(15,23,42,0.8)',
+                    color: '#fff',
+                    padding: '4px 12px',
+                    borderRadius: 20,
+                    fontSize: 11.5,
+                    fontWeight: 800,
+                    letterSpacing: 0.5,
+                    backdropFilter: 'blur(4px)',
+                    zIndex: 4,
+                  }}
+                >
+                  {safeIdx + 1} / {imageList.length}
+                </div>
+              </>
+            )}
           </div>
+
+          {/* Thumbnail Strip (2 or 3 images thalli thalli paakura mari) */}
+          {imageList.length > 1 && (
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', alignItems: 'center', marginTop: 12 }}>
+              {imageList.map((imgUrl, idx) => {
+                const isActive = safeIdx === idx;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImgIdx(idx)}
+                    style={{
+                      width: 62,
+                      height: 62,
+                      borderRadius: 14,
+                      background: '#fff',
+                      border: `2px solid ${isActive ? C.primary : C.border}`,
+                      padding: 4,
+                      cursor: 'pointer',
+                      boxShadow: isActive ? `0 0 0 2px ${C.primarySoft}` : '0 2px 6px rgba(0,0,0,0.04)',
+                      transform: isActive ? 'scale(1.06)' : 'scale(1)',
+                      transition: 'all .2s ease',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    aria-label={`View photo ${idx + 1}`}
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`Thumbnail ${idx + 1}`}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* 3 Trust Pillars under photo */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginTop: 14 }}>
@@ -173,7 +345,7 @@ export default function ProductDetail() {
         <div>
           <Reveal>
             <div style={{ fontSize: 11.5, fontWeight: 800, color: C.primarySoft, letterSpacing: 1.5 }}>
-              {p.brand.toUpperCase()} 5G SMARTPHONE
+              {p.brand.toUpperCase()} {p.category === 'appliance' ? 'HOME APPLIANCE' : p.category === 'phone' ? '5G SMARTPHONE' : 'ACCESSORY & AUDIO'}
             </div>
             <h1 style={{ margin: '6px 0 10px', fontSize: 28, lineHeight: 1.2, fontWeight: 900, letterSpacing: -0.6 }}>
               {p.name}

@@ -63,13 +63,23 @@ export default function Settings() {
   }, [saved]);
 
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) => {
-    setCfg((c) => ({ ...c, [k]: v }));
+    setCfg((c) => {
+      const next = { ...c, [k]: v };
+      try {
+        localStorage.setItem('sastika:settings', JSON.stringify(next));
+        window.dispatchEvent(new Event('sastika:settings_changed'));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
     setDirty(true);
   };
 
   const save = () => {
     try {
       localStorage.setItem('sastika:settings', JSON.stringify(cfg));
+      window.dispatchEvent(new Event('sastika:settings_changed'));
     } catch {
       /* ignore */
     }
@@ -90,7 +100,6 @@ export default function Settings() {
     { k: 'gstOn', t: 'GST Tax Engine', s: 'Include GSTIN 33BQTPJ5275L1Z6 breakdown on all invoices' },
     { k: 'autoInvoice', t: 'Automated Invoicing', s: 'Generate and email tax bill automatically on order dispatch' },
     { k: 'lowStockAlerts', t: 'Low-Stock Alerts', s: 'Notify managers when inventory drops below reorder threshold' },
-    { k: 'smsUpdates', t: 'SMS & WhatsApp Updates', s: 'Send order confirmation and repair status alerts to customers' },
     { k: 'upiOn', t: 'UPI Payments (GPay, PhonePe, Paytm)', s: 'Accept instant zero-fee UPI payments at checkout' },
     { k: 'codOn', t: 'Cash on Delivery / In-Store Pickup', s: 'Allow payment upon delivery or during store pickup' },
   ];

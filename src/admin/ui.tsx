@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 import { C } from '../theme';
 import Icon, { type IconName } from '../components/Icon';
 import { CountUp } from '../components/anim';
@@ -9,6 +9,10 @@ export const panel: CSSProperties = {
   borderRadius: 18,
   padding: 20,
   boxShadow: '0 4px 18px rgba(11,74,67,.05)',
+  minWidth: 0,
+  maxWidth: '100%',
+  boxSizing: 'border-box',
+  overflow: 'hidden',
 };
 
 export const th: CSSProperties = {
@@ -74,6 +78,7 @@ export function AButton({
   disabled,
   type = 'button',
   title,
+  style,
 }: {
   children: ReactNode;
   onClick?: () => void;
@@ -82,6 +87,7 @@ export function AButton({
   disabled?: boolean;
   type?: 'button' | 'submit';
   title?: string;
+  style?: CSSProperties;
 }) {
   const v: Record<string, CSSProperties> = {
     primary: { background: C.primary, color: '#fff' },
@@ -108,6 +114,7 @@ export function AButton({
         opacity: disabled ? 0.5 : 1,
         whiteSpace: 'nowrap',
         ...v[variant],
+        ...style,
       }}
     >
       {children}
@@ -231,7 +238,7 @@ export function Kpi({
 export function Modal({ title, onClose, children, width = 560 }: { title: string; onClose: () => void; children: ReactNode; width?: number }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'grid', placeItems: 'center', background: 'rgba(6,51,46,.5)', animation: 'fadeIn .2s ease', padding: 8 }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: 'clamp(16px, 3vw, 22px)', padding: 'clamp(14px, 3vw, 24px)', animation: 'bounceIn .35s ease', boxShadow: '0 30px 80px rgba(0,0,0,.3)', boxSizing: 'border-box' }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', background: '#fff', borderRadius: 'clamp(16px, 3vw, 22px)', padding: 'clamp(14px, 3vw, 24px)', animation: 'bounceIn .35s ease', boxShadow: '0 30px 80px rgba(0,0,0,.3)', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>{title}</h2>
           <button onClick={onClose} aria-label="Close"><Icon name="x" size={22} /></button>
@@ -264,69 +271,24 @@ export function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) =
   );
 }
 
-export function AdminTableScroll({ children }: { children: ReactNode }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const offset = direction === 'left' ? -280 : 280;
-      scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-    }
-  };
-
+export function AdminTableScroll({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <div style={{ width: '100%', maxWidth: '100%', position: 'relative' }}>
-      <div className="admin-scroll-hint">
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span>↔</span> Scroll table horizontally
-        </span>
-        <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
-          <button
-            type="button"
-            onClick={() => scroll('left')}
-            className="tap"
-            style={{
-              padding: '3px 8px',
-              borderRadius: 6,
-              background: '#fff',
-              border: '1px solid #80cbc4',
-              color: '#0b4a43',
-              fontSize: 11,
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 3,
-            }}
-          >
-            ◀ Left
-          </button>
-          <button
-            type="button"
-            onClick={() => scroll('right')}
-            className="tap"
-            style={{
-              padding: '3px 8px',
-              borderRadius: 6,
-              background: '#0b4a43',
-              border: 'none',
-              color: '#fff',
-              fontSize: 11,
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 3,
-            }}
-          >
-            Right ▶
-          </button>
-        </div>
-      </div>
-
-      <div ref={scrollRef} className="admin-table-scroll">
-        {children}
-      </div>
+    <div
+      className="admin-table-scroll"
+      style={{
+        display: 'block',
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        touchAction: 'pan-x pan-y',
+        boxSizing: 'border-box',
+        ...style,
+      }}
+    >
+      {children}
     </div>
   );
 }

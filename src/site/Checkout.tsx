@@ -32,6 +32,58 @@ export default function Checkout() {
 
   const hasPhone = cart.some((l) => getProduct(l.id)?.category === 'phone');
 
+  const [codEnabled, setCodEnabled] = useState<boolean>(() => {
+    try {
+      const raw = localStorage.getItem('sastika:settings');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.codOn === false) return false;
+      }
+    } catch {
+      /* ignore */
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    const checkSettings = () => {
+      try {
+        const raw = localStorage.getItem('sastika:settings');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const isCodOn = parsed.codOn !== false;
+          setCodEnabled(isCodOn);
+          if (!isCodOn && form.payment === 'COD') {
+            setForm((f) => ({ ...f, payment: 'UPI' }));
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+
+    window.addEventListener('storage', checkSettings);
+    window.addEventListener('sastika:settings_changed', checkSettings);
+    return () => {
+      window.removeEventListener('storage', checkSettings);
+      window.removeEventListener('sastika:settings_changed', checkSettings);
+    };
+  }, [form.payment]);
+
+  const isSivakasi = form.city.trim().toLowerCase().includes('sivakasi');
+  const isCodAllowed = codEnabled && isSivakasi;
+
+  const availablePayments = PAYMENTS.filter((p) => {
+    if (p.id === 'COD') return isCodAllowed;
+    return true;
+  });
+
+  useEffect(() => {
+    if (!isCodAllowed && form.payment === 'COD') {
+      setForm((f) => ({ ...f, payment: availablePayments[0]?.id || 'UPI' }));
+    }
+  }, [isCodAllowed, form.payment, availablePayments]);
+
   useEffect(() => {
     if (user) {
       setForm((prev) => ({
@@ -229,7 +281,7 @@ export default function Checkout() {
         )}
         {step === 2 && (
           <Card title="Select payment option">
-            {PAYMENTS.map((p) => (
+            {availablePayments.map((p) => (
               <button
                 key={p.id}
                 onClick={() => set('payment', p.id)}
@@ -246,6 +298,17 @@ export default function Checkout() {
                 {form.payment === p.id && <Icon name="check" size={18} color={C.primary} stroke={3} />}
               </button>
             ))}
+            {isCodAllowed ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: C.successSoft, border: `1px solid ${C.success}`, borderRadius: 10, color: '#166534', fontSize: 12, fontWeight: 700, marginTop: 10 }}>
+                <Icon name="check" size={16} color="#166534" />
+                <span>Cash on Delivery is available for delivery in <strong>{form.city}</strong>.</span>
+              </div>
+            ) : form.city.trim() ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 10, color: '#92400e', fontSize: 12, fontWeight: 600, marginTop: 10 }}>
+                <Icon name="alert" size={16} color="#92400e" />
+                <span>Notice: Cash on Delivery is exclusively available for <strong>Sivakasi</strong>. For <strong>{form.city}</strong>, please pay securely via UPI, Card, or Netbanking.</span>
+              </div>
+            ) : null}
           </Card>
         )}
         {step === 3 && (

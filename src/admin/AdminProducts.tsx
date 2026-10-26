@@ -428,7 +428,7 @@ function ProductForm({
 
   return (
     <Modal title={title} onClose={onClose} width={760}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
         <div style={{ gridColumn: '1 / -1' }}>
           <FieldRow label="PRODUCT NAME *">
             <input
@@ -450,7 +450,7 @@ function ProductForm({
         {/* Product Photo Upload Section */}
         <div style={{ gridColumn: '1 / -1' }}>
           <FieldRow label="PRODUCT PHOTO / PICTURE">
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center', background: C.tint2, padding: 12, borderRadius: 14, border: `1px solid ${C.border}` }}>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center', background: C.tint2, padding: 12, borderRadius: 14, border: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
               <div
                 style={{
                   width: 80,
@@ -468,8 +468,8 @@ function ProductForm({
                 <ProductArt category={d.category} color={d.color} size={64} image={d.image} alt={d.name} />
               </div>
 
-              <div style={{ flex: 1, minWidth: 240, display: 'grid', gap: 8 }}>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div style={{ flex: '1 1 240px', minWidth: 0, display: 'grid', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                   <label
                     style={{
                       display: 'inline-flex',
@@ -496,7 +496,7 @@ function ProductForm({
                 </div>
 
                 <input
-                  style={{ ...field, fontSize: 12.5, padding: '7px 11px' }}
+                  style={{ ...field, fontSize: 12.5, padding: '7px 11px', width: '100%', boxSizing: 'border-box' }}
                   value={d.image}
                   onChange={(e) => set('image', e.target.value)}
                   placeholder="Or paste direct image URL (https://...)"
@@ -537,7 +537,7 @@ function ProductForm({
 
         {/* Pricing, Discount & EMI Section */}
         <div style={{ gridColumn: '1 / -1', background: '#fafdfb', borderRadius: 14, border: `1.5px solid ${C.border}`, padding: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 12 }}>
             <FieldRow label="SELLING PRICE (₹) *">
               <input
                 style={{ ...field, fontWeight: 700, fontSize: 15 }}
@@ -587,6 +587,8 @@ function ProductForm({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 8,
                 padding: '10px 14px',
                 borderRadius: 10,
                 background: C.successSoft,
@@ -657,8 +659,8 @@ function ProductForm({
         {/* SKU / Model Code: Non-editable & Auto-generated */}
         <div style={{ gridColumn: '1 / -1' }}>
           <FieldRow label="SKU / MODEL CODE (Auto-generated & Non-editable)">
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <div style={{ position: 'relative', flex: 1 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative', flex: '1 1 200px', minWidth: 160 }}>
                 <input
                   style={{
                     ...field,
@@ -669,6 +671,8 @@ function ProductForm({
                     border: '1.5px dashed #cbd5e1',
                     paddingLeft: 34,
                     letterSpacing: 0.8,
+                    width: '100%',
+                    boxSizing: 'border-box',
                   }}
                   value={d.sku}
                   readOnly
@@ -934,7 +938,7 @@ function ProductForm({
 
       {error && <div style={{ color: C.danger, fontWeight: 700, fontSize: 13, marginTop: 12 }}>{error}</div>}
 
-      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 18 }}>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 18, flexWrap: 'wrap', paddingBottom: 8 }}>
         <AButton variant="ghost" onClick={onClose}>Discard</AButton>
         <AButton onClick={submit}>{submitLabel}</AButton>
       </div>

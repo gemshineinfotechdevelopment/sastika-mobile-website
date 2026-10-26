@@ -23,7 +23,7 @@ function shade(hex: string, amt: number): string {
 export default function ProductArt({ category, color, size = 120, style, float, image, alt }: Props) {
   const [imgError, setImgError] = useState(false);
   const id = 'g' + color.replace('#', '') + category;
-  const anim: CSSProperties = float ? { animation: 'floatSoft 4s ease-in-out infinite' } : {};
+  const anim: CSSProperties = float && category !== 'appliance' ? { animation: 'floatSoft 4s ease-in-out infinite' } : {};
 
   // If real picture is provided and loads without error, render the photo
   if (image && !imgError) {
@@ -99,6 +99,23 @@ export default function ProductArt({ category, color, size = 120, style, float, 
         <rect x="100" y="70" width="12" height="26" rx="6" fill={`url(#${id})`} />
         <circle cx="64" cy="60" r="7" fill="rgba(255,255,255,.35)" />
         <circle cx="106" cy="60" r="7" fill="rgba(255,255,255,.35)" />
+      </svg>
+    );
+  }
+
+  if (category === 'appliance') {
+    return (
+      <svg width={size} height={size * 0.82} viewBox="0 0 160 130" style={{ ...anim, ...style }} aria-hidden>
+        <defs>
+          <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor={shade(color, 45)} />
+            <stop offset="1" stopColor={shade(color, -35)} />
+          </linearGradient>
+        </defs>
+        <rect x="10" y="8" width="140" height="96" rx="8" fill="#1e293b" />
+        <rect x="15" y="13" width="130" height="86" rx="4" fill={`url(#${id})`} />
+        <path d="M72 104 L62 122 H98 L88 104 Z" fill="#475569" />
+        <rect x="52" y="122" width="56" height="4" rx="2" fill="#334155" />
       </svg>
     );
   }

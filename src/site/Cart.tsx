@@ -117,29 +117,8 @@ export default function Cart() {
           ))}
         </div>
 
-        {/* Right Column: Coupons & Order Summary Sticky Card */}
+        {/* Right Column: Order Summary Sticky Card */}
         <div style={{ position: 'sticky', top: 70 }}>
-          {/* Coupon input */}
-          <div style={{ padding: 18, borderRadius: 18, background: '#fff', border: `1.5px solid ${C.border}`, marginBottom: 16 }}>
-            <div style={{ fontWeight: 800, fontSize: 13.5, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Icon name="percent" size={16} color={C.primary} /> Discount Coupons &amp; Offers
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                placeholder="Coupon code (e.g. FESTIVAL2000)"
-                style={{ ...input, padding: '10px 12px', fontSize: 13, letterSpacing: 0.5 }}
-              />
-              <Btn onClick={apply} style={{ padding: '0 20px', fontSize: 13 }}>Apply</Btn>
-            </div>
-            {msg && (
-              <div key={msg.text} style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: msg.ok ? C.success : C.danger }}>
-                {msg.text}
-              </div>
-            )}
-          </div>
-
           {/* Price Summary */}
           <div style={{ padding: 20, borderRadius: 18, background: '#fff', border: `1.5px solid ${C.border}` }}>
             <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 14, color: C.text }}>Order Price Summary</div>

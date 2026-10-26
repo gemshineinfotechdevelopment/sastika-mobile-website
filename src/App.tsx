@@ -11,11 +11,13 @@ import Services from './site/Services';
 import About from './site/About';
 import Contact from './site/Contact';
 import Login from './site/Login';
+import HomeAppliances from './site/HomeAppliances';
 
 import AdminLayout from './admin/AdminLayout';
 import AdminLogin from './admin/AdminLogin';
 import Dashboard from './admin/Dashboard';
 import AdminProducts from './admin/AdminProducts';
+import AdminAppliances from './admin/AdminAppliances';
 import AdminOrders from './admin/AdminOrders';
 import Inventory from './admin/Inventory';
 import ServiceDesk from './admin/ServiceDesk';
@@ -30,6 +32,7 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="mobiles" element={<Catalog kind="phones" />} />
         <Route path="accessories" element={<Catalog kind="accessories" />} />
+        <Route path="appliances" element={<HomeAppliances />} />
         <Route path="product/:id" element={<ProductDetail />} />
         <Route path="cart" element={<Cart />} />
         <Route path="checkout" element={<Checkout />} />
@@ -51,6 +54,7 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route path="flash-deals" element={<AdminFlashDeals />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="appliances" element={<AdminAppliances />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="inventory" element={<Inventory />} />
         <Route path="service" element={<ServiceDesk />} />

@@ -5,7 +5,7 @@ const productSchema = new mongoose.Schema(
     id: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     brand: { type: String, required: true },
-    category: { type: String, enum: ['phone', 'accessory', 'audio'], required: true },
+    category: { type: String, enum: ['phone', 'accessory', 'audio', 'appliance'], required: true },
     price: { type: Number, required: true },
     mrp: { type: Number, required: true },
     rating: { type: Number, default: 4.5 },
@@ -20,6 +20,8 @@ const productSchema = new mongoose.Schema(
     description: { type: String, default: '' },
     storage: [{ type: String }],
     image: { type: String },
+    images: [{ type: String }],
+    subCategory: { type: String },
     emi: { type: Number },
   },
   { timestamps: true }

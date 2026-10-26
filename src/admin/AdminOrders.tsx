@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { C, money } from '../theme';
 import { useStore } from '../store';
 import type { OrderStatus } from '../types';
@@ -8,20 +8,32 @@ import { orderTone } from './Dashboard';
 
 const FLOW: OrderStatus[] = ['Placed', 'Packed', 'Shipped', 'Delivered'];
 const FILTERS: ('All' | OrderStatus)[] = ['All', 'Placed', 'Packed', 'Shipped', 'Delivered', 'Cancelled'];
+const PAGE_SIZE = 10;
 
 export default function AdminOrders() {
   const { orders, updateOrderStatus } = useStore();
   const [filter, setFilter] = useState<'All' | OrderStatus>('All');
   const [q, setQ] = useState('');
+  const [page, setPage] = useState(1);
   const [sel, setSel] = useState<string | null>(null);
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
   const [cancelReasonText, setCancelReasonText] = useState('');
+
+  // Reset to page 1 whenever filter or search query changes
+  useEffect(() => {
+    setPage(1);
+  }, [filter, q]);
 
   const list = useMemo(
     () => orders.filter((o) => (filter === 'All' || o.status === filter) && (o.id + o.customer + o.city).toLowerCase().includes(q.toLowerCase())),
     [orders, filter, q],
   );
-  const order = orders.find((o) => o.id === sel) ?? list[0];
+
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedOrders = list.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const order = orders.find((o) => o.id === sel) ?? pagedOrders[0] ?? list[0];
   const count = (s: OrderStatus) => orders.filter((o) => o.status === s).length;
   const stage = order ? FLOW.indexOf(order.status) : -1;
 
@@ -30,7 +42,6 @@ export default function AdminOrders() {
       <PageTitle
         title="Orders & Dispatch Fulfilment"
         sub="Live processing for storefront orders across Tamil Nadu."
-        actions={<AButton variant="ghost" onClick={() => window.print()}><Icon name="download" size={15} /> Print Queue</AButton>}
       />
 
       <div className="admin-kpi-grid">
@@ -41,37 +52,154 @@ export default function AdminOrders() {
       </div>
 
       <div className="admin-split-orders">
-        <div style={{ ...panel, padding: 0, animation: 'fadeUp .5s ease .2s both' }}>
-          <div style={{ display: 'flex', gap: 8, padding: '14px 16px', alignItems: 'center', borderBottom: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ ...panel, padding: 0, animation: 'fadeUp .5s ease .2s both', width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', gap: 10, padding: '12px 14px', alignItems: 'center', borderBottom: `1px solid ${C.border}`, flexWrap: 'wrap', width: '100%', boxSizing: 'border-box' }}>
+            <div className="hide-scroll" style={{ display: 'flex', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch', maxWidth: '100%', paddingBottom: 2, flexShrink: 0 }}>
               {FILTERS.map((f) => (
-                <button key={f} className="tap" onClick={() => setFilter(f)} style={{ padding: '6px 12px', borderRadius: 99, fontWeight: 700, fontSize: 12, background: filter === f ? C.primary : C.tint, color: filter === f ? '#fff' : C.primary, transition: 'all .25s ease' }}>
+                <button
+                  key={f}
+                  className="tap"
+                  onClick={() => setFilter(f)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 99,
+                    fontWeight: 700,
+                    fontSize: 12,
+                    whiteSpace: 'nowrap',
+                    background: filter === f ? C.primary : C.tint,
+                    color: filter === f ? '#fff' : C.primary,
+                    transition: 'all .25s ease',
+                    flexShrink: 0,
+                  }}
+                >
                   {f}
                 </button>
               ))}
             </div>
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search order, customer, city…" style={{ marginLeft: 'auto', padding: '8px 12px', borderRadius: 11, border: `1.5px solid ${C.border}`, flex: '1 1 180px', maxWidth: '100%', fontSize: 12.5 }} />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search order, customer, city…"
+              style={{
+                marginLeft: 'auto',
+                padding: '8px 12px',
+                borderRadius: 11,
+                border: `1.5px solid ${C.border}`,
+                flex: '1 1 180px',
+                minWidth: 0,
+                maxWidth: '100%',
+                fontSize: 12.5,
+                boxSizing: 'border-box',
+              }}
+            />
           </div>
+
           <AdminTableScroll>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
-            <thead>
-              <tr>{['ORDER', 'CUSTOMER', 'DATE', 'PAYMENT', 'AMOUNT', 'STATUS'].map((h) => <th key={h} style={th}>{h}</th>)}</tr>
-            </thead>
-            <tbody>
-              {list.map((o) => (
-                <tr key={o.id} className="row-hover" onClick={() => setSel(o.id)} style={{ cursor: 'pointer', background: order?.id === o.id ? C.tint2 : undefined }}>
-                  <td style={{ ...td, fontWeight: 800 }}>{o.id}</td>
-                  <td style={td}>{o.customer}<div style={{ fontSize: 11, color: C.muted }}>{o.city}</div></td>
-                  <td style={{ ...td, color: C.muted }}>{o.date}</td>
-                  <td style={td}><Tag tone="gray">{o.payment}</Tag></td>
-                  <td style={{ ...td, fontWeight: 800 }}>{money(o.total)}</td>
-                  <td style={td}><Tag tone={orderTone(o.status)}>{o.status}</Tag></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+              <thead>
+                <tr>{['ORDER', 'CUSTOMER', 'DATE', 'PAYMENT', 'AMOUNT', 'STATUS'].map((h) => <th key={h} style={th}>{h}</th>)}</tr>
+              </thead>
+              <tbody>
+                {pagedOrders.map((o) => (
+                  <tr key={o.id} className="row-hover" onClick={() => setSel(o.id)} style={{ cursor: 'pointer', background: order?.id === o.id ? C.tint2 : undefined }}>
+                    <td style={{ ...td, fontWeight: 800 }}>{o.id}</td>
+                    <td style={td}>{o.customer}<div style={{ fontSize: 11, color: C.muted }}>{o.city}</div></td>
+                    <td style={{ ...td, color: C.muted }}>{o.date}</td>
+                    <td style={td}><Tag tone="gray">{o.payment}</Tag></td>
+                    <td style={{ ...td, fontWeight: 800 }}>{money(o.total)}</td>
+                    <td style={td}><Tag tone={orderTone(o.status)}>{o.status}</Tag></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </AdminTableScroll>
           {list.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: C.muted }}>No orders in this view.</div>}
+
+          {/* Pagination Controls */}
+          {list.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 16px',
+                borderTop: `1px solid ${C.border}`,
+                flexWrap: 'wrap',
+                gap: 10,
+                fontSize: 12.5,
+                boxSizing: 'border-box',
+              }}
+            >
+              <div style={{ color: C.muted, fontWeight: 600 }}>
+                Showing <b>{(currentPage - 1) * PAGE_SIZE + 1}</b>–<b>{Math.min(currentPage * PAGE_SIZE, list.length)}</b> of <b>{list.length}</b> orders
+              </div>
+
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="tap"
+                    disabled={currentPage === 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    style={{
+                      padding: '5px 11px',
+                      borderRadius: 8,
+                      border: `1px solid ${C.border}`,
+                      background: '#fff',
+                      color: currentPage === 1 ? C.muted : C.text,
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      fontWeight: 700,
+                      opacity: currentPage === 1 ? 0.45 : 1,
+                    }}
+                  >
+                    ◀ Prev
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
+                    <button
+                      key={pNum}
+                      type="button"
+                      className="tap"
+                      onClick={() => setPage(pNum)}
+                      style={{
+                        minWidth: 32,
+                        height: 32,
+                        padding: '0 8px',
+                        borderRadius: 8,
+                        fontWeight: pNum === currentPage ? 800 : 600,
+                        background: pNum === currentPage ? C.primary : '#fff',
+                        color: pNum === currentPage ? '#fff' : C.text,
+                        border: pNum === currentPage ? `1px solid ${C.primary}` : `1px solid ${C.border}`,
+                        cursor: 'pointer',
+                        transition: 'all .2s ease',
+                      }}
+                    >
+                      {pNum}
+                    </button>
+                  ))}
+
+                  <button
+                    type="button"
+                    className="tap"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    style={{
+                      padding: '5px 11px',
+                      borderRadius: 8,
+                      border: `1px solid ${C.border}`,
+                      background: '#fff',
+                      color: currentPage === totalPages ? C.muted : C.text,
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      fontWeight: 700,
+                      opacity: currentPage === totalPages ? 0.45 : 1,
+                    }}
+                  >
+                    Next ▶
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {order && (

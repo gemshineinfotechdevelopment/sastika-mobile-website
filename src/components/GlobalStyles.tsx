@@ -115,11 +115,14 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
 /* ==================== ADMIN PANEL COMPLETE MOBILE RESPONSIVENESS ==================== */
 .admin-root-container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
   background: ${C.bg};
   width: 100%;
   max-width: 100vw;
-  overflow-x: clip;
+  overflow: hidden;
 }
 
 .admin-sidebar {
@@ -129,9 +132,8 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   padding: 22px 14px;
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  position: relative;
+  height: 100%;
   flex-shrink: 0;
   z-index: 1000;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -143,21 +145,28 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   min-width: 0;
   width: 100%;
   max-width: 100%;
+  height: 100%;
+  overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
 }
 
 .admin-header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid ${C.border};
   padding: 12px 28px;
   display: flex;
   align-items: center;
   gap: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
 .admin-page-body {
@@ -182,6 +191,15 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   gap: 16px;
   margin-bottom: 18px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.admin-split-grid > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-split-orders {
@@ -189,6 +207,15 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   grid-template-columns: 1.7fr 1fr;
   gap: 16px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.admin-split-orders > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-split-inventory {
@@ -196,6 +223,15 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   grid-template-columns: 1.5fr 1fr;
   gap: 16px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.admin-split-inventory > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-kanban-grid {
@@ -262,25 +298,13 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   table-layout: auto;
 }
 
-/* Table scroll hint bar with Left / Right quick scroll */
 .admin-scroll-hint {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #0b4a43;
-  background: #e6f4f1;
-  padding: 6px 12px;
-  border-radius: 10px;
-  border: 1px solid #b2dfdb;
-  margin: 6px 12px 10px;
+  display: none !important;
 }
 
 @media (max-width: 1100px) {
   .admin-scroll-hint {
-    display: flex !important;
+    display: none !important;
   }
 }
 
@@ -312,10 +336,12 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
     bottom: 0 !important;
     left: 0 !important;
     height: 100vh !important;
+    height: 100dvh !important;
     width: 280px !important;
     max-width: 85vw !important;
     transform: translateX(-105%) !important;
     box-shadow: 0 0 40px rgba(0,0,0,0.5) !important;
+    z-index: 1000 !important;
   }
   .admin-sidebar.admin-sidebar-open {
     transform: translateX(0) !important;
@@ -324,6 +350,9 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
     padding: 10px 10px !important;
     gap: 8px !important;
     justify-content: space-between !important;
+  }
+  .service-desk-mobile-hide {
+    display: none !important;
   }
   .admin-page-body {
     padding: 12px 10px 36px !important;
@@ -350,6 +379,22 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
   .admin-split-inventory {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .admin-split-grid > *,
+  .admin-split-orders > *,
+  .admin-split-inventory > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .admin-split-orders > div:last-child {
+    position: static !important;
   }
   .admin-kanban-grid {
     grid-template-columns: 1fr !important;
@@ -372,16 +417,18 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
-    overflow-x: scroll !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
     overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch !important;
     touch-action: pan-x pan-y !important;
     scrollbar-width: thin !important;
     scrollbar-color: #0b4a43 #e2e8f0 !important;
-    padding-bottom: 10px !important;
+    padding-bottom: 8px !important;
+    box-sizing: border-box !important;
   }
   .admin-table-scroll::-webkit-scrollbar {
-    height: 8px !important;
+    height: 7px !important;
     display: block !important;
     -webkit-appearance: none !important;
   }
@@ -394,7 +441,7 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
     border-radius: 99px !important;
   }
   .admin-scroll-hint {
-    display: inline-flex !important;
+    display: none !important;
   }
   .admin-table-scroll table {
     min-width: 600px !important;

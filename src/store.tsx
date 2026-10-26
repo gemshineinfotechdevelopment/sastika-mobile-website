@@ -187,16 +187,57 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [user],
   );
 
-  // Initialize default products only if empty
+  // Initialize default products only if empty, or ensure default appliances exist (run once on mount)
   useEffect(() => {
-    if (!products || products.length === 0) {
-      setProducts(PRODUCTS);
-    }
-  }, [products, setProducts]);
+    setProducts((prev) => {
+      if (!prev || prev.length === 0) return PRODUCTS;
+      const hasAppliance = prev.some((p) => p.category === 'appliance');
+      if (!hasAppliance) {
+        const applianceSeeds = PRODUCTS.filter((p) => p.category === 'appliance');
+        return [...prev, ...applianceSeeds];
+      }
+      return prev;
+    });
+  }, [setProducts]);
 
   // Sync with backend API on mount
   useEffect(() => {
     let mounted = true;
+
+    const applyProducts = (serverProducts: any) => {
+      const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
+      if (Array.isArray(cleanProducts) && cleanProducts.length > 0) {
+        setProducts((prev) => {
+          const serverMap = new Map(cleanProducts.map((p: Product) => [p.id, p]));
+          const localOnly = prev.filter((p) => !serverMap.has(p.id));
+          const merged = localOnly.length > 0 ? [...cleanProducts, ...localOnly] : cleanProducts;
+          if (prev.length === merged.length && JSON.stringify(prev) === JSON.stringify(merged)) {
+            return prev;
+          }
+          return merged;
+        });
+      }
+    };
+
+    const applyOrders = (serverOrders: any) => {
+      const cleanOrders = Array.isArray(serverOrders) ? serverOrders : (serverOrders as any)?.data;
+      if (Array.isArray(cleanOrders)) {
+        setOrders((prev) => (prev.length === cleanOrders.length && JSON.stringify(prev) === JSON.stringify(cleanOrders) ? prev : cleanOrders));
+      }
+    };
+
+    const applyTickets = (serverTickets: any) => {
+      const cleanTickets = Array.isArray(serverTickets) ? serverTickets : (serverTickets as any)?.data;
+      if (Array.isArray(cleanTickets)) {
+        setTickets((prev) => (prev.length === cleanTickets.length && JSON.stringify(prev) === JSON.stringify(cleanTickets) ? prev : cleanTickets));
+      }
+    };
+
+    const applyFlashDeal = (serverFlashDeal: any) => {
+      if (serverFlashDeal && serverFlashDeal.items) {
+        setFlashDeal((prev) => (JSON.stringify(prev) === JSON.stringify(serverFlashDeal) ? prev : serverFlashDeal));
+      }
+    };
 
     async function syncBackend() {
       try {
@@ -212,15 +253,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           apiGetFlashDeal().catch(() => null),
         ]);
 
-        const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
-        const cleanOrders = Array.isArray(serverOrders) ? serverOrders : (serverOrders as any)?.data;
-        const cleanTickets = Array.isArray(serverTickets) ? serverTickets : (serverTickets as any)?.data;
-
         if (mounted) {
-          if (Array.isArray(cleanProducts) && cleanProducts.length > 0) setProducts(cleanProducts);
-          if (Array.isArray(cleanOrders)) setOrders(cleanOrders);
-          if (Array.isArray(cleanTickets)) setTickets(cleanTickets);
-          if (serverFlashDeal && serverFlashDeal.items) setFlashDeal(serverFlashDeal);
+          applyProducts(serverProducts);
+          applyOrders(serverOrders);
+          applyTickets(serverTickets);
+          applyFlashDeal(serverFlashDeal);
         }
       } catch {
         if (mounted) {
@@ -242,16 +279,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           apiGetFlashDeal().catch(() => null),
         ]);
 
-        const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
-        const cleanOrders = Array.isArray(serverOrders) ? serverOrders : (serverOrders as any)?.data;
-        const cleanTickets = Array.isArray(serverTickets) ? serverTickets : (serverTickets as any)?.data;
-
-        if (Array.isArray(cleanProducts) && cleanProducts.length > 0) setProducts(cleanProducts);
-        if (Array.isArray(cleanOrders)) setOrders(cleanOrders);
-        if (Array.isArray(cleanTickets)) setTickets(cleanTickets);
-        if (serverFlashDeal && serverFlashDeal.items) setFlashDeal(serverFlashDeal);
+        if (mounted) {
+          applyProducts(serverProducts);
+          applyOrders(serverOrders);
+          applyTickets(serverTickets);
+          applyFlashDeal(serverFlashDeal);
+        }
       } catch {}
-    }, 3000);
+    }, 4000);
 
     return () => {
       mounted = false;

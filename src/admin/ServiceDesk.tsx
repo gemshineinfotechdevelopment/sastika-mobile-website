@@ -15,11 +15,20 @@ const COLS: { s: TicketStatus; tone: 'blue' | 'amber' | 'green' | 'gray'; next?:
 export default function ServiceDesk() {
   const { tickets, setTicketStatus, addTicket } = useStore();
   const [open, setOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<'All' | TicketStatus>('All');
   const [f, setF] = useState({ customer: '', phone: '', device: '', issue: '', cost: '' });
   const [error, setError] = useState('');
 
   const active = tickets.filter((t) => t.status !== 'Closed');
   const revenue = tickets.filter((t) => t.status === 'Closed' || t.status === 'Ready').reduce((n, t) => n + t.cost, 0);
+
+  const filters: { key: 'All' | TicketStatus; label: string; count: number; tone: 'blue' | 'amber' | 'green' | 'gray' | 'dark' }[] = [
+    { key: 'All', label: 'All', count: tickets.length, tone: 'dark' },
+    { key: 'Open', label: 'Open', count: tickets.filter((t) => t.status === 'Open').length, tone: 'blue' },
+    { key: 'In Progress', label: 'In Progress', count: tickets.filter((t) => t.status === 'In Progress').length, tone: 'amber' },
+    { key: 'Ready', label: 'Ready', count: tickets.filter((t) => t.status === 'Ready').length, tone: 'green' },
+    { key: 'Closed', label: 'Closed', count: tickets.filter((t) => t.status === 'Closed').length, tone: 'gray' },
+  ];
 
   const create = () => {
     if (f.customer.trim().length < 2 || f.device.trim().length < 2 || f.issue.trim().length < 3) return setError('Customer, device and issue are required');
@@ -44,11 +53,71 @@ export default function ServiceDesk() {
         <Kpi icon="chart" label="Repair revenue" value={revenue} prefix="₹" delay={210} />
       </div>
 
+      {/* Mobile-Only Status Filter Bar */}
+      <div
+        className="admin-mobile-only hide-scroll"
+        style={{
+          gap: 8,
+          marginBottom: 14,
+          overflowX: 'auto',
+          paddingBottom: 4,
+          WebkitOverflowScrolling: 'touch',
+          alignItems: 'center',
+        }}
+      >
+        {filters.map((flt) => {
+          const isSelected = activeFilter === flt.key;
+          return (
+            <button
+              key={flt.key}
+              onClick={() => setActiveFilter(flt.key)}
+              className="tap"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '7px 12px',
+                borderRadius: 999,
+                fontSize: 12.5,
+                fontWeight: isSelected ? 800 : 600,
+                whiteSpace: 'nowrap',
+                border: isSelected ? `1.5px solid ${C.primary}` : `1px solid ${C.border}`,
+                background: isSelected ? C.primary : '#fff',
+                color: isSelected ? '#fff' : C.text,
+                boxShadow: isSelected ? '0 2px 8px rgba(11,74,67,0.22)' : '0 1px 3px rgba(0,0,0,0.04)',
+                cursor: 'pointer',
+                flexShrink: 0,
+                transition: 'all .2s ease',
+              }}
+            >
+              <span>{flt.label}</span>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  padding: '1px 6px',
+                  borderRadius: 999,
+                  background: isSelected ? 'rgba(255,255,255,0.25)' : C.tint2,
+                  color: isSelected ? '#fff' : C.muted,
+                }}
+              >
+                {flt.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="admin-kanban-grid">
         {COLS.map((col, ci) => {
           const items = tickets.filter((t) => t.status === col.s);
+          const isHiddenOnMobile = activeFilter !== 'All' && activeFilter !== col.s;
           return (
-            <div key={col.s} style={{ ...panel, padding: 14, background: C.tint2, animation: `fadeUp .5s ease ${ci * 80}ms both`, minHeight: 280 }}>
+            <div
+              key={col.s}
+              className={isHiddenOnMobile ? 'service-desk-mobile-hide' : ''}
+              style={{ ...panel, padding: 14, background: C.tint2, animation: `fadeUp .5s ease ${ci * 80}ms both`, minHeight: 280 }}
+            >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <div style={{ fontWeight: 800, fontSize: 14 }}>{col.s}</div>
                 <Tag tone={col.tone}>{items.length}</Tag>
