@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const ticketSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
+    userId: { type: String },
     customer: { type: String, required: true },
     phone: { type: String, required: true },
     device: { type: String, required: true },

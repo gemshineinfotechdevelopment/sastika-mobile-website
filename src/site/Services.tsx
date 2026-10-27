@@ -166,18 +166,28 @@ function CustomDropdown({
 
 export default function Services() {
   const nav = useNavigate();
-  const { addTicket } = useStore();
+  const { addTicket, user } = useStore();
   const [svc, setSvc] = useState<string>(SERVICES[0].id);
   const [issue, setIssue] = useState(ISSUES[0]);
   const [problemText, setProblemText] = useState('');
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [name, setName] = useState(user?.name || '');
+  const [phone, setPhone] = useState(user?.phone ? user.phone.replace(/\D/g, '').slice(-10) : '');
   const [mode, setMode] = useState<'pickup' | 'walk'>('pickup');
   const [slot, setSlot] = useState('Today (Express) — Within 90 mins');
   const [error, setError] = useState('');
   const [doneId, setDoneId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      if (user.name && !name) setName(user.name);
+      if (user.phone && !phone) {
+        const clean = user.phone.replace(/\D/g, '').slice(-10);
+        if (clean) setPhone(clean);
+      }
+    }
+  }, [user]);
 
   const selected = SERVICES.find((s) => s.id === svc);
 
@@ -191,12 +201,19 @@ export default function Services() {
     setError('');
     const finalProblem = issue === 'Other' ? problemText.trim() : (problemText.trim() && problemText.trim() !== issue ? `${issue} (${problemText.trim()})` : issue);
     const id = addTicket({
+      userId: user?.id,
       customer: name.trim(),
       phone: '+91 ' + phone.trim(),
       device: `${brand.trim()} ${model.trim()}`,
       issue: `${selected?.title ?? 'Repair'} — ${finalProblem} (${mode === 'pickup' ? 'Doorstep pickup' : 'Walk-in'}, ${slot})`,
       cost: selected?.price ?? 0,
     });
+    try {
+      const booked = JSON.parse(localStorage.getItem('sastika:my_booked_tickets') || '[]');
+      if (!booked.includes(id)) {
+        localStorage.setItem('sastika:my_booked_tickets', JSON.stringify([id, ...booked]));
+      }
+    } catch {}
     setDoneId(id);
   };
 

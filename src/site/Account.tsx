@@ -124,14 +124,26 @@ export default function Account() {
     });
   }, [orders, user]);
 
-  // User's own care tickets strictly matching logged-in customer's phone or name
+  // User's own care tickets strictly matching logged-in customer's phone, userId, name, or session booking
   const userTickets = useMemo(() => {
     if (!user || !Array.isArray(normalizedTickets)) return [];
 
     const userPhoneClean = (user.phone || '').replace(/\D/g, '').slice(-10);
     const userName = (user.name || '').trim().toLowerCase();
+    let bookedIds: string[] = [];
+    try {
+      bookedIds = JSON.parse(localStorage.getItem('sastika:my_booked_tickets') || '[]');
+    } catch {}
 
     return normalizedTickets.filter((t: any) => {
+      if (t.userId && user.id && String(t.userId) === String(user.id)) {
+        return true;
+      }
+
+      if (bookedIds.includes(t.id)) {
+        return true;
+      }
+
       const tPhoneClean = (t.phone || '').replace(/\D/g, '').slice(-10);
       const tCustomer = (t.customer || '').trim().toLowerCase();
 

@@ -4,6 +4,14 @@ import { C, discount, money } from '../theme';
 import { useStore } from '../store';
 import { getUniqueProductBrands } from '../data';
 import type { Category, Product } from '../types';
+import {
+  isSmartphone,
+  isIPhone,
+  isAccessory,
+  isAppliance,
+  getCategoryLabel,
+  CATEGORY_OPTIONS,
+} from '../categoryUtils';
 import ProductArt from '../components/ProductArt';
 import { AButton, AdminTableScroll, FieldRow, Kpi, Modal, PageTitle, Tag, field, panel, td, th } from './ui';
 
@@ -69,7 +77,7 @@ type Draft = {
 const getFreshDraft = (): Draft => ({
   name: '',
   brand: '',
-  category: 'phone',
+  category: 'smartphones',
   price: '',
   mrp: '',
   emi: '',
@@ -89,7 +97,7 @@ export default function AdminProducts() {
   const { products, addProduct, updateProduct, deleteProduct } = useStore();
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get('q') ?? '');
-  const [cat, setCat] = useState<'all' | Category>('all');
+  const [cat, setCat] = useState<'all' | 'smartphones' | 'iphones' | 'accessories' | 'home-appliances'>('all');
   const [editing, setEditing] = useState<Product | null>(null);
   const [creating, setCreating] = useState(params.get('new') === '1');
   const [confirmDel, setConfirmDel] = useState<Product | null>(null);
@@ -101,9 +109,20 @@ export default function AdminProducts() {
 
   const list = useMemo(
     () =>
-      products.filter(
-        (p) => (cat === 'all' || p.category === cat) && (p.name + p.brand + p.sku).toLowerCase().includes(q.toLowerCase()),
-      ),
+      products.filter((p) => {
+        const matchesCat =
+          cat === 'all'
+            ? true
+            : cat === 'smartphones'
+            ? isSmartphone(p.category, p.brand)
+            : cat === 'iphones'
+            ? isIPhone(p.category, p.brand)
+            : cat === 'accessories'
+            ? isAccessory(p.category)
+            : isAppliance(p.category);
+        const matchesQuery = (p.name + p.brand + p.sku).toLowerCase().includes(q.toLowerCase());
+        return matchesCat && matchesQuery;
+      }),
     [products, q, cat],
   );
 
@@ -124,8 +143,10 @@ export default function AdminProducts() {
 
       <div className="admin-kpi-grid">
         <Kpi icon="grid" label="Total products" value={products.length} delay={0} />
-        <Kpi icon="phone" label="Smartphones" value={products.filter((p) => p.category === 'phone').length} delay={70} />
-        <Kpi icon="headphones" label="Accessories & audio" value={products.filter((p) => p.category !== 'phone').length} delay={140} />
+        <Kpi icon="phone" label="Smartphones" value={products.filter((p) => isSmartphone(p.category, p.brand)).length} delay={50} />
+        <Kpi icon="phone" label="iPhones" value={products.filter((p) => isIPhone(p.category, p.brand)).length} delay={90} />
+        <Kpi icon="headphones" label="Accessories" value={products.filter((p) => isAccessory(p.category)).length} delay={130} />
+        <Kpi icon="tv" label="Home Appliances" value={products.filter((p) => isAppliance(p.category)).length} delay={170} />
         <Kpi icon="alert" label="Flagged low stock" value={flagged} tone={flagged ? 'red' : 'green'} delay={210} />
       </div>
 
@@ -133,9 +154,28 @@ export default function AdminProducts() {
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', alignItems: 'center', borderBottom: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter by name, brand or SKU…" style={{ ...field, flex: '1 1 200px', maxWidth: '100%' }} />
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-            {(['all', 'phone', 'accessory', 'audio'] as const).map((c) => (
-              <button key={c} className="tap" onClick={() => setCat(c)} style={{ padding: '7px 13px', borderRadius: 99, fontWeight: 700, fontSize: 12, textTransform: 'capitalize', background: cat === c ? C.primary : C.tint, color: cat === c ? '#fff' : C.primary, transition: 'all .25s ease' }}>
-                {c === 'all' ? 'All' : c === 'phone' ? 'Mobiles' : c === 'audio' ? 'Audio' : 'Accessories'}
+            {([
+              { k: 'all', label: 'All' },
+              { k: 'smartphones', label: 'Smartphones' },
+              { k: 'iphones', label: 'iPhones' },
+              { k: 'accessories', label: 'Accessories' },
+              { k: 'home-appliances', label: 'Home Appliances' },
+            ] as const).map((c) => (
+              <button
+                key={c.k}
+                className="tap"
+                onClick={() => setCat(c.k as any)}
+                style={{
+                  padding: '7px 13px',
+                  borderRadius: 99,
+                  fontWeight: 700,
+                  fontSize: 12,
+                  background: cat === c.k ? C.primary : C.tint,
+                  color: cat === c.k ? '#fff' : C.primary,
+                  transition: 'all .25s ease',
+                }}
+              >
+                {c.label}
               </button>
             ))}
           </div>
@@ -178,7 +218,14 @@ export default function AdminProducts() {
                       </div>
                     </div>
                   </td>
-                  <td style={td}>{p.brand}</td>
+                  <td style={td}>
+                    <div style={{ fontWeight: 700 }}>{p.brand}</div>
+                    <div style={{ marginTop: 3 }}>
+                      <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 7px', borderRadius: 6, background: C.tint, color: C.primary }}>
+                        {getCategoryLabel(p.category, p.brand)}
+                      </span>
+                    </div>
+                  </td>
                   <td style={{ ...td, color: C.muted, fontSize: 12 }}>
                     <span style={{ background: '#f1f5f9', padding: '3px 7px', borderRadius: 6, fontFamily: 'monospace', fontWeight: 600 }}>
                       {p.sku}
@@ -296,7 +343,7 @@ function toProduct(d: Draft): Omit<Product, 'id'> {
     sku: d.sku.trim() || generateSku(d.brand, d.name),
     description: d.description.trim() || 'Genuine product with Sastika warranty.',
     image: d.image.trim() || undefined,
-    storage: d.storage && d.storage.length > 0 ? d.storage : (d.category === 'phone' ? ['8GB + 128GB'] : undefined),
+    storage: d.storage && d.storage.length > 0 ? d.storage : (isSmartphone(d.category, d.brand) || isIPhone(d.category, d.brand) ? ['8GB + 128GB'] : undefined),
     emi: emiVal > 0 ? emiVal : Math.round(price / 12),
   };
 }
@@ -527,11 +574,22 @@ function ProductForm({
           </datalist>
         </FieldRow>
 
-        <FieldRow label="CATEGORY">
-          <select style={field} value={d.category} onChange={(e) => set('category', e.target.value as Category)}>
-            <option value="phone">Smartphone</option>
-            <option value="accessory">Accessory</option>
-            <option value="audio">Audio</option>
+        <FieldRow label="CATEGORY *">
+          <select
+            style={field}
+            value={d.category}
+            onChange={(e) => {
+              const nextCat = e.target.value as Category;
+              set('category', nextCat);
+              if (nextCat === 'iphones' && !d.brand) {
+                set('brand', 'Apple');
+              }
+            }}
+          >
+            <option value="smartphones">Smartphones</option>
+            <option value="iphones">iPhones</option>
+            <option value="accessories">Accessories</option>
+            <option value="home-appliances">Home Appliances</option>
           </select>
         </FieldRow>
 

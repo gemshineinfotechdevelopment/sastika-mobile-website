@@ -85,8 +85,9 @@ interface StoreShape {
   updateOrderStatus: (id: string, status: OrderStatus, cancelReason?: string) => void;
 
   tickets: Ticket[];
-  addTicket: (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'>) => string;
+  addTicket: (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'> & { userId?: string }) => string;
   setTicketStatus: (id: string, status: TicketStatus) => void;
+  deleteTicket: (id: string) => void;
 
   logo: string;
   setLogo: (logo: string) => void;
@@ -404,7 +405,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const addTicket = useCallback(
-    (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'>) => {
+    (t: Omit<Ticket, 'id' | 'status' | 'tech' | 'eta'> & { userId?: string }) => {
       const tempId = 'SR-' + String(5522 + tickets.length);
       const newTicket: Ticket = {
         ...t,
@@ -416,6 +417,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setTickets((prev) => [newTicket, ...prev]);
 
       api.createTicket({
+        id: tempId,
+        userId: t.userId,
         customer: t.customer,
         phone: t.phone,
         device: t.device,
@@ -424,7 +427,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }).then((created) => {
         const item = (created as any)?.data || created;
         if (item && item.id) {
-          setTickets((prev) => prev.map((it) => (it.id === tempId ? item : it)));
+          setTickets((prev) => prev.map((it) => (it.id === tempId ? { ...item, status: it.status || item.status } : it)));
         }
       }).catch(() => {});
 
@@ -437,6 +440,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (id: string, status: TicketStatus) => {
       setTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
       api.updateTicketStatus(id, status).catch(() => {});
+    },
+    [setTickets],
+  );
+
+  const deleteTicket = useCallback(
+    (id: string) => {
+      setTickets((prev) => prev.filter((t) => t.id !== id));
+      api.deleteTicket(id).catch(() => {});
     },
     [setTickets],
   );
@@ -686,6 +697,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setCoupon('');
 
         api.createOrder({
+          id,
           customer: info.name,
           phone: info.phone,
           email: info.email,
@@ -709,6 +721,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       tickets,
       addTicket,
       setTicketStatus,
+      deleteTicket,
 
       logo,
       setLogo,
@@ -742,6 +755,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       tickets,
       addTicket,
       setTicketStatus,
+      deleteTicket,
       logo,
       setLogo,
       serverOnline,

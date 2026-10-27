@@ -13,7 +13,7 @@ const COLS: { s: TicketStatus; tone: 'blue' | 'amber' | 'green' | 'gray'; next?:
 ];
 
 export default function ServiceDesk() {
-  const { tickets, setTicketStatus, addTicket } = useStore();
+  const { tickets, setTicketStatus, addTicket, deleteTicket } = useStore();
   const [open, setOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'All' | TicketStatus>('All');
   const [f, setF] = useState({ customer: '', phone: '', device: '', issue: '', cost: '' });
@@ -137,11 +137,49 @@ export default function ServiceDesk() {
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11.5, marginTop: 3, color: C.muted }}>
                     <Icon name="clock" size={13} /> {t.eta}
                   </div>
-                  {col.next && (
-                    <div style={{ marginTop: 10 }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
+                    {col.next && (
                       <AButton small variant={col.s === 'In Progress' ? 'accent' : 'soft'} onClick={() => setTicketStatus(t.id, col.next as TicketStatus)}>{col.label}</AButton>
-                    </div>
-                  )}
+                    )}
+                    <select
+                      value={t.status}
+                      onChange={(e) => setTicketStatus(t.id, e.target.value as TicketStatus)}
+                      style={{
+                        fontSize: 11.5,
+                        padding: '4px 6px',
+                        borderRadius: 8,
+                        border: `1px solid ${C.border}`,
+                        background: '#fff',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                      }}
+                      title="Move ticket status"
+                    >
+                      <option value="Open">Open</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Ready">Ready</option>
+                      <option value="Closed">Closed</option>
+                    </select>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete ticket #${t.id} (${t.device})?`)) {
+                          deleteTicket(t.id);
+                        }
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: C.muted,
+                        fontSize: 13,
+                        padding: '4px 6px',
+                        marginLeft: 'auto',
+                      }}
+                      title="Delete Ticket"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

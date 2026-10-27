@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { C } from '../theme';
 import { useStore } from '../store';
+import { isAppliance } from '../categoryUtils';
 import Icon from '../components/Icon';
 import { Reveal } from '../components/anim';
 import ProductCard from './ProductCard';
@@ -64,7 +65,7 @@ export default function HomeAppliances() {
   }, []);
 
   // Filter only appliances
-  const allAppliances = useMemo(() => products.filter((p) => p.category === 'appliance'), [products]);
+  const allAppliances = useMemo(() => products.filter((p) => isAppliance(p.category)), [products]);
 
   // Extract unique brands from appliances (including any brand typed in admin!)
   const applianceBrands = useMemo(() => {

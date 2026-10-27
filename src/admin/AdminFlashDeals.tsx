@@ -99,6 +99,27 @@ export default function AdminFlashDeals() {
     setTimeout(() => setSavedMsg(false), 3000);
   };
 
+  // Delete / Reset Flash Deal campaign
+  const handleDeleteCampaign = () => {
+    if (confirm('Are you sure you want to delete this Flash Deal campaign? This will turn off the campaign and clear it from the storefront.')) {
+      setTitle('Flash Deal Drop');
+      setSubtitle('');
+      setFestivalName('');
+      setEndTime('');
+      setIsActive(false);
+      updateFlashDeal({
+        isActive: false,
+        title: 'Flash Deal Drop',
+        subtitle: '',
+        festivalName: '',
+        endTime: '',
+        items: [],
+      });
+      setSavedMsg(true);
+      setTimeout(() => setSavedMsg(false), 3000);
+    }
+  };
+
   // Add custom festival product
   const handleAddCustomProduct = (e: FormEvent) => {
     e.preventDefault();
@@ -429,11 +450,33 @@ export default function AdminFlashDeals() {
                 </div>
               </div>
 
-              <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+              <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>
                   {savedMsg && '✓ Festival settings saved and updated on storefront!'}
                 </div>
-                <Btn type="submit" variant="primary">Save Campaign Settings</Btn>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginLeft: 'auto' }}>
+                  <button
+                    type="button"
+                    onClick={handleDeleteCampaign}
+                    className="tap"
+                    style={{
+                      background: '#fee2e2',
+                      color: C.danger,
+                      border: `1.5px solid ${C.dangerSoft || '#fca5a5'}`,
+                      borderRadius: 12,
+                      padding: '10px 18px',
+                      fontWeight: 800,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <Icon name="trash" size={15} /> Delete Campaign
+                  </button>
+                  <Btn type="submit" variant="primary">Save Campaign Settings</Btn>
+                </div>
               </div>
             </form>
           </div>
@@ -520,9 +563,10 @@ export default function AdminFlashDeals() {
                       onChange={(e) => setCategory(e.target.value as Category)}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, background: '#fff' }}
                     >
-                      <option value="phone">Smartphone</option>
-                      <option value="accessory">Accessory</option>
-                      <option value="audio">Audio / Earbuds</option>
+                      <option value="smartphones">Smartphones</option>
+                      <option value="iphones">iPhones</option>
+                      <option value="accessories">Accessories</option>
+                      <option value="home-appliances">Home Appliances</option>
                     </select>
                   </div>
                 </div>

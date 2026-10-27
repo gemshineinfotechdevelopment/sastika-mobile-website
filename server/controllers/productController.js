@@ -25,7 +25,20 @@ export const getProducts = async (req, res) => {
 
     if (getDbStatus()) {
       const query = {};
-      if (category) query.category = category;
+      if (category) {
+        if (category === 'home-appliances' || category === 'appliance' || category === 'home appliances') {
+          query.category = { $in: ['home-appliances', 'home appliances', 'appliance'] };
+        } else if (category === 'smartphones' || category === 'phone') {
+          query.category = { $in: ['smartphones', 'phone'] };
+          query.brand = { $not: /Apple/i };
+        } else if (category === 'accessories' || category === 'accessory' || category === 'audio') {
+          query.category = { $in: ['accessories', 'accessory', 'audio'] };
+        } else if (category === 'iphones') {
+          query.$or = [{ category: 'iphones' }, { brand: new RegExp('Apple', 'i') }];
+        } else {
+          query.category = category;
+        }
+      }
       if (brand) query.brand = new RegExp(brand, 'i');
       if (search) {
         query.$or = [
@@ -44,7 +57,19 @@ export const getProducts = async (req, res) => {
 
     // Memory fallback
     let list = [...memoryProducts];
-    if (category) list = list.filter((p) => p.category === category);
+    if (category) {
+      if (category === 'home-appliances' || category === 'appliance' || category === 'home appliances') {
+        list = list.filter((p) => p.category === 'home-appliances' || p.category === 'home appliances' || p.category === 'appliance');
+      } else if (category === 'smartphones' || category === 'phone') {
+        list = list.filter((p) => (p.category === 'smartphones' || p.category === 'phone') && p.brand?.toLowerCase() !== 'apple');
+      } else if (category === 'accessories' || category === 'accessory' || category === 'audio') {
+        list = list.filter((p) => p.category === 'accessories' || p.category === 'accessory' || p.category === 'audio');
+      } else if (category === 'iphones') {
+        list = list.filter((p) => p.category === 'iphones' || p.brand?.toLowerCase() === 'apple');
+      } else {
+        list = list.filter((p) => p.category === category);
+      }
+    }
     if (brand) list = list.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
     if (search) {
       const q = search.toLowerCase();

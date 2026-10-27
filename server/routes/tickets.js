@@ -48,7 +48,7 @@ router.post('/', (req, res) => {
 });
 
 // PATCH / PUT update ticket status
-router.patch('/:id', (req, res) => {
+const handleUpdate = (req, res) => {
   const tickets = readData(FILE);
   const index = tickets.findIndex((t) => t.id === req.params.id);
   if (index === -1) {
@@ -58,6 +58,16 @@ router.patch('/:id', (req, res) => {
   tickets[index] = { ...tickets[index], ...req.body };
   writeData(FILE, tickets);
   res.json(tickets[index]);
+};
+
+router.patch('/:id', handleUpdate);
+router.put('/:id', handleUpdate);
+
+router.delete('/:id', (req, res) => {
+  let tickets = readData(FILE);
+  tickets = tickets.filter((t) => t.id !== req.params.id);
+  writeData(FILE, tickets);
+  res.json({ success: true, message: 'Ticket deleted' });
 });
 
 export default router;

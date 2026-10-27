@@ -1,4 +1,13 @@
-export type Category = 'phone' | 'accessory' | 'audio' | 'appliance';
+export type Category =
+  | 'smartphones'
+  | 'iphones'
+  | 'accessories'
+  | 'home-appliances'
+  | 'home appliances'
+  | 'phone'
+  | 'accessory'
+  | 'audio'
+  | 'appliance';
 
 export interface Product {
   id: string;
@@ -57,6 +66,7 @@ export type TicketStatus = 'Open' | 'In Progress' | 'Ready' | 'Closed';
 
 export interface Ticket {
   id: string;
+  userId?: string;
   customer: string;
   phone: string;
   device: string;

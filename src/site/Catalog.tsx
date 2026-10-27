@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { getUniqueProductBrands } from '../data';
 import { C } from '../theme';
 import { useStore } from '../store';
+import { isSmartphone, isIPhone, isAccessory } from '../categoryUtils';
 import Icon from '../components/Icon';
 import { Reveal } from '../components/anim';
 import ProductCard from './ProductCard';
@@ -16,6 +17,7 @@ export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
   const urlBrand = searchParams.get('brand');
   const [q, setQ] = useState('');
   const [brand, setBrand] = useState(urlBrand || 'All');
+  const [phoneType, setPhoneType] = useState<'all' | 'smartphones' | 'iphones'>('all');
   const [sort, setSort] = useState<Sort>('popular');
   const [limit, setLimit] = useState(6);
 
@@ -26,8 +28,16 @@ export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
   }, [urlBrand]);
 
   const base = useMemo(
-    () => products.filter((p) => (kind === 'phones' ? p.category === 'phone' : p.category !== 'phone')),
-    [products, kind],
+    () =>
+      products.filter((p) => {
+        if (kind === 'phones') {
+          if (phoneType === 'smartphones') return isSmartphone(p.category, p.brand);
+          if (phoneType === 'iphones') return isIPhone(p.category, p.brand);
+          return isSmartphone(p.category, p.brand) || isIPhone(p.category, p.brand);
+        }
+        return isAccessory(p.category);
+      }),
+    [products, kind, phoneType],
   );
   const brands = useMemo(() => ['All', ...getUniqueProductBrands(base)], [base]);
 
@@ -78,6 +88,43 @@ export default function Catalog({ kind }: { kind: 'phones' | 'accessories' }) {
           />
         </div>
       </div>
+
+      {/* Category Pills for Phones */}
+      {kind === 'phones' && (
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+          {[
+            { id: 'all', label: 'All Mobiles' },
+            { id: 'smartphones', label: 'Smartphones (Android)' },
+            { id: 'iphones', label: 'Apple iPhones' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              className="tap"
+              onClick={() => {
+                setPhoneType(tab.id as any);
+                setBrand('All');
+                setLimit(18);
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '7px 16px',
+                borderRadius: 99,
+                fontWeight: 800,
+                fontSize: 12.5,
+                background: phoneType === tab.id ? C.primaryDark : C.tint2,
+                color: phoneType === tab.id ? '#fff' : C.primaryDark,
+                border: phoneType === tab.id ? `1.5px solid ${C.primaryDark}` : `1px solid ${C.border}`,
+                boxShadow: phoneType === tab.id ? '0 2px 8px rgba(11,74,67,0.2)' : 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Brand Selector Buttons */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>

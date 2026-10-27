@@ -38,16 +38,17 @@ export const getTicketById = async (req, res) => {
 
 export const createTicket = async (req, res) => {
   try {
-    const { customer, phone, device, issue, cost } = req.body;
+    const { customer, phone, device, issue, cost, id, userId } = req.body;
     if (!customer || !phone || !device || !issue) {
       return res.status(400).json({ success: false, message: 'Customer, phone, device and issue are required' });
     }
 
     const count = getDbStatus() ? await Ticket.countDocuments() : memoryTickets.length;
-    const ticketId = 'SR-' + (5522 + count);
+    const ticketId = id || ('SR-' + (5522 + count));
 
     const newTicket = {
       id: ticketId,
+      userId: userId || undefined,
       customer,
       phone,
       device,
@@ -91,6 +92,20 @@ export const updateTicketStatus = async (req, res) => {
     if (idx === -1) return res.status(404).json({ success: false, message: 'Ticket not found' });
     memoryTickets[idx] = { ...memoryTickets[idx], ...patch };
     return res.json({ success: true, data: memoryTickets[idx] });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const deleteTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (getDbStatus()) {
+      await Ticket.findOneAndDelete({ id });
+      return res.json({ success: true, message: 'Ticket deleted successfully' });
+    }
+    memoryTickets = memoryTickets.filter((t) => t.id !== id);
+    return res.json({ success: true, message: 'Ticket deleted successfully' });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }

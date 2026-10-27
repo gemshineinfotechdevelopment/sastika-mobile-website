@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { C, discount, money } from '../theme';
 import { useStore } from '../store';
 import type { Product } from '../types';
+import { isAppliance } from '../categoryUtils';
 import Icon from '../components/Icon';
 import ProductArt from '../components/ProductArt';
 import { AButton, AdminTableScroll, FieldRow, Kpi, Modal, PageTitle, Tag, field, panel, td, th } from './ui';
@@ -58,7 +59,7 @@ export default function AdminAppliances() {
   const [confirmDel, setConfirmDel] = useState<Product | null>(null);
 
   // Filter only appliances
-  const appliances = useMemo(() => products.filter((p) => p.category === 'appliance'), [products]);
+  const appliances = useMemo(() => products.filter((p) => isAppliance(p.category)), [products]);
 
   // Extract unique brands
   const brands = useMemo(() => {
@@ -344,7 +345,7 @@ export default function AdminAppliances() {
               name: draft.name.trim(),
               brand: draft.brand.trim(),
               subCategory: draft.subCategory.trim() || 'Appliance',
-              category: 'appliance',
+              category: 'home-appliances',
               price: Number(draft.price) || 0,
               mrp: Number(draft.mrp) || Number(draft.price) || 0,
               emi: Number(draft.emi) || (Number(draft.price) ? Math.round(Number(draft.price) / 12) : undefined),

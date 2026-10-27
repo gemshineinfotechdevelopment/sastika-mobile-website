@@ -40,12 +40,12 @@ export const getOrderById = async (req, res) => {
 
 export const createOrder = async (req, res) => {
   try {
-    const { customer, phone, email, city, address, items, total, payment } = req.body;
+    const { customer, phone, email, city, address, items, total, payment, id } = req.body;
     if (!customer || !phone || !items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Customer details and items are required' });
     }
 
-    const orderId = '#SM-' + Math.floor(100000 + Math.random() * 899999);
+    const orderId = id || ('#SM-' + Math.floor(100000 + Math.random() * 899999));
     const newOrder = {
       id: orderId,
       customer,

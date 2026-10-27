@@ -139,9 +139,6 @@ export default function Home() {
 
         {/* Customer Testimonials */}
         <Testimonials />
-
-        {/* Newsletter / Offers */}
-        <Newsletter />
       </div>
     </div>
   );
@@ -769,66 +766,3 @@ function Testimonials() {
   );
 }
 
-/* -------------------------------- NEWSLETTER -------------------------------- */
-
-function Newsletter() {
-  const [email, setEmail] = useState('');
-  const [done, setDone] = useState(false);
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    if (email.includes('@')) {
-      setDone(true);
-      setEmail('');
-    }
-  };
-  return (
-    <section style={{ padding: '40px 0 10px' }}>
-      <Reveal>
-        <div
-          className="newsletter-card"
-          style={{
-            borderRadius: 28,
-            padding: '36px 32px',
-            background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primary})`,
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 24,
-          }}
-        >
-          <div>
-            <Pill tone="accent">VIP SPECIAL OFFERS</Pill>
-            <h3 style={{ fontSize: 24, fontWeight: 900, margin: '10px 0 6px' }}>
-              Get Special Festival Mobile Deals via WhatsApp
-            </h3>
-            <p style={{ margin: 0, fontSize: 13.5, color: 'rgba(255,255,255,0.8)' }}>
-              Subscribe to get exclusive price drops on Redmi, OPPO, Vivo, Poco and festive accessories.
-            </p>
-          </div>
-          <form onSubmit={submit} style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 420 }}>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your phone or email…"
-              style={{
-                flex: 1,
-                padding: '13px 16px',
-                borderRadius: 14,
-                border: 'none',
-                outline: 'none',
-                fontSize: 14,
-                background: '#fff',
-                color: C.text,
-              }}
-            />
-            <Btn type="submit" variant="accent" style={{ padding: '13px 24px', fontWeight: 800 }}>
-              {done ? 'Subscribed!' : 'Get Alerts'}
-            </Btn>
-          </form>
-        </div>
-      </Reveal>
-    </section>
-  );
-}

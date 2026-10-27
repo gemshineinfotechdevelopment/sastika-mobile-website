@@ -880,23 +880,31 @@ export default function SiteLayout() {
               Leading multi-brand smartphone showroom, genuine accessories, and instant repair service in Sivakasi and Sithurajapuram.
             </p>
             <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'rgba(255,255,255,0.9)' }}>
-              <div>📍 <b>Branch 1:</b> Sri Renga Complex, Near Kennedy Medical, Sithurajapuram.</div>
-              <div>📍 <b>Branch 2:</b> Sivakasi Bus Stand, Sivakasi.</div>
+              <div>📍 <b>Branch:</b> Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189.</div>
               <div>📞 <b>Phone / WhatsApp:</b> +91 95434 34344</div>
               <div>📄 <b>GSTIN:</b> 33BQTPJ5275L1Z6</div>
             </div>
           </div>
 
-          {/* Column 2: 5G Smartphone Brands */}
+          {/* Column 2: Categories & Brands */}
           <div>
             <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
-              POPULAR 5G BRANDS
+              CATEGORIES &amp; BRANDS
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
-              {['Redmi 5G', 'OPPO 5G', 'Vivo 5G', 'Nothing 5G', 'Samsung Galaxy', 'Poco 5G', 'Fast Chargers', 'ANC Audio'].map((b) => (
+              {[
+                { name: 'Smartphones', to: '/mobiles' },
+                { name: 'Apple iPhones', to: '/mobiles' },
+                { name: 'Home Appliances', to: '/appliances' },
+                { name: 'Accessories', to: '/accessories' },
+                { name: 'Redmi 5G', to: '/mobiles' },
+                { name: 'Vivo 5G', to: '/mobiles' },
+                { name: 'OPPO 5G', to: '/mobiles' },
+                { name: 'Fast Chargers', to: '/accessories' },
+              ].map((item) => (
                 <button
-                  key={b}
-                  onClick={() => nav('/mobiles')}
+                  key={item.name}
+                  onClick={() => nav(item.to)}
                   style={{
                     textAlign: 'left',
                     color: 'rgba(255,255,255,0.8)',
@@ -908,7 +916,7 @@ export default function SiteLayout() {
                     transition: 'color .2s ease',
                   }}
                 >
-                  › {b}
+                  › {item.name}
                 </button>
               ))}
             </div>

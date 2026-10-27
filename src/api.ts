@@ -62,6 +62,7 @@ export const api = {
   // Orders
   getOrders: () => request<Order[]>('/orders'),
   createOrder: (order: {
+    id?: string;
     customer: string;
     phone: string;
     email?: string;
@@ -84,6 +85,8 @@ export const api = {
   // Tickets
   getTickets: () => request<Ticket[]>('/tickets'),
   createTicket: (ticket: {
+    id?: string;
+    userId?: string;
     customer: string;
     phone: string;
     device: string;
@@ -98,6 +101,10 @@ export const api = {
     request<Ticket>(`/tickets/${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
+    }),
+  deleteTicket: (id: string) =>
+    request<{ message: string }>(`/tickets/${id}`, {
+      method: 'DELETE',
     }),
 
   // Auth
