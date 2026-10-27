@@ -1,11 +1,124 @@
-import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
+import { useState, useEffect, useRef, useMemo, type FormEvent, type ChangeEvent } from 'react';
 import { C, discount, money } from '../theme';
 import { useStore } from '../store';
 import Icon from '../components/Icon';
 import ProductArt from '../components/ProductArt';
 import { Btn, Pill } from '../site/ui';
 import { FillBar, useCountdown } from '../components/anim';
-import type { Category, FlashDealItem } from '../types';
+import type { Category, FlashDealItem, Product } from '../types';
+
+import { CustomProductSelect } from './ProductSelect';
+
+
+function CustomCategorySelect({
+  value,
+  onChange,
+}: {
+  value: Category;
+  onChange: (val: Category) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const options: { id: Category; label: string; icon: string }[] = [
+    { id: 'phone', label: 'Smartphones (5G)', icon: '📱' },
+    { id: 'audio', label: 'Audio & Accessories', icon: '🎧' },
+    { id: 'appliance', label: 'Home Appliances', icon: '📺' },
+  ];
+
+  const current = options.find((o) => o.id === value) || options[0];
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [open]);
+
+  return (
+    <div ref={ref} style={{ position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="tap"
+        style={{
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          padding: '10px 32px 10px 12px',
+          borderRadius: 10,
+          border: `1.5px solid ${open ? C.primary : C.border}`,
+          background: '#fff',
+          fontSize: 13,
+          fontWeight: 600,
+          color: C.text,
+          textAlign: 'left',
+          cursor: 'pointer',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          boxShadow: open ? `0 0 0 3px ${C.primarySoft}` : 'none',
+        }}
+      >
+        <span>{current.icon}</span>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{current.label}</span>
+        <span style={{ position: 'absolute', right: 10, top: '50%', transform: `translateY(-50%) rotate(${open ? 180 : 0}deg)`, color: C.muted, fontSize: 10 }}>▼</span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 4px)',
+            left: 0,
+            right: 0,
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            background: '#fff',
+            borderRadius: 12,
+            border: `1.5px solid ${C.primary}`,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            zIndex: 1000,
+            overflow: 'hidden',
+          }}
+        >
+          {options.map((opt) => (
+            <div
+              key={opt.id}
+              onClick={() => {
+                onChange(opt.id);
+                setOpen(false);
+              }}
+              style={{
+                padding: '10px 12px',
+                fontSize: 13,
+                fontWeight: 600,
+                color: opt.id === value ? C.primary : C.text,
+                background: opt.id === value ? C.tint2 : 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = C.tint)}
+              onMouseLeave={(e) => (e.currentTarget.style.background = opt.id === value ? C.tint2 : 'transparent')}
+            >
+              <span>{opt.icon}</span>
+              <span>{opt.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminFlashDeals() {
   const { flashDeal, updateFlashDeal, addFlashDealItem, removeFlashDealItem, products } = useStore();
@@ -521,41 +634,24 @@ export default function AdminFlashDeals() {
           </div>
 
           {/* 2. Add Deal Product Form */}
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, border: `1px solid ${C.border}`, boxShadow: '0 4px 20px rgba(0,0,0,.03)' }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: '20px 16px', border: `1px solid ${C.border}`, boxShadow: '0 4px 20px rgba(0,0,0,.03)', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
               <Icon name="tag" size={19} color={C.danger} />
               <div style={{ fontWeight: 800, fontSize: 16 }}>Add Product to Flash Deal Drop</div>
             </div>
 
-            <form onSubmit={handleAddProduct} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {/* Dropdown: Choose from added store products */}
-              <div style={{ background: C.tint2, borderRadius: 14, padding: '12px 14px', border: `1.5px solid ${C.primarySoft}` }}>
+            <form onSubmit={handleAddProduct} style={{ display: 'flex', flexDirection: 'column', gap: 14, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+              {/* Custom Dropdown: Choose from added store products (Never overflows mobile screen!) */}
+              <div style={{ background: C.tint2, borderRadius: 14, padding: '12px 14px', border: `1.5px solid ${C.primarySoft}`, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: C.primary, marginBottom: 6 }}>
                   📦 SELECT EXISTING STORE PRODUCT (Auto-fills Details, Price &amp; Photo):
                 </label>
-                <select
-                  value={selectedProductId}
-                  onChange={(e) => handleSelectProduct(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '11px 14px',
-                    borderRadius: 10,
-                    border: `1.5px solid ${C.border}`,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    background: '#fff',
-                    color: C.text,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <option value="">-- Click to Pick an Existing Product to Auto-Fill ({products.length} Products Available) --</option>
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} ({p.brand} · Regular: {money(p.price)})
-                    </option>
-                  ))}
-                </select>
-                <div style={{ fontSize: 11, color: C.muted, marginTop: 5 }}>
+                <CustomProductSelect
+                  products={products}
+                  selectedId={selectedProductId}
+                  onSelect={handleSelectProduct}
+                />
+                <div style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>
                   Selecting a product automatically fills its brand, category, colors, storage variant, pricing and official photo.
                 </div>
               </div>
@@ -589,15 +685,10 @@ export default function AdminFlashDeals() {
                   <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
                     CATEGORY
                   </label>
-                  <select
+                  <CustomCategorySelect
                     value={category}
-                    onChange={(e) => setCategory(e.target.value as Category)}
-                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, background: '#fff', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}
-                  >
-                    <option value="phone">Smartphones (5G)</option>
-                    <option value="audio">Audio &amp; Accessories</option>
-                    <option value="appliance">Home Appliances</option>
-                  </select>
+                    onChange={(cat) => setCategory(cat)}
+                  />
                 </div>
               </div>
 
