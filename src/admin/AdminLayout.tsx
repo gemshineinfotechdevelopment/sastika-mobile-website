@@ -240,8 +240,27 @@ export default function AdminLayout() {
           <div style={{ flex: 1 }} />
 
           {/* Action Buttons */}
-          <button onClick={() => nav('/admin/products?new=1')} className="tap" style={{ background: C.primary, color: '#fff', fontWeight: 700, fontSize: 12, padding: '8px 11px', borderRadius: 9, display: 'flex', gap: 5, alignItems: 'center' }}>
-            <Icon name="plus" size={14} /> <span className="admin-desktop-only">Product</span>
+          <button
+            onClick={() => nav('/admin/products?new=1')}
+            className="tap"
+            title="Add New Product"
+            aria-label="Add New Product"
+            style={{
+              background: C.primary,
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: 12,
+              padding: '7px 11px',
+              borderRadius: 9,
+              display: 'flex',
+              gap: 5,
+              alignItems: 'center',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            <Icon name="plus" size={14} />
+            <span style={{ fontWeight: 700, fontSize: 11.5 }}>Product</span>
           </button>
 
           <button onClick={() => nav('/admin/service')} className="tap admin-desktop-only" style={{ background: C.accent, color: C.primaryDark, fontWeight: 700, fontSize: 12.5, padding: '8px 12px', borderRadius: 10, display: 'flex', gap: 6, alignItems: 'center' }}>

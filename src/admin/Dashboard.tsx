@@ -43,14 +43,18 @@ export default function Dashboard() {
         title="Store Operations & Real-Time Executive Dashboard"
         sub="Live Sivakasi & Sithurajapuram retail telemetry, synchronized with storefront checkout."
         actions={
-          <div style={{ display: 'flex', gap: 10 }}>
-            <AButton variant="ghost" onClick={() => nav('/admin/orders')}>
-              View Orders ({orders.length})
+          <div className="admin-overview-actions">
+            <AButton className="admin-overview-primary-btn" onClick={() => nav('/admin/products?new=1')}>
+              <Icon name="plus" size={15} /> Add New Product
             </AButton>
-            <AButton variant="ghost" onClick={() => nav('/admin/inventory')}>
-              Stock Audit ({totalStockUnits} Units)
-            </AButton>
-            <AButton onClick={() => nav('/admin/products?new=1')}>+ New Mobile</AButton>
+            <div className="admin-overview-secondary-group">
+              <AButton variant="ghost" onClick={() => nav('/admin/orders')}>
+                View Orders ({orders.length})
+              </AButton>
+              <AButton variant="ghost" onClick={() => nav('/admin/inventory')}>
+                Stock Audit ({totalStockUnits} Units)
+              </AButton>
+            </div>
           </div>
         }
       />

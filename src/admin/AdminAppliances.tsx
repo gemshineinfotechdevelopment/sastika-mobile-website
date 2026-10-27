@@ -154,26 +154,66 @@ export default function AdminAppliances() {
           </div>
 
           {/* Brand Filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <span style={{ fontSize: 11.5, fontWeight: 800, color: C.muted, textTransform: 'uppercase' }}>Brand:</span>
-            {brands.map((b) => (
-              <button
-                key={b}
-                onClick={() => setBrandFilter(b)}
-                style={{
-                  padding: '5px 10px',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  background: brandFilter === b ? C.tint2 : '#fff',
-                  color: brandFilter === b ? C.primary : C.muted,
-                  border: `1px solid ${brandFilter === b ? C.primary : C.border}`,
-                }}
-              >
-                {b}
-              </button>
-            ))}
+          <div
+            className="admin-appliances-brand-bar"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              flex: '1 1 300px',
+              minWidth: 0,
+              maxWidth: '100%',
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11.5,
+                fontWeight: 800,
+                color: C.muted,
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+                flexShrink: 0,
+              }}
+            >
+              Brand:
+            </span>
+            <div
+              className="admin-appliances-brand-scroll"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                overflowX: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                flex: 1,
+                minWidth: 0,
+                paddingBottom: 6,
+                paddingTop: 3,
+              }}
+            >
+              {brands.map((b) => (
+                <button
+                  key={b}
+                  className="tap"
+                  onClick={() => setBrandFilter(b)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 8,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    background: brandFilter === b ? C.tint2 : '#fff',
+                    color: brandFilter === b ? C.primary : C.muted,
+                    border: `1.5px solid ${brandFilter === b ? C.primary : C.border}`,
+                    transition: 'all .2s ease',
+                  }}
+                >
+                  {b}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

@@ -45,6 +45,7 @@ export const field: CSSProperties = {
 export function PageTitle({ title, sub, actions }: { title: string; sub?: string; actions?: ReactNode }) {
   return (
     <div
+      className="admin-page-title-row"
       style={{
         display: 'flex',
         alignItems: 'flex-end',
@@ -53,16 +54,18 @@ export function PageTitle({ title, sub, actions }: { title: string; sub?: string
         flexWrap: 'wrap',
         gap: 12,
         animation: 'fadeUp .45s ease both',
+        width: '100%',
+        boxSizing: 'border-box',
       }}
     >
-      <div style={{ flex: '1 1 280px', minWidth: 0 }}>
+      <div className="admin-page-title-content" style={{ flex: '1 1 280px', minWidth: 0, maxWidth: '100%' }}>
         <h1 style={{ margin: 0, fontSize: 'clamp(20px, 3.5vw, 28px)', fontWeight: 800, letterSpacing: -0.7, wordBreak: 'break-word' }}>
           {title}
         </h1>
         {sub && <p style={{ margin: '5px 0 0', color: C.muted, fontSize: 13, lineHeight: 1.4 }}>{sub}</p>}
       </div>
       {actions && (
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="admin-page-title-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           {actions}
         </div>
       )}
@@ -79,6 +82,7 @@ export function AButton({
   type = 'button',
   title,
   style,
+  className = '',
 }: {
   children: ReactNode;
   onClick?: () => void;
@@ -88,6 +92,7 @@ export function AButton({
   type?: 'button' | 'submit';
   title?: string;
   style?: CSSProperties;
+  className?: string;
 }) {
   const v: Record<string, CSSProperties> = {
     primary: { background: C.primary, color: '#fff' },
@@ -99,7 +104,7 @@ export function AButton({
   return (
     <button
       type={type}
-      className="tap"
+      className={`tap ${className}`.trim()}
       disabled={disabled}
       onClick={onClick}
       title={title}
@@ -110,6 +115,7 @@ export function AButton({
         fontSize: small ? 12 : 13.5,
         display: 'inline-flex',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: 7,
         opacity: disabled ? 0.5 : 1,
         whiteSpace: 'nowrap',
