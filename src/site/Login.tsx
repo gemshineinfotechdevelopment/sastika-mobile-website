@@ -4,39 +4,11 @@ import { C } from '../theme';
 import { useStore } from '../store';
 import { api } from '../api';
 import type { AuthUser } from '../types';
-import Icon from '../components/Icon';
-import { Btn, input } from './ui';
 import logoImg from '../assets/logo.png';
-
-const compactInput: React.CSSProperties = {
-  ...input,
-  padding: '9px 12px',
-  fontSize: 13,
-  borderRadius: 10,
-};
-
-function CompactField({
-  label,
-  required,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <label style={{ display: 'block', marginBottom: 0 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, marginBottom: 4 }}>
-        {label} {required && <span style={{ color: C.danger, fontWeight: 800 }}>*</span>}
-      </div>
-      {children}
-    </label>
-  );
-}
 
 function GoogleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+    <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
       <path
         fill="#4285F4"
         d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.665-5.17 3.665-9.12z"
@@ -76,29 +48,34 @@ function GoogleButton({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
-        padding: '10px 14px',
-        borderRadius: 10,
+        gap: 12,
+        padding: '13px 18px',
+        borderRadius: 12,
         border: '1.5px solid #d1d5db',
         background: '#ffffff',
         color: '#1f2937',
-        fontSize: 13,
-        fontWeight: 700,
-        cursor: 'pointer',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-        transition: 'all .2s ease',
+        fontSize: 14.5,
+        fontWeight: 800,
+        cursor: loading ? 'not-allowed' : 'pointer',
+        boxShadow: '0 3px 12px rgba(0,0,0,0.06)',
+        transition: 'all .2s cubic-bezier(0.4, 0, 0.2, 1)',
+        opacity: loading ? 0.75 : 1,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = '#4285F4';
-        e.currentTarget.style.boxShadow = '0 3px 10px rgba(66,133,244,0.15)';
+        if (!loading) {
+          e.currentTarget.style.borderColor = '#4285F4';
+          e.currentTarget.style.boxShadow = '0 6px 18px rgba(66,133,244,0.18)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = '#d1d5db';
-        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)';
+        e.currentTarget.style.boxShadow = '0 3px 12px rgba(0,0,0,0.06)';
+        e.currentTarget.style.transform = 'none';
       }}
     >
       <GoogleIcon />
-      <span>{label}</span>
+      <span>{loading ? 'Connecting to Google...' : label}</span>
     </button>
   );
 }
@@ -108,19 +85,10 @@ export default function Login() {
   const [params] = useSearchParams();
   const { user, loginUser, logo } = useStore();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [showGoogleSetupModal, setShowGoogleSetupModal] = useState(false);
-  const [alertModal, setAlertModal] = useState<{ open: boolean; title: string; message: string }>({
-    open: false,
-    title: '',
-    message: '',
-  });
 
   const redirectTo = params.get('redirect') || '/';
 
@@ -179,6 +147,7 @@ export default function Login() {
       const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) || '';
       if (!clientId || clientId.includes('your_google_client_id')) {
         setShowGoogleSetupModal(true);
+        setLoading(false);
         return;
       }
 
@@ -234,142 +203,24 @@ export default function Login() {
     }
   };
 
-  const handleSignIn = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      const msg = 'Please enter your email address or mobile number.';
-      setError(msg);
-      setAlertModal({
-        open: true,
-        title: 'Input Required',
-        message: msg,
-      });
-      return;
-    }
-    if (!password.trim()) {
-      const msg = 'Please enter your account password.';
-      setError(msg);
-      setAlertModal({
-        open: true,
-        title: 'Password Required',
-        message: msg,
-      });
-      return;
-    }
-
-    setError('');
-    setLoading(true);
-
-    try {
-      // 1. Authenticate with backend API
-      let res: any = null;
-      let backendErrorMsg: string | null = null;
-      try {
-        res = await api.login({ email: cleanEmail, password });
-      } catch (err: any) {
-        backendErrorMsg = err?.message || 'Login failed';
-      }
-
-      // If backend returned authenticated user
-      if (res && res.user) {
-        const u: AuthUser = {
-          id: res.user.id || res.user._id || 'u_' + Date.now(),
-          name: res.user.name || 'Sastika Member',
-          email: res.user.email || cleanEmail,
-          role: res.user.role || (cleanEmail.toLowerCase().includes('admin') ? 'admin' : 'customer'),
-          phone: res.user.phone || '',
-        };
-        loginUser(u, res.token);
-        setSuccess('Welcome back, ' + u.name + '!');
-        setTimeout(() => {
-          if (u.role === 'admin') nav('/admin', { replace: true });
-          else nav(redirectTo, { replace: true });
-        }, 350);
-        return;
-      }
-
-      // 2. Check local registered users cache (offline / client fallback)
-      const localUsers: Array<{ name: string; email: string; phone: string; password: string; role?: string }> =
-        JSON.parse(localStorage.getItem('sastika_registered_users_v1') || '[]');
-
-      const normalizedInput = cleanEmail.toLowerCase();
-      const cleanPhone = normalizedInput.replace(/\D/g, '').slice(-10);
-
-      const matchedLocal = localUsers.find(
-        (u) =>
-          u.email.toLowerCase() === normalizedInput ||
-          (cleanPhone.length >= 10 && u.phone && u.phone.replace(/\D/g, '').endsWith(cleanPhone))
-      );
-
-      if (matchedLocal) {
-        if (matchedLocal.password === password) {
-          const u: AuthUser = {
-            id: 'u_' + matchedLocal.email.replace(/[^a-z0-9]/gi, ''),
-            name: matchedLocal.name,
-            email: matchedLocal.email,
-            phone: matchedLocal.phone,
-            role: (matchedLocal.role as any) || 'customer',
-          };
-          loginUser(u);
-          setSuccess('Welcome back, ' + u.name + '!');
-          setTimeout(() => {
-            if (u.role === 'admin') nav('/admin', { replace: true });
-            else nav(redirectTo, { replace: true });
-          }, 350);
-          return;
-        } else {
-          const wrongPwdMsg = 'Incorrect password. Please verify your password and try again.';
-          setError(wrongPwdMsg);
-          setAlertModal({
-            open: true,
-            title: 'Incorrect Password',
-            message: wrongPwdMsg,
-          });
-          return;
-        }
-      }
-
-      // 3. User is NOT authenticated (wrong email or wrong password)
-      // Display alert popup modal and inline error banner
-      const failMsg = backendErrorMsg || 'Incorrect email ID or password. Please verify your credentials and try again.';
-      setError(failMsg);
-      setAlertModal({
-        open: true,
-        title: 'Wrong Email or Password',
-        message: failMsg,
-      });
-    } catch (err: any) {
-      const generalErr = err?.message || 'Login failed. Please check your credentials.';
-      setError(generalErr);
-      setAlertModal({
-        open: true,
-        title: 'Sign In Failed',
-        message: generalErr,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div
       style={{
-        minHeight: 'auto',
+        minHeight: '75vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '16px 14px 24px',
+        padding: '30px 16px 40px',
       }}
     >
       <div
         style={{
           width: '100%',
-          maxWidth: 410,
+          maxWidth: 420,
           background: '#fff',
-          borderRadius: 20,
+          borderRadius: 22,
           border: `1.5px solid ${C.border}`,
-          boxShadow: '0 8px 30px rgba(11,74,67,0.1)',
+          boxShadow: '0 12px 40px rgba(11,74,67,0.1)',
           overflow: 'hidden',
           animation: 'fadeUp .3s ease both',
         }}
@@ -379,7 +230,7 @@ export default function Login() {
           style={{
             background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primarySoft})`,
             color: '#fff',
-            padding: '16px 20px 14px',
+            padding: '22px 22px 18px',
             textAlign: 'center',
             position: 'relative',
           }}
@@ -387,42 +238,42 @@ export default function Login() {
           <div
             onClick={() => nav('/')}
             style={{
-              width: 44,
-              height: 44,
+              width: 52,
+              height: 52,
               borderRadius: '50%',
               background: '#fff',
-              margin: '0 auto 6px',
+              margin: '0 auto 8px',
               display: 'grid',
               placeItems: 'center',
               border: '2px solid #d4af37',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
               cursor: 'pointer',
               overflow: 'hidden',
             }}
           >
-            <img src={logo || logoImg} alt="Sastika Mobiles" style={{ width: 36, height: 36, objectFit: 'cover' }} />
+            <img src={logo || logoImg} alt="Sastika Mobiles" style={{ width: 42, height: 42, objectFit: 'cover' }} />
           </div>
 
-          <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.5, color: C.accent, marginBottom: 2 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: C.accent, marginBottom: 3 }}>
             SASTIKA MOBILES • SIVAKASI
           </div>
-          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 900, letterSpacing: -0.3 }}>
-            {redirectTo.includes('checkout') ? 'Sign In to Checkout' : 'Sign In to Account'}
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 900, letterSpacing: -0.3 }}>
+            {redirectTo.includes('checkout') ? 'Sign In to Checkout' : 'Customer Sign In'}
           </h1>
-          <p style={{ margin: '3px 0 0', fontSize: 11.5, opacity: 0.85 }}>
+          <p style={{ margin: '5px 0 0', fontSize: 12.5, opacity: 0.9, lineHeight: 1.4 }}>
             {redirectTo.includes('checkout')
-              ? 'Complete sign-in to proceed with your order'
-              : 'Sign in to track orders, repair tickets & saved wishlist'}
+              ? 'Sign in with Google to complete your order quickly & securely'
+              : 'Sign in with your Google account for 1-click access'}
           </p>
         </div>
 
-        <div style={{ padding: '16px 18px 16px' }}>
+        <div style={{ padding: '22px 20px 20px' }}>
           {/* Checkout Notification Banner */}
           {redirectTo.includes('checkout') && (
             <div
               style={{
-                marginBottom: 14,
-                padding: '10px 14px',
+                marginBottom: 16,
+                padding: '11px 14px',
                 borderRadius: 12,
                 background: '#fffbeb',
                 border: '1.5px solid #fde68a',
@@ -436,7 +287,7 @@ export default function Login() {
             >
               <span style={{ fontSize: 18 }}>🛒</span>
               <span>
-                <strong>Checkout requires sign-in:</strong> Please sign in with your email or Google account to complete your order.
+                <strong>Checkout requires sign-in:</strong> Please continue with Google to place your order.
               </span>
             </div>
           )}
@@ -445,8 +296,8 @@ export default function Login() {
           {params.get('notice') && !redirectTo.includes('checkout') && (
             <div
               style={{
-                marginBottom: 14,
-                padding: '10px 14px',
+                marginBottom: 16,
+                padding: '11px 14px',
                 borderRadius: 12,
                 background: '#eff6ff',
                 border: '1.5px solid #bfdbfe',
@@ -468,37 +319,37 @@ export default function Login() {
           {error && (
             <div
               style={{
-                marginBottom: 12,
-                padding: '9px 12px',
-                borderRadius: 10,
+                marginBottom: 16,
+                padding: '10px 14px',
+                borderRadius: 11,
                 background: C.dangerSoft,
                 color: C.danger,
                 fontSize: 12.5,
                 fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 8,
                 animation: 'fadeUp .2s ease',
               }}
             >
               <span>⚠️</span>
-              <span>{error}</span>
+              <span style={{ lineHeight: 1.4 }}>{error}</span>
             </div>
           )}
 
           {success && (
             <div
               style={{
-                marginBottom: 12,
-                padding: '9px 12px',
-                borderRadius: 10,
+                marginBottom: 16,
+                padding: '10px 14px',
+                borderRadius: 11,
                 background: C.successSoft,
                 color: C.success,
                 fontSize: 12.5,
                 fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 8,
                 animation: 'fadeUp .2s ease',
               }}
             >
@@ -507,205 +358,68 @@ export default function Login() {
             </div>
           )}
 
-          {/* ==================== SIGN IN FORM ==================== */}
-          <form onSubmit={handleSignIn} style={{ display: 'grid', gap: 11 }}>
-              <CompactField label="Email Address or Mobile Number" required>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: C.muted }}>
-                    <Icon name="mail" size={15} />
-                  </span>
-                  <input
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. name@example.com or 9840123456"
-                    style={{ ...compactInput, paddingLeft: 36 }}
-                    autoComplete="username"
-                    required
-                  />
-                </div>
-              </CompactField>
+          {/* ==================== 1-CLICK GOOGLE SIGN IN ==================== */}
+          <div style={{ display: 'grid', gap: 14 }}>
+            <GoogleButton onClick={handleGoogleAuth} loading={loading} label="Continue with Google" />
 
-              <CompactField label="Password" required>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: C.muted }}>
-                    <Icon name="lock" size={15} />
-                  </span>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    style={{ ...compactInput, paddingLeft: 36, paddingRight: 36 }}
-                    autoComplete="current-password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{
-                      position: 'absolute',
-                      right: 10,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      border: 'none',
-                      background: 'none',
-                      color: C.muted,
-                      cursor: 'pointer',
-                      padding: 2,
-                    }}
-                    aria-label="Toggle password visibility"
-                  >
-                    <Icon name="eye" size={15} />
-                  </button>
-                </div>
-              </CompactField>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                fontSize: 11.5,
+                color: C.muted,
+                fontWeight: 600,
+              }}
+            >
+              <span>⚡</span>
+              <span>One-click instant login — No password needed</span>
+            </div>
+          </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11.5 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: C.text }}>
-                  <input type="checkbox" defaultChecked style={{ accentColor: C.primary }} />
-                  <span>Remember me</span>
-                </label>
-                <a
-                  href="tel:+919543434344"
-                  style={{ color: C.primary, fontWeight: 700, textDecoration: 'none' }}
-                >
-                  Forgot password?
-                </a>
-              </div>
+          {/* Account Perks Card */}
+          <div
+            style={{
+              marginTop: 20,
+              padding: '14px 15px',
+              borderRadius: 14,
+              background: '#f8fafc',
+              border: `1px solid ${C.border}`,
+              display: 'grid',
+              gap: 10,
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.8, color: C.muted, textTransform: 'uppercase' }}>
+              Why Sign In with Google?
+            </div>
 
-              <Btn full disabled={loading} style={{ padding: '10px 14px', fontSize: 13.5, borderRadius: 10, marginTop: 2 }}>
-                {loading ? 'Signing In...' : 'Sign In to Account →'}
-              </Btn>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12.5, color: C.text }}>
+              <span style={{ fontSize: 15 }}>📦</span>
+              <span><strong>Live Order Tracking</strong> — Track orders & download invoices</span>
+            </div>
 
-              {/* OR Divider & Google Login Button */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  margin: '8px 0 4px',
-                  color: C.muted,
-                  fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: 0.5,
-                }}
-              >
-                <div style={{ flex: 1, height: 1, background: C.border }} />
-                <span>OR SIGN IN WITH</span>
-                <div style={{ flex: 1, height: 1, background: C.border }} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12.5, color: C.text }}>
+              <span style={{ fontSize: 15 }}>🔧</span>
+              <span><strong>Repair Service Desk</strong> — Track real-time phone repair status</span>
+            </div>
 
-              <GoogleButton onClick={handleGoogleAuth} loading={loading} label="Continue with Google Mail" />
-
-              <div
-                style={{
-                  textAlign: 'center',
-                  marginTop: 14,
-                  paddingTop: 12,
-                  borderTop: `1px solid ${C.border}`,
-                  fontSize: 12,
-                  color: C.muted,
-                  lineHeight: 1.5,
-                }}
-              >
-                Instant access with <strong>Continue with Google Mail</strong> above.
-              </div>
-            </form>
-
-            {/* ==================== POPUP ALERT MODAL FOR WRONG CREDENTIALS ==================== */}
-            {alertModal.open && (
-              <div
-                style={{
-                  position: 'fixed',
-                  inset: 0,
-                  zIndex: 10000,
-                  background: 'rgba(6, 42, 37, 0.65)',
-                  backdropFilter: 'blur(5px)',
-                  WebkitBackdropFilter: 'blur(5px)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 16,
-                  animation: 'fadeIn .2s ease',
-                }}
-                onClick={() => setAlertModal({ ...alertModal, open: false })}
-              >
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    width: '100%',
-                    maxWidth: 380,
-                    background: '#ffffff',
-                    borderRadius: 20,
-                    padding: '24px 22px 20px',
-                    boxShadow: '0 20px 45px rgba(0,0,0,0.25)',
-                    border: '2px solid #fee2e2',
-                    textAlign: 'center',
-                    animation: 'pop .25s cubic-bezier(.2,.8,.2,1)',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 58,
-                      height: 58,
-                      borderRadius: '50%',
-                      background: '#fef2f2',
-                      border: '2px solid #fecaca',
-                      display: 'grid',
-                      placeItems: 'center',
-                      margin: '0 auto 14px',
-                      color: '#dc2626',
-                      fontSize: 26,
-                      boxShadow: '0 4px 14px rgba(220,38,38,0.15)',
-                    }}
-                  >
-                    ⚠️
-                  </div>
-
-                  <h3 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 900, color: '#111827' }}>
-                    {alertModal.title || 'Wrong Email ID or Password'}
-                  </h3>
-
-                  <p style={{ margin: '0 0 20px', fontSize: 13, color: '#4b5563', lineHeight: 1.55 }}>
-                    {alertModal.message}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={() => setAlertModal({ ...alertModal, open: false })}
-                    style={{
-                      width: '100%',
-                      padding: '11px 16px',
-                      borderRadius: 12,
-                      background: '#dc2626',
-                      color: '#ffffff',
-                      fontSize: 13.5,
-                      fontWeight: 800,
-                      border: 'none',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 12px rgba(220,38,38,0.25)',
-                      transition: 'transform .15s ease',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
-                  >
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12.5, color: C.text }}>
+              <span style={{ fontSize: 15 }}>🛡️</span>
+              <span><strong>Fast & Safe</strong> — Secured by Google credentials</span>
+            </div>
+          </div>
 
           {/* Already logged in indicator */}
           {user && (
             <div
               style={{
-                marginTop: 10,
-                padding: '7px 10px',
+                marginTop: 14,
+                padding: '9px 12px',
                 borderRadius: 10,
                 background: C.tint2,
                 border: `1px solid ${C.border}`,
-                fontSize: 11.5,
+                fontSize: 12,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -715,12 +429,42 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => nav('/orders')}
-                style={{ color: C.primary, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', fontSize: 11.5 }}
+                style={{ color: C.primary, fontWeight: 800, border: 'none', background: 'none', cursor: 'pointer', fontSize: 12 }}
               >
-                Orders →
+                My Account →
               </button>
             </div>
           )}
+
+          {/* Footer Admin Link */}
+          <div
+            style={{
+              textAlign: 'center',
+              marginTop: 18,
+              paddingTop: 14,
+              borderTop: `1px solid ${C.border}`,
+              fontSize: 12,
+              color: C.muted,
+            }}
+          >
+            Store Manager or Staff?{' '}
+            <button
+              type="button"
+              onClick={() => nav('/admin/login')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: C.primary,
+                fontWeight: 800,
+                cursor: 'pointer',
+                padding: 0,
+                textDecoration: 'underline',
+              }}
+            >
+              Admin Portal Login →
+            </button>
+          </div>
+
           {/* Google OAuth Setup Guidance Modal */}
           {showGoogleSetupModal && (
             <div
@@ -728,8 +472,9 @@ export default function Login() {
                 position: 'fixed',
                 inset: 0,
                 zIndex: 9999,
-                background: 'rgba(0,0,0,0.5)',
+                background: 'rgba(0,0,0,0.55)',
                 backdropFilter: 'blur(3px)',
+                WebkitBackdropFilter: 'blur(3px)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -740,19 +485,19 @@ export default function Login() {
               <div
                 style={{
                   background: '#ffffff',
-                  borderRadius: 16,
-                  padding: '20px 22px',
-                  maxWidth: 460,
+                  borderRadius: 18,
+                  padding: '22px 24px',
+                  maxWidth: 480,
                   width: '100%',
-                  boxShadow: '0 12px 36px rgba(0,0,0,0.22)',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.25)',
                   border: `1.5px solid ${C.border}`,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <GoogleIcon />
-                    <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: C.text }}>
-                      Google OAuth Setup
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: C.text }}>
+                      Google Sign-In Setup
                     </h3>
                   </div>
                   <button
@@ -779,14 +524,14 @@ export default function Login() {
                     background: '#eff6ff',
                     border: '1px solid #bfdbfe',
                     borderRadius: 10,
-                    padding: '10px 12px',
-                    fontSize: 12,
+                    padding: '11px 13px',
+                    fontSize: 12.5,
                     color: '#1e40af',
                     lineHeight: 1.5,
                     marginBottom: 12,
                   }}
                 >
-                  <b>Ready for your credentials!</b> Backend Google OAuth routes are fully created and active. To connect your live Google account, add your credentials in <code>server/.env</code>:
+                  <b>Connect your Google OAuth credentials</b> in your server environment (<code>server/.env</code>) or test immediately with a mock Google session below.
                 </div>
 
                 <div
@@ -803,47 +548,38 @@ export default function Login() {
                   }}
                 >
 {`# In server/.env:
-GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:5000/api/auth/google/callback`}
+GOOGLE_CLIENT_ID=563616633952-9gql725sk9tijanfpbciqh0v3a2tav3e.apps.googleusercontent.com
+GOOGLE_REDIRECT_URI=https://sastika-mobiles.gemshine.tech/api/auth/google/callback`}
                 </div>
 
-                <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginBottom: 14 }}>
-                  <b>Redirect URIs to whitelist in Google Console:</b>
-                  <div style={{ fontFamily: 'monospace', fontSize: 11, color: C.text, marginTop: 4 }}>
-                    • http://localhost:5000/api/auth/google/callback<br />
-                    • https://sastika-mobiles.gemshine.tech/api/auth/google/callback
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
                   <button
                     type="button"
                     onClick={handleDemoGoogleLogin}
                     style={{
                       flex: 1,
-                      padding: '9px 12px',
-                      background: C.primary,
+                      padding: '10px 14px',
+                      background: `linear-gradient(135deg, ${C.primaryDark}, ${C.primarySoft})`,
                       color: '#fff',
                       border: 'none',
                       borderRadius: 10,
-                      fontSize: 12.5,
+                      fontSize: 13,
                       fontWeight: 800,
                       cursor: 'pointer',
                     }}
                   >
-                    Quick Test with Demo Google ID →
+                    Test with Demo Google ID →
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowGoogleSetupModal(false)}
                     style={{
-                      padding: '9px 14px',
+                      padding: '10px 16px',
                       background: C.tint2,
                       color: C.text,
                       border: `1px solid ${C.border}`,
                       borderRadius: 10,
-                      fontSize: 12.5,
+                      fontSize: 13,
                       fontWeight: 700,
                       cursor: 'pointer',
                     }}
