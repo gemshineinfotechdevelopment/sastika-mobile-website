@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
 import { getDbStatus } from '../config/db.js';
+import { memoryOrders } from './orderController.js';
 
 const getRazorpayInstance = () => {
   const key_id = (process.env.RAZORPAY_KEY_ID || '').trim();
@@ -172,7 +173,11 @@ export const verifyRazorpayPayment = async (req, res) => {
 
     let savedOrder = newOrder;
     if (getDbStatus()) {
-      savedOrder = await Order.create(newOrder);
+      savedOrder = await Order.findOneAndUpdate(
+        { id: orderId },
+        { $set: newOrder },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
 
       // Decrement inventory stock
       for (const item of (orderData.items || [])) {
@@ -183,6 +188,18 @@ export const verifyRazorpayPayment = async (req, res) => {
           );
         }
       }
+    }
+
+    // Sync memory orders cache so immediate GET /api/orders reflects it
+    try {
+      const existingIdx = memoryOrders.findIndex((o) => o.id === orderId);
+      if (existingIdx >= 0) {
+        memoryOrders[existingIdx] = { ...memoryOrders[existingIdx], ...newOrder };
+      } else {
+        memoryOrders.unshift(newOrder);
+      }
+    } catch (e) {
+      // ignore memory sync failure
     }
 
     return res.status(200).json({

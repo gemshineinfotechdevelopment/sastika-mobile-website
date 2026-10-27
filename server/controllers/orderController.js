@@ -4,7 +4,7 @@ import { SEED_ORDERS } from '../data/seedData.js';
 import { getDbStatus } from '../config/db.js';
 import { memoryProducts } from './productController.js';
 
-let memoryOrders = [...SEED_ORDERS];
+export let memoryOrders = [...SEED_ORDERS];
 
 export const getOrders = async (req, res) => {
   try {
