@@ -3,6 +3,7 @@ import { C } from '../theme';
 import Icon from '../components/Icon';
 import { AButton, FieldRow, PageTitle, Tag, Toggle, field, panel } from './ui';
 import defaultLogo from '../assets/logo.png';
+import { api } from '../api';
 
 interface Cfg {
   business: string;
@@ -16,6 +17,7 @@ interface Cfg {
   autoInvoice: boolean;
   smsUpdates: boolean;
   codOn: boolean;
+  codFee: string;
   upiOn: boolean;
   freeShipAbove: string;
 }
@@ -32,6 +34,7 @@ const DEFAULT: Cfg = {
   autoInvoice: true,
   smsUpdates: true,
   codOn: true,
+  codFee: '50',
   upiOn: true,
   freeShipAbove: '0',
 };
@@ -56,6 +59,23 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
   const [dirty, setDirty] = useState(false);
 
+  // Fetch settings from backend database on mount
+  useEffect(() => {
+    api.getSettings().then((res) => {
+      if (res && res.success && res.data) {
+        setCfg((prev) => {
+          const merged: Cfg = {
+            ...prev,
+            ...res.data,
+            codFee: res.data.codFee !== undefined ? String(res.data.codFee) : prev.codFee,
+          };
+          localStorage.setItem('sastika:settings', JSON.stringify(merged));
+          return merged;
+        });
+      }
+    }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (!saved) return;
     const t = window.setTimeout(() => setSaved(false), 2200);
@@ -76,10 +96,16 @@ export default function Settings() {
     setDirty(true);
   };
 
-  const save = () => {
+  const save = async () => {
     try {
       localStorage.setItem('sastika:settings', JSON.stringify(cfg));
       window.dispatchEvent(new Event('sastika:settings_changed'));
+
+      // Persist to backend database so all customer devices receive updated settings
+      await api.updateSettings({
+        ...cfg,
+        codFee: Number(cfg.codFee) || 0,
+      }).catch(() => {});
     } catch {
       /* ignore */
     }
@@ -341,6 +367,59 @@ export default function Settings() {
                 <Toggle on={cfg[s.k] as boolean} onChange={(v) => set(s.k, v as Cfg[typeof s.k])} />
               </div>
             ))}
+
+            {/* Cash on Delivery Extra Fee Configuration Card */}
+            <div
+              style={{
+                gridColumn: '1 / -1',
+                background: '#f8fafc',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: 14,
+                padding: '16px 20px',
+                marginTop: 14,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 16,
+              }}
+            >
+              <div style={{ flex: '1 1 320px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 20 }}>💵</span>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: C.text }}>
+                    Cash on Delivery (COD) Extra Amount (₹)
+                  </div>
+                </div>
+                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4, lineHeight: 1.45 }}>
+                  Enter the extra fee to charge when a customer selects Cash on Delivery at checkout. This amount is automatically displayed and added to the user's total payment.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: C.primary }}>₹</span>
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  style={{
+                    ...field,
+                    width: 130,
+                    fontSize: 16,
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    background: '#fff',
+                    border: `2px solid ${C.primary}`,
+                    borderRadius: 10,
+                    padding: '9px 12px',
+                    color: C.primaryDark,
+                  }}
+                  value={cfg.codFee}
+                  onChange={(e) => set('codFee', e.target.value)}
+                  placeholder="50"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

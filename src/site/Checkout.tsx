@@ -60,6 +60,21 @@ export default function Checkout() {
     }
   }, []);
 
+  const [codFee, setCodFee] = useState<number>(() => {
+    try {
+      const raw = localStorage.getItem('sastika:settings');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.codFee !== undefined && !isNaN(Number(parsed.codFee))) {
+          return Math.max(0, Number(parsed.codFee));
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return 50;
+  });
+
   const [codEnabled, setCodEnabled] = useState<boolean>(() => {
     try {
       const raw = localStorage.getItem('sastika:settings');
@@ -73,6 +88,20 @@ export default function Checkout() {
     return true;
   });
 
+  // Fetch live settings from backend database
+  useEffect(() => {
+    api.getSettings().then((res) => {
+      if (res && res.success && res.data) {
+        if (res.data.codFee !== undefined && !isNaN(Number(res.data.codFee))) {
+          setCodFee(Math.max(0, Number(res.data.codFee)));
+        }
+        if (res.data.codOn !== undefined) {
+          setCodEnabled(Boolean(res.data.codOn));
+        }
+      }
+    }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     const checkSettings = () => {
       try {
@@ -81,6 +110,9 @@ export default function Checkout() {
           const parsed = JSON.parse(raw);
           const isCodOn = parsed.codOn !== false;
           setCodEnabled(isCodOn);
+          if (parsed.codFee !== undefined && !isNaN(Number(parsed.codFee))) {
+            setCodFee(Math.max(0, Number(parsed.codFee)));
+          }
           if (!isCodOn && form.payment === 'COD') {
             setForm((f) => ({ ...f, payment: 'RAZORPAY' }));
           }
@@ -100,11 +132,34 @@ export default function Checkout() {
 
   const isSivakasi = form.city.trim().toLowerCase().includes('sivakasi');
   const isCodAllowed = codEnabled && isSivakasi;
+  const isCod = form.payment === 'COD';
+  const appliedCodFee = isCod ? codFee : 0;
+  const finalPayable = t.payable + appliedCodFee;
 
-  const availablePayments = PAYMENTS.filter((p) => {
-    if (p.id === 'COD') return isCodAllowed;
-    return true;
-  });
+  const availablePayments = [
+    {
+      id: 'RAZORPAY',
+      title: 'Pay Online via Razorpay',
+      sub: codFee > 0
+        ? `UPI, Cards & Netbanking (Zero Fee — Save ₹${codFee} compared to COD!)`
+        : 'Google Pay, PhonePe, Paytm, UPI, Cards & Netbanking',
+      icon: 'zap' as IconName,
+      badge: codFee > 0 ? `Save ₹${codFee}` : '100% Secure',
+    },
+    ...(isCodAllowed
+      ? [
+          {
+            id: 'COD',
+            title: 'Cash on Delivery',
+            sub: codFee > 0
+              ? `Pay cash or UPI at your doorstep upon delivery (+ ₹${codFee} COD handling fee)`
+              : 'Pay cash or UPI at your doorstep upon delivery (Sivakasi only)',
+            icon: 'truck' as IconName,
+            badge: codFee > 0 ? `+ ₹${codFee} Extra` : undefined,
+          },
+        ]
+      : []),
+  ];
 
   useEffect(() => {
     if (!isCodAllowed && form.payment === 'COD') {
@@ -178,7 +233,7 @@ export default function Checkout() {
           email: form.email.trim() || user?.email || '',
           address: `${form.address.trim()}, ${form.city.trim()} ${form.pin.trim()}`,
           city: form.city.trim(),
-          payment: 'Cash on Delivery (COD)',
+          payment: codFee > 0 ? `Cash on Delivery (COD) [incl. ₹${codFee} COD fee]` : 'Cash on Delivery (COD)',
           discount: t.couponDiscount,
         });
         nav(`/confirmation/${encodeURIComponent(id)}`, { replace: true });
@@ -608,8 +663,31 @@ export default function Checkout() {
                   <span>Coupon {coupon}</span><span>− {money(t.couponDiscount)}</span>
                 </div>
               )}
+              {isCod && codFee > 0 && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: 13,
+                    color: '#92400e',
+                    fontWeight: 700,
+                    padding: '8px 12px',
+                    background: '#fef3c7',
+                    border: '1.5px solid #fde68a',
+                    borderRadius: 10,
+                    margin: '8px 0',
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 16 }}>💵</span>
+                    <span>Cash on Delivery Handling Fee</span>
+                  </span>
+                  <span>+ {money(codFee)}</span>
+                </div>
+              )}
               <div style={{ borderTop: `1px dashed ${C.border}`, marginTop: 6, paddingTop: 10, display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 17 }}>
-                <span>Total Payable</span><span>{money(t.payable)}</span>
+                <span>Total Payable</span><span>{money(finalPayable)}</span>
               </div>
             </Card>
             <Card title="Delivering to">
@@ -618,7 +696,12 @@ export default function Checkout() {
                 {form.email && <><span style={{ color: C.muted }}>Email:</span> <b>{form.email}</b><br /></>}
                 {form.address}, {form.city} {form.pin}<br />
                 <span style={{ color: C.muted }}>
-                  Payment Method: <b>{form.payment === 'RAZORPAY' ? 'Razorpay Online (UPI/Cards)' : 'Cash on Delivery'}</b>
+                  Payment Method:{' '}
+                  <b>
+                    {isCod
+                      ? `Cash on Delivery ${codFee > 0 ? `(+ ₹${codFee} fee)` : ''}`
+                      : 'Razorpay Online (UPI/Cards)'}
+                  </b>
                 </span>
               </div>
             </Card>
@@ -666,8 +749,8 @@ export default function Checkout() {
                 </>
               ) : (
                 <>
-                  {form.payment === 'RAZORPAY' ? 'Pay Online with Razorpay · ' : 'Confirm COD Order · '}
-                  {money(t.payable)}
+                  {isCod ? 'Confirm COD Order · ' : 'Pay Online with Razorpay · '}
+                  {money(finalPayable)}
                 </>
               )}
             </Btn>

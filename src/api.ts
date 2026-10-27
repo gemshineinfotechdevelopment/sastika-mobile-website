@@ -176,5 +176,16 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  // Store Settings
+  getSettings: () =>
+    request<{ success: boolean; data: any }>('/settings'),
+
+  updateSettings: (settings: Record<string, any>) =>
+    request<{ success: boolean; data: any; message?: string }>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    }),
 };
+
 
