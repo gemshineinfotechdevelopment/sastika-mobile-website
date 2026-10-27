@@ -1,5 +1,7 @@
 import { Settings } from '../models/Settings.js';
+import { User } from '../models/User.js';
 import { getDbStatus } from '../config/db.js';
+import bcrypt from 'bcryptjs';
 
 const DEFAULT_SETTINGS = {
   business: 'Sastika Mobiles',
@@ -16,13 +18,21 @@ const DEFAULT_SETTINGS = {
   codFee: 50,
   upiOn: true,
   freeShipAbove: '0',
+  // Store Personnel Directory
+  managerName: 'S. Ramanathan',
+  managerPhone: '+91 95434 34344',
+  salesRepName: 'M. Karthi',
+  salesRepPhone: '+91 98401 23456',
+  // Admin Login Credentials
+  adminUsername: 'admin@sastikamobiles.com',
+  adminPassword: 'admin123',
 };
 
 let memorySettings = { ...DEFAULT_SETTINGS };
 
 /**
  * GET /api/settings
- * Fetch global store settings (including codFee, codOn, business profile)
+ * Fetch global store settings (including codFee, personnel, admin credentials)
  */
 export const getSettings = async (req, res) => {
   try {
@@ -57,6 +67,28 @@ export const updateSettings = async (req, res) => {
         { $set: patch },
         { new: true, upsert: true }
       );
+
+      // If admin credentials updated, synchronize Admin User in database as well
+      if (patch.adminUsername || patch.adminPassword) {
+        const adminEmail = (patch.adminUsername || 'admin@sastikamobiles.com').trim().toLowerCase();
+        let adminUser = await User.findOne({ role: 'admin' });
+        const updateFields = { email: adminEmail };
+        if (patch.adminPassword) {
+          updateFields.password = await bcrypt.hash(patch.adminPassword, 10);
+        }
+        if (adminUser) {
+          await User.findByIdAndUpdate(adminUser._id, { $set: updateFields });
+        } else {
+          await User.create({
+            name: 'Sastika Admin',
+            email: adminEmail,
+            password: updateFields.password || (await bcrypt.hash('admin123', 10)),
+            role: 'admin',
+            phone: '+91 98401 23456',
+          });
+        }
+      }
+
       return res.json({ success: true, data: updated, message: 'Settings saved successfully' });
     }
 

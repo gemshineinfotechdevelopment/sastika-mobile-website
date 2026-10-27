@@ -47,12 +47,16 @@ export default function AdminLogin() {
 
       // Offline / memory admin fallback
       const cleanEmail = email.trim().toLowerCase();
+      const customSettings = JSON.parse(localStorage.getItem('sastika:settings') || '{}');
+      const customUser = (customSettings.adminUsername || 'admin@sastikamobiles.com').trim().toLowerCase();
+      const customPass = customSettings.adminPassword || 'admin123';
+
       if (
-        (cleanEmail === 'admin@sastikamobiles.com' || cleanEmail === 'admin@sastika.com' || cleanEmail === 'admin') &&
-        (password === 'admin123' || password === 'admin' || password === 'password123')
+        (cleanEmail === customUser || cleanEmail === 'admin@sastikamobiles.com' || cleanEmail === 'admin@sastika.com' || cleanEmail === 'admin') &&
+        (password === customPass || password === 'admin123' || password === 'admin' || password === 'password123')
       ) {
         const dummyToken = 'admin_jwt_' + Date.now();
-        const dummyUser = { id: 'u_admin', name: 'Sastika Admin', email: 'admin@sastikamobiles.com', role: 'admin' };
+        const dummyUser = { id: 'u_admin', name: 'Sastika Admin', email: customUser, role: 'admin' };
         localStorage.setItem('sastika_admin_token', dummyToken);
         localStorage.setItem('sastika_admin_user', JSON.stringify(dummyUser));
         sessionStorage.setItem('sastika_admin_token', dummyToken);

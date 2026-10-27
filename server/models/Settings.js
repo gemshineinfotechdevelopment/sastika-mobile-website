@@ -20,6 +20,14 @@ const settingsSchema = new mongoose.Schema(
     codFee: { type: Number, default: 50 },
     upiOn: { type: Boolean, default: true },
     freeShipAbove: { type: String, default: '0' },
+    // Store Personnel Directory for Stores & Contact page
+    managerName: { type: String, default: 'S. Ramanathan' },
+    managerPhone: { type: String, default: '+91 95434 34344' },
+    salesRepName: { type: String, default: 'M. Karthi' },
+    salesRepPhone: { type: String, default: '+91 98401 23456' },
+    // Admin Login Credentials
+    adminUsername: { type: String, default: 'admin@sastikamobiles.com' },
+    adminPassword: { type: String, default: 'admin123' },
   },
   { timestamps: true }
 );

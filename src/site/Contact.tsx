@@ -1,29 +1,100 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { STORES } from '../data';
 import { C } from '../theme';
 import Icon from '../components/Icon';
 import { Btn, Pill } from './ui';
+import { api } from '../api';
 
 export default function Contact() {
   const [active, setActive] = useState(0);
   const store = STORES[active] || STORES[0];
 
+  const [personnel, setPersonnel] = useState(() => {
+    try {
+      const raw = localStorage.getItem('sastika:settings');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          managerName: parsed.managerName || 'S. Ramanathan',
+          managerPhone: parsed.managerPhone || '+91 95434 34344',
+          salesRepName: parsed.salesRepName || 'M. Karthi',
+          salesRepPhone: parsed.salesRepPhone || '+91 98401 23456',
+        };
+      }
+    } catch {
+      /* ignore */
+    }
+    return {
+      managerName: 'S. Ramanathan',
+      managerPhone: '+91 95434 34344',
+      salesRepName: 'M. Karthi',
+      salesRepPhone: '+91 98401 23456',
+    };
+  });
+
+  useEffect(() => {
+    const fetchLiveSettings = () => {
+      api
+        .getSettings()
+        .then((res) => {
+          if (res && res.success && res.data) {
+            setPersonnel({
+              managerName: res.data.managerName || 'S. Ramanathan',
+              managerPhone: res.data.managerPhone || '+91 95434 34344',
+              salesRepName: res.data.salesRepName || 'M. Karthi',
+              salesRepPhone: res.data.salesRepPhone || '+91 98401 23456',
+            });
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchLiveSettings();
+
+    const handleLocalChange = () => {
+      try {
+        const raw = localStorage.getItem('sastika:settings');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          setPersonnel({
+            managerName: parsed.managerName || 'S. Ramanathan',
+            managerPhone: parsed.managerPhone || '+91 95434 34344',
+            salesRepName: parsed.salesRepName || 'M. Karthi',
+            salesRepPhone: parsed.salesRepPhone || '+91 98401 23456',
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+
+    window.addEventListener('storage', handleLocalChange);
+    window.addEventListener('sastika:settings_changed', handleLocalChange);
+    return () => {
+      window.removeEventListener('storage', handleLocalChange);
+      window.removeEventListener('sastika:settings_changed', handleLocalChange);
+    };
+  }, []);
+
+  const cleanManagerRaw = personnel.managerPhone.replace(/\D/g, '').slice(-10);
+  const cleanSalesRaw = personnel.salesRepPhone.replace(/\D/g, '').slice(-10);
+
   const storeContacts = [
     {
       role: 'Store Manager',
       roleBadge: 'Branch In-Charge & Operations',
-      name: 'S. Ramanathan',
-      phone: '+91 95434 34344',
-      rawPhone: '9543434344',
+      name: personnel.managerName,
+      phone: personnel.managerPhone,
+      rawPhone: cleanManagerRaw || '9543434344',
       description: 'Store escalations, corporate bulk purchases, service warranty & general customer care',
       status: 'Available Daily',
     },
     {
       role: 'Sales Representative',
       roleBadge: 'Sales & Product Specialist',
-      name: 'M. Karthi',
-      phone: '+91 98401 23456',
-      rawPhone: '9840123456',
+      name: personnel.salesRepName,
+      phone: personnel.salesRepPhone,
+      rawPhone: cleanSalesRaw || '9840123456',
       description: 'Smartphone deals, trade-in exchange quotes, home appliances & live stock availability',
       status: 'Available Daily',
     },
@@ -157,7 +228,7 @@ export default function Contact() {
       </div>
 
       {/* ========================================================================= */}
-      {/* DIRECT STORE CONTACT DIRECTORY (STORE MANAGER & SALES REP)                */}
+      {/* DIRECT STORE CONTACT DIRECTORY (STORE MANAGER & SALES REP - DYNAMIC)      */}
       {/* ========================================================================= */}
       <div style={{ marginTop: 26 }}>
         <div style={{ marginBottom: 14 }}>
@@ -342,7 +413,7 @@ export default function Contact() {
               borderRadius: 12,
               background: '#ffffff',
               color: C.primaryDark,
-              border: `1.5px solid ${C.border}`,
+              border: `1px solid ${C.border}`,
               fontWeight: 800,
               fontSize: 13,
               textDecoration: 'none',
