@@ -561,7 +561,7 @@ export default function AdminFlashDeals() {
               </div>
 
               {/* Product Name, Brand, Category */}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
                     PRODUCT NAME *
@@ -571,7 +571,7 @@ export default function AdminFlashDeals() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Samsung Galaxy S24 Ultra 5G"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
                   />
                 </div>
                 <div>
@@ -582,7 +582,7 @@ export default function AdminFlashDeals() {
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
                     placeholder="Samsung, Apple..."
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
                   />
                 </div>
                 <div>
@@ -592,7 +592,7 @@ export default function AdminFlashDeals() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as Category)}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, background: '#fff', fontWeight: 600 }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, background: '#fff', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}
                   >
                     <option value="phone">Smartphones (5G)</option>
                     <option value="audio">Audio &amp; Accessories</option>
@@ -602,7 +602,7 @@ export default function AdminFlashDeals() {
               </div>
 
               {/* Deal Price, Original MRP, Badge, Claimed % */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
                     DEAL PRICE (₹) *
@@ -613,7 +613,7 @@ export default function AdminFlashDeals() {
                     value={price}
                     onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="49999"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 700, color: C.primary }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 700, color: C.primary }}
                   />
                 </div>
                 <div>
@@ -626,7 +626,7 @@ export default function AdminFlashDeals() {
                     value={mrp}
                     onChange={(e) => setMrp(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="69999"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
                   />
                 </div>
                 <div>
@@ -637,7 +637,7 @@ export default function AdminFlashDeals() {
                     value={badge}
                     onChange={(e) => setBadge(e.target.value)}
                     placeholder="Festival Offer, 50% OFF"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
                   />
                 </div>
                 <div>
@@ -651,28 +651,28 @@ export default function AdminFlashDeals() {
                     value={claimedPct}
                     onChange={(e) => setClaimedPct(Number(e.target.value))}
                     placeholder="65"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
                   />
                 </div>
               </div>
 
               {/* Finish Colour & Storage Variant & Stock */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.4fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
                     FINISH COLOUR
                   </label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', maxWidth: '100%' }}>
                     <input
                       type="color"
                       value={color}
                       onChange={(e) => setColor(e.target.value)}
-                      style={{ width: 44, height: 38, padding: 0, borderRadius: 8, border: `1.5px solid ${C.border}`, cursor: 'pointer' }}
+                      style={{ width: 44, height: 38, padding: 0, borderRadius: 8, border: `1.5px solid ${C.border}`, cursor: 'pointer', flexShrink: 0 }}
                     />
                     <input
                       value={color}
                       onChange={(e) => setColor(e.target.value)}
-                      style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 600 }}
+                      style={{ flex: 1, minWidth: 0, padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 600 }}
                     />
                   </div>
                 </div>
@@ -685,7 +685,7 @@ export default function AdminFlashDeals() {
                     value={storageVariant}
                     onChange={(e) => setStorageVariant(e.target.value)}
                     placeholder="128GB, 256GB"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
                   />
                 </div>
 
@@ -698,7 +698,7 @@ export default function AdminFlashDeals() {
                     value={stock}
                     onChange={(e) => setStock(Number(e.target.value))}
                     placeholder="15"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
                   />
                 </div>
               </div>

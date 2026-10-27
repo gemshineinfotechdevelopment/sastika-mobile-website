@@ -93,7 +93,7 @@ export default function ProductDetail() {
     if (LOCAL_PINCODES.includes(clean)) {
       setPinResult('Delivery within 7 working days from order date · Standard delivery');
     } else {
-      setPinResult('Delivery not available for this pincode. Serviceable pincodes: 626123, 626124, 626189, 626130');
+      setPinResult('Delivery not available for this pincode');
     }
   };
 

@@ -209,7 +209,7 @@ export default function Checkout() {
       if (!/^\d{6}$/.test(cleanPin)) return setError('Enter a valid 6-digit pincode');
       const ALLOWED_PINCODES = ['626123', '626124', '626189', '626130'];
       if (!ALLOWED_PINCODES.includes(cleanPin)) {
-        return setError('Delivery is not available for pincode ' + cleanPin + '. Serviceable pincodes: 626123, 626124, 626189, 626130');
+        return setError('Delivery not available for this pincode');
       }
     }
 

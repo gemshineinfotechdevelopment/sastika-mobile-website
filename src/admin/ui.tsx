@@ -35,6 +35,8 @@ export const td: CSSProperties = {
 
 export const field: CSSProperties = {
   width: '100%',
+  maxWidth: '100%',
+  boxSizing: 'border-box',
   padding: '11px 13px',
   borderRadius: 11,
   border: `1.5px solid ${C.border}`,
