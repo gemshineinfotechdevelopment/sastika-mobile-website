@@ -27,6 +27,15 @@ const orderSchema = new mongoose.Schema(
     },
     cancelReason: { type: String, default: '' },
     payment: { type: String, default: 'COD' },
+    paymentStatus: {
+      type: String,
+      enum: ['Pending', 'Paid', 'Failed', 'Refunded'],
+      default: 'Pending',
+    },
+    razorpayOrderId: { type: String, default: '' },
+    razorpayPaymentId: { type: String, default: '' },
+    razorpaySignature: { type: String, default: '' },
+    paidAt: { type: Date },
     date: { type: String, default: () => new Date().toISOString().slice(0, 10) },
   },
   { timestamps: true }

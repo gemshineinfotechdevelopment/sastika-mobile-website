@@ -48,6 +48,7 @@ function useLocalState<T>(key: string, initial: T): [T, React.Dispatch<React.Set
 }
 
 export interface CheckoutInfo {
+  id?: string;
   name: string;
   phone: string;
   email?: string;
@@ -55,6 +56,11 @@ export interface CheckoutInfo {
   city: string;
   payment: string;
   discount: number;
+  paymentStatus?: 'Pending' | 'Paid' | 'Failed' | 'Refunded';
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
+  isPreVerified?: boolean;
 }
 
 interface StoreShape {
@@ -671,7 +677,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           })
           .filter((x): x is NonNullable<typeof x> => x !== null);
         const subtotal = items.reduce((n, i) => n + i.price * i.qty, 0);
-        const id = '#SM-' + String(Math.floor(100000 + Math.random() * 899999));
+        const id = info.id || ('#SM-' + String(Math.floor(100000 + Math.random() * 899999)));
         const order: Order = {
           id,
           customer: info.name,
@@ -683,6 +689,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           total: Math.max(0, subtotal - info.discount),
           status: 'Placed',
           payment: info.payment,
+          paymentStatus: info.paymentStatus || 'Pending',
+          razorpayOrderId: info.razorpayOrderId,
+          razorpayPaymentId: info.razorpayPaymentId,
+          razorpaySignature: info.razorpaySignature,
           date: new Date().toISOString().slice(0, 10),
         };
         setOrders((prev) => [order, ...prev]);
@@ -696,22 +706,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         syncWithBackend([], wishlist);
         setCoupon('');
 
-        api.createOrder({
-          id,
-          customer: info.name,
-          phone: info.phone,
-          email: info.email,
-          city: info.city,
-          address: info.address,
-          items: items.map((item) => ({
-            productId: item.productId,
-            name: item.name,
-            qty: item.qty,
-            price: item.price,
-          })),
-          total: Math.max(0, subtotal - info.discount),
-          payment: info.payment,
-        }).catch(() => {});
+        // If not pre-verified via backend Razorpay endpoint, create it now
+        if (!info.isPreVerified) {
+          api.createOrder({
+            id,
+            customer: info.name,
+            phone: info.phone,
+            email: info.email,
+            city: info.city,
+            address: info.address,
+            items: items.map((item) => ({
+              productId: item.productId,
+              name: item.name,
+              qty: item.qty,
+              price: item.price,
+            })),
+            total: Math.max(0, subtotal - info.discount),
+            payment: info.payment,
+          }).catch(() => {});
+        }
 
         return id;
       },

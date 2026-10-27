@@ -4,6 +4,7 @@ import orderRoutes from './orderRoutes.js';
 import ticketRoutes from './ticketRoutes.js';
 import authRoutes from './authRoutes.js';
 import flashDealRoutes from './flashDealRoutes.js';
+import paymentRoutes from './paymentRoutes.js';
 import { getDbStatus } from '../config/db.js';
 
 const router = Router();
@@ -24,5 +25,6 @@ router.use('/orders', orderRoutes);
 router.use('/tickets', ticketRoutes);
 router.use('/auth', authRoutes);
 router.use('/flash-deals', flashDealRoutes);
+router.use('/payment', paymentRoutes);
 
 export default router;
