@@ -363,6 +363,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         item.description ||
         `${item.name} is available on exclusive Flash Deal Drop at Sastika Mobiles. Grab festival special pricing with authentic store guarantee.`,
       image: item.image,
+      images: item.image ? [item.image] : [],
+      colors: item.color ? [item.color] : ['#2f7d6d'],
       storage: item.category === 'phone' ? ['128GB', '256GB'] : undefined,
     };
   }, []);

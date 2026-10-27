@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { C } from '../theme';
 import { api } from '../api';
@@ -14,6 +14,21 @@ export default function AdminLogin() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    api
+      .getSettings()
+      .then((res: any) => {
+        const data = res?.data || res;
+        if (data && (data.adminUsername || data.adminPassword)) {
+          try {
+            const prev = JSON.parse(localStorage.getItem('sastika:settings') || '{}');
+            localStorage.setItem('sastika:settings', JSON.stringify({ ...prev, ...data }));
+          } catch {}
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,16 +60,13 @@ export default function AdminLogin() {
         return;
       }
 
-      // Offline / memory admin fallback
+      // Offline / fallback verification against dynamic settings
       const cleanEmail = email.trim().toLowerCase();
       const customSettings = JSON.parse(localStorage.getItem('sastika:settings') || '{}');
       const customUser = (customSettings.adminUsername || 'admin@sastikamobiles.com').trim().toLowerCase();
       const customPass = customSettings.adminPassword || 'admin123';
 
-      if (
-        (cleanEmail === customUser || cleanEmail === 'admin@sastikamobiles.com' || cleanEmail === 'admin@sastika.com' || cleanEmail === 'admin') &&
-        (password === customPass || password === 'admin123' || password === 'admin' || password === 'password123')
-      ) {
+      if (cleanEmail === customUser && password === customPass) {
         const dummyToken = 'admin_jwt_' + Date.now();
         const dummyUser = { id: 'u_admin', name: 'Sastika Admin', email: customUser, role: 'admin' };
         localStorage.setItem('sastika_admin_token', dummyToken);
@@ -65,16 +77,16 @@ export default function AdminLogin() {
         return;
       }
 
-      setError(res?.message || 'Invalid admin credentials. Please check your email and password.');
+      setError(res?.message || 'Invalid admin credentials. Please use the username and password set in Settings.');
     } catch (err: any) {
-      // Offline fallback
+      // Offline fallback verification
       const cleanEmail = email.trim().toLowerCase();
-      if (
-        (cleanEmail === 'admin@sastikamobiles.com' || cleanEmail === 'admin@sastika.com' || cleanEmail === 'admin') &&
-        (password === 'admin123' || password === 'admin' || password === 'password123')
-      ) {
+      const customSettings = JSON.parse(localStorage.getItem('sastika:settings') || '{}');
+      const customUser = (customSettings.adminUsername || 'admin@sastikamobiles.com').trim().toLowerCase();
+      const customPass = customSettings.adminPassword || 'admin123';
+      if (cleanEmail === customUser && password === customPass) {
         const dummyToken = 'admin_jwt_' + Date.now();
-        const dummyUser = { id: 'u_admin', name: 'Sastika Admin', email: 'admin@sastikamobiles.com', role: 'admin' };
+        const dummyUser = { id: 'u_admin', name: 'Sastika Admin', email: customUser, role: 'admin' };
         localStorage.setItem('sastika_admin_token', dummyToken);
         localStorage.setItem('sastika_admin_user', JSON.stringify(dummyUser));
         sessionStorage.setItem('sastika_admin_token', dummyToken);
@@ -82,7 +94,7 @@ export default function AdminLogin() {
         nav('/admin', { replace: true });
         return;
       }
-      setError('Unable to sign in. Please verify your admin email and password.');
+      setError('Unable to sign in. Please verify your admin username and password.');
     } finally {
       setLoading(false);
     }

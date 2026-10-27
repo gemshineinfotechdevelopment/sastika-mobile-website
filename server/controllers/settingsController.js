@@ -1,6 +1,7 @@
 import { Settings } from '../models/Settings.js';
 import { User } from '../models/User.js';
 import { getDbStatus } from '../config/db.js';
+import { readData, writeData } from '../dataHelper.js';
 import bcrypt from 'bcryptjs';
 
 const DEFAULT_SETTINGS = {
@@ -86,6 +87,28 @@ export const updateSettings = async (req, res) => {
             role: 'admin',
             phone: '+91 98401 23456',
           });
+        }
+
+        try {
+          const list = readData('users.json') || [];
+          const idx = list.findIndex((u) => u.role === 'admin' || u.id === 'u_admin');
+          const passHash = patch.adminPassword ? bcrypt.hashSync(patch.adminPassword, 8) : undefined;
+          if (idx !== -1) {
+            list[idx].email = adminEmail;
+            if (passHash) list[idx].passwordHash = passHash;
+          } else {
+            list.unshift({
+              id: 'u_admin',
+              name: 'Sastika Admin',
+              email: adminEmail,
+              passwordHash: passHash || bcrypt.hashSync('admin123', 8),
+              role: 'admin',
+              phone: '+91 98401 23456',
+            });
+          }
+          writeData('users.json', list);
+        } catch (e) {
+          console.error('Failed syncing users.json:', e);
         }
       }
 

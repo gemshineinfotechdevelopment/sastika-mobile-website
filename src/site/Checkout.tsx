@@ -205,7 +205,12 @@ export default function Checkout() {
     if (step === 1) {
       if (form.address.trim().length < 8) return setError('Please enter your full delivery address (at least 8 characters)');
       if (!form.city.trim() || form.city.trim().length < 2) return setError('Please enter your City / Town (Mandatory)');
-      if (!/^\d{6}$/.test(form.pin.trim())) return setError('Enter a valid 6-digit pincode');
+      const cleanPin = form.pin.trim();
+      if (!/^\d{6}$/.test(cleanPin)) return setError('Enter a valid 6-digit pincode');
+      const ALLOWED_PINCODES = ['626123', '626124', '626189', '626130'];
+      if (!ALLOWED_PINCODES.includes(cleanPin)) {
+        return setError('Delivery is not available for pincode ' + cleanPin + '. Serviceable pincodes: 626123, 626124, 626189, 626130');
+      }
     }
 
     setStep((s) => s + 1);
