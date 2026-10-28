@@ -20,10 +20,10 @@ function shade(hex: string, amt: number): string {
   return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
 }
 
-export default function ProductArt({ category, color, size = 120, style, float, image, alt }: Props) {
+export default function ProductArt({ category, color, size = 120, style, image, alt }: Props) {
   const [imgError, setImgError] = useState(false);
   const id = 'g' + color.replace('#', '') + category;
-  const anim: CSSProperties = float && category !== 'appliance' ? { animation: 'floatSoft 4s ease-in-out infinite' } : {};
+  const anim: CSSProperties = {};
 
   // If real picture is provided and loads without error, render the photo
   if (image && !imgError) {

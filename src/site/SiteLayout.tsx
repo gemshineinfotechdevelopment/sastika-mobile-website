@@ -815,43 +815,7 @@ export default function SiteLayout() {
             </div>
           </div>
 
-          {/* Column 2: Categories & Brands */}
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
-              CATEGORIES &amp; BRANDS
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
-              {[
-                { name: 'Smartphones', to: '/mobiles' },
-                { name: 'Apple iPhones', to: '/mobiles' },
-                { name: 'Home Appliances', to: '/appliances' },
-                { name: 'Accessories', to: '/accessories' },
-                { name: 'Redmi 5G', to: '/mobiles' },
-                { name: 'Vivo 5G', to: '/mobiles' },
-                { name: 'OPPO 5G', to: '/mobiles' },
-                { name: 'Fast Chargers', to: '/accessories' },
-              ].map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => nav(item.to)}
-                  style={{
-                    textAlign: 'left',
-                    color: 'rgba(255,255,255,0.8)',
-                    padding: '6px 0',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    background: 'none',
-                    border: 'none',
-                    transition: 'color .2s ease',
-                  }}
-                >
-                  › {item.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Column 3: Care Services */}
+          {/* Column 2: Care Services */}
           <div>
             <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.4, color: C.accent, marginBottom: 14 }}>
               CARE &amp; REPAIR SERVICES

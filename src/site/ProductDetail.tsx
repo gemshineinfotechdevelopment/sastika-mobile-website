@@ -91,9 +91,9 @@ export default function ProductDetail() {
       return;
     }
     if (LOCAL_PINCODES.includes(clean)) {
-      setPinResult('Delivery by tomorrow, 2:00 PM · Free express shipping in Sivakasi & Sithurajapuram');
-    } else {
       setPinResult('Delivery within 7 working days from order date · Standard delivery');
+    } else {
+      setPinResult('Delivery not available for this pincode');
     }
   };
 
@@ -191,7 +191,6 @@ export default function ProductDetail() {
                 size={p.category === 'phone' ? 290 : 230}
                 image={currentImg}
                 alt={p.name}
-                float={p.category === 'phone'}
               />
             </div>
 
@@ -457,10 +456,10 @@ export default function ProductDetail() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
-                  color: /^Delivery/.test(pinResult) ? C.success : C.danger,
+                  color: pinResult.startsWith('Delivery within') ? C.success : C.danger,
                 }}
               >
-                <Icon name={/^Delivery/.test(pinResult) ? 'check' : 'alert'} size={14} />
+                <Icon name={pinResult.startsWith('Delivery within') ? 'check' : 'alert'} size={14} />
                 {pinResult}
               </div>
             )}

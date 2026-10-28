@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
+import { Settings } from '../models/Settings.js';
 import { getDbStatus } from '../config/db.js';
 import { readData, writeData } from '../dataHelper.js';
 
@@ -55,6 +56,46 @@ export const login = async (req, res) => {
     const normalizedInput = email.toLowerCase().trim();
     const cleanPhone = normalizedInput.replace(/\D/g, '').slice(-10);
 
+    // Check dynamic Admin credentials from Settings
+    try {
+      let currentSettings = null;
+      if (getDbStatus()) {
+        currentSettings = await Settings.findOne({ key: 'global_settings' }).catch(() => null);
+      }
+      const confUser = (currentSettings?.adminUsername || 'admin@sastikamobiles.com').trim().toLowerCase();
+      const confPass = currentSettings?.adminPassword || 'admin123';
+
+      const isAttemptingAdmin =
+        normalizedInput === confUser ||
+        normalizedInput === 'admin' ||
+        normalizedInput === 'admin@sastikamobiles.com';
+
+      if (isAttemptingAdmin) {
+        if (normalizedInput === confUser && password === confPass) {
+          const dynamicAdminUser = {
+            id: 'u_admin',
+            name: 'Sastika Admin',
+            email: currentSettings?.adminUsername || confUser,
+            role: 'admin',
+            phone: currentSettings?.phone || '+91 95434 34344',
+          };
+          const token = generateToken(dynamicAdminUser);
+          return res.json({
+            success: true,
+            token,
+            user: dynamicAdminUser,
+          });
+        } else {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid admin credentials. Please use the username and password set in Admin Settings.',
+          });
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+
     // 1. Try MongoDB if connected
     if (getDbStatus()) {
       let user = await User.findOne({
@@ -64,24 +105,8 @@ export const login = async (req, res) => {
         ],
       });
 
-      // If admin doesn't exist yet in DB, create on first login
-      const isAdminEmail = (normalizedInput === 'admin@sastikamobiles.com' || normalizedInput === 'admin@sastika.com' || normalizedInput === 'admin');
-      if (!user && isAdminEmail) {
-        const hashedPassword = await bcrypt.hash('admin123', 10);
-        user = await User.create({
-          name: 'Sastika Admin',
-          email: 'admin@sastikamobiles.com',
-          password: hashedPassword,
-          role: 'admin',
-          phone: '+91 98401 23456',
-        });
-      }
-
       if (user) {
         let isMatch = await bcrypt.compare(password, user.password).catch(() => false);
-        if (!isMatch && user.role === 'admin' && (password === 'admin123' || password === 'admin' || password === 'password123')) {
-          isMatch = true;
-        }
         if (!isMatch) {
           return res.status(401).json({ success: false, message: 'Incorrect password. Please try again.' });
         }

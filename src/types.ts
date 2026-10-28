@@ -59,6 +59,10 @@ export interface Order {
   status: OrderStatus;
   cancelReason?: string;
   payment: string;
+  paymentStatus?: 'Pending' | 'Paid' | 'Failed' | 'Refunded';
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
   date: string;
 }
 

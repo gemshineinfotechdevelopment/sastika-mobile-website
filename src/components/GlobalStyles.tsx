@@ -1,16 +1,61 @@
+import { useEffect } from 'react';
 import { C, FONT } from '../theme';
 
 const css = `
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;overflow-wrap:break-word}
 html,body,#root{margin:0;padding:0;min-height:100%}
 body{font-family:${FONT};color:${C.text};background:${C.bg};-webkit-font-smoothing:antialiased}
-button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;box-sizing:border-box}
 button{cursor:pointer;border:none;background:none;padding:0}
 a{color:inherit;text-decoration:none}
 ::selection{background:${C.accent};color:${C.primaryDark}}
 .hide-scroll{scrollbar-width:none}
 .hide-scroll::-webkit-scrollbar{display:none}
 input:focus,select:focus,textarea:focus{outline:2px solid ${C.primarySoft};outline-offset:0;border-color:${C.primarySoft}!important}
+
+/* Remove spin buttons and arrows from all number inputs */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+input[type=number] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
+
+/* Ensure all select elements, dropdowns, and inputs stay strictly within screen boundaries */
+select, input, textarea {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+select {
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+}
+
+select option {
+  max-width: 100% !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+@media (max-width: 768px) {
+  select {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    text-overflow: ellipsis !important;
+  }
+  
+  .dropdown, .dropdown-menu, [role="listbox"], [role="menu"] {
+    max-width: calc(100vw - 16px) !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+}
 .tap{transition:transform .18s ease,box-shadow .18s ease}
 .tap:active{transform:scale(.95)}
 .lift{transition:transform .25s ease,box-shadow .25s ease}
@@ -631,5 +676,45 @@ html,body{overflow-x:clip;width:100%;max-width:100%}
 `;
 
 export default function GlobalStyles() {
+  useEffect(() => {
+    // Prevent mouse wheel from changing values on number inputs
+    const handleWheel = (e: WheelEvent) => {
+      const target = e.target as HTMLElement | null;
+      const active = document.activeElement as HTMLElement | null;
+      const isTargetNum = target && target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'number';
+      const isActiveNum = active && active.tagName === 'INPUT' && (active as HTMLInputElement).type === 'number';
+
+      if (isTargetNum || isActiveNum) {
+        if (isActiveNum) (active as HTMLInputElement).blur();
+        if (isTargetNum) {
+          (target as HTMLInputElement).blur();
+          e.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    // Directly bind to inputs when focused to guarantee no value mutation on wheel
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'number') {
+        const input = target as HTMLInputElement;
+        const disableWheel = (ev: WheelEvent) => {
+          ev.preventDefault();
+          input.blur();
+        };
+        input.addEventListener('wheel', disableWheel, { passive: false });
+      }
+    };
+
+    document.addEventListener('focusin', handleFocusIn);
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      document.removeEventListener('focusin', handleFocusIn);
+    };
+  }, []);
+
   return <style>{css}</style>;
 }

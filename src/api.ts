@@ -142,5 +142,50 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
+
+  // Razorpay Payment
+  getPaymentConfig: () =>
+    request<{ success: boolean; configured: boolean; keyId: string; currency: string }>('/payment/config'),
+
+  createRazorpayOrder: (data: { amount: number; receipt: string; notes?: Record<string, any> }) =>
+    request<{
+      success: boolean;
+      configured?: boolean;
+      orderId?: string;
+      amount?: number;
+      currency?: string;
+      keyId?: string;
+      message?: string;
+    }>('/payment/razorpay/create-order', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  verifyRazorpayPayment: (data: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+    orderData: any;
+  }) =>
+    request<{
+      success: boolean;
+      verified: boolean;
+      message: string;
+      data?: Order;
+    }>('/payment/razorpay/verify', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // Store Settings
+  getSettings: () =>
+    request<{ success: boolean; data: any }>('/settings'),
+
+  updateSettings: (settings: Record<string, any>) =>
+    request<{ success: boolean; data: any; message?: string }>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    }),
 };
+
 

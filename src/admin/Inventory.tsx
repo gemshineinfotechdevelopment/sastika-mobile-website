@@ -4,6 +4,7 @@ import { useStore } from '../store';
 import { FillBar } from '../components/anim';
 import Icon from '../components/Icon';
 import { AButton, AdminTableScroll, FieldRow, Kpi, Modal, PageTitle, field, panel, td, th } from './ui';
+import { CustomProductSelect } from './ProductSelect';
 
 export default function Inventory() {
   const { products, updateProduct } = useStore();
@@ -136,9 +137,12 @@ export default function Inventory() {
             <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 14 }}>Quick Stock Audit</div>
             <div style={{ display: 'grid', gap: 12 }}>
               <FieldRow label="PRODUCT">
-                <select style={field} value={audit.id} onChange={(e) => setAudit((a) => ({ ...a, id: e.target.value }))}>
-                  {products.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.stock})</option>)}
-                </select>
+                <CustomProductSelect
+                  products={products}
+                  selectedId={audit.id}
+                  onSelect={(id) => setAudit((a) => ({ ...a, id }))}
+                  placeholder="-- Select Product for Stock Audit --"
+                />
               </FieldRow>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12 }}>
                 <FieldRow label="ADJUSTMENT">

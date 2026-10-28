@@ -1,11 +1,124 @@
-import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
+import { useState, useEffect, useRef, useMemo, type FormEvent, type ChangeEvent } from 'react';
 import { C, discount, money } from '../theme';
 import { useStore } from '../store';
 import Icon from '../components/Icon';
 import ProductArt from '../components/ProductArt';
 import { Btn, Pill } from '../site/ui';
 import { FillBar, useCountdown } from '../components/anim';
-import type { Category, FlashDealItem } from '../types';
+import type { Category, FlashDealItem, Product } from '../types';
+
+import { CustomProductSelect } from './ProductSelect';
+
+
+function CustomCategorySelect({
+  value,
+  onChange,
+}: {
+  value: Category;
+  onChange: (val: Category) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const options: { id: Category; label: string; icon: string }[] = [
+    { id: 'phone', label: 'Smartphones (5G)', icon: '📱' },
+    { id: 'audio', label: 'Audio & Accessories', icon: '🎧' },
+    { id: 'appliance', label: 'Home Appliances', icon: '📺' },
+  ];
+
+  const current = options.find((o) => o.id === value) || options[0];
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [open]);
+
+  return (
+    <div ref={ref} style={{ position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="tap"
+        style={{
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          padding: '10px 32px 10px 12px',
+          borderRadius: 10,
+          border: `1.5px solid ${open ? C.primary : C.border}`,
+          background: '#fff',
+          fontSize: 13,
+          fontWeight: 600,
+          color: C.text,
+          textAlign: 'left',
+          cursor: 'pointer',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          boxShadow: open ? `0 0 0 3px ${C.primarySoft}` : 'none',
+        }}
+      >
+        <span>{current.icon}</span>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{current.label}</span>
+        <span style={{ position: 'absolute', right: 10, top: '50%', transform: `translateY(-50%) rotate(${open ? 180 : 0}deg)`, color: C.muted, fontSize: 10 }}>▼</span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 4px)',
+            left: 0,
+            right: 0,
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            background: '#fff',
+            borderRadius: 12,
+            border: `1.5px solid ${C.primary}`,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            zIndex: 1000,
+            overflow: 'hidden',
+          }}
+        >
+          {options.map((opt) => (
+            <div
+              key={opt.id}
+              onClick={() => {
+                onChange(opt.id);
+                setOpen(false);
+              }}
+              style={{
+                padding: '10px 12px',
+                fontSize: 13,
+                fontWeight: 600,
+                color: opt.id === value ? C.primary : C.text,
+                background: opt.id === value ? C.tint2 : 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = C.tint)}
+              onMouseLeave={(e) => (e.currentTarget.style.background = opt.id === value ? C.tint2 : 'transparent')}
+            >
+              <span>{opt.icon}</span>
+              <span>{opt.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminFlashDeals() {
   const { flashDeal, updateFlashDeal, addFlashDealItem, removeFlashDealItem, products } = useStore();
@@ -55,7 +168,7 @@ export default function AdminFlashDeals() {
   };
 
   // New product form state
-  const [activeTab, setActiveTab] = useState<'upload' | 'catalog'>('upload');
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('Apple');
   const [category, setCategory] = useState<Category>('phone');
@@ -65,18 +178,77 @@ export default function AdminFlashDeals() {
   const [stock, setStock] = useState<number>(15);
   const [claimedPct, setClaimedPct] = useState<number>(68);
   const [color, setColor] = useState('#2f7d6d');
+  const [storageVariant, setStorageVariant] = useState<string>('128GB, 256GB');
   const [imagePreview, setImagePreview] = useState<string>('');
-  const [selectedCatalogId, setSelectedCatalogId] = useState<string>(products[0]?.id || '');
-  const [catalogDealPrice, setCatalogDealPrice] = useState<number | ''>('');
-  const [catalogBadge, setCatalogBadge] = useState('Special Festival Drop');
+  const [imageUploading, setImageUploading] = useState<boolean>(false);
 
-  // Handle file upload for custom product image
+  // Auto-fill form when selecting an existing store product
+  const handleSelectProduct = (productId: string) => {
+    setSelectedProductId(productId);
+    if (!productId) return;
+    const prod = products.find((p) => p.id === productId);
+    if (!prod) return;
+
+    setName(prod.name);
+    setBrand(prod.brand || 'Apple');
+    setCategory(prod.category);
+    // Automatic 15% discount for festival flash drop
+    setPrice(Math.round(prod.price * 0.85));
+    setMrp(prod.mrp || prod.price);
+    setColor(prod.color || '#2f7d6d');
+    setStock(prod.stock || 15);
+    setBadge('Special Festival Deal');
+    const storageStr =
+      prod.storage && prod.storage.length > 0
+        ? prod.storage.join(', ')
+        : prod.category === 'phone'
+        ? '128GB, 256GB'
+        : '';
+    setStorageVariant(storageStr);
+
+    const existingImg = prod.image || (prod.images && prod.images[0]) || '';
+    setImagePreview(existingImg);
+  };
+
+  // Handle file upload with high-quality fast canvas compression
   const handleImageFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageUploading(true);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1000;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.88);
+            setImagePreview(compressed);
+          } else {
+            setImagePreview(event.target?.result as string);
+          }
+          setImageUploading(false);
+        };
+        img.onerror = () => {
+          setImagePreview(event.target?.result as string);
+          setImageUploading(false);
+        };
+        img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -101,7 +273,11 @@ export default function AdminFlashDeals() {
 
   // Delete / Reset Flash Deal campaign
   const handleDeleteCampaign = () => {
-    if (confirm('Are you sure you want to delete this Flash Deal campaign? This will turn off the campaign and clear it from the storefront.')) {
+    if (
+      confirm(
+        'Are you sure you want to delete this Flash Deal campaign? This will turn off the campaign and clear it from the storefront.'
+      )
+    ) {
       setTitle('Flash Deal Drop');
       setSubtitle('');
       setFestivalName('');
@@ -120,8 +296,8 @@ export default function AdminFlashDeals() {
     }
   };
 
-  // Add custom festival product
-  const handleAddCustomProduct = (e: FormEvent) => {
+  // Add product to Flash Deal Drop
+  const handleAddProduct = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !price || !mrp) {
       alert('Please fill in Product Name, Deal Price, and MRP');
@@ -139,40 +315,16 @@ export default function AdminFlashDeals() {
       badge: badge.trim(),
       stock: Number(stock) || 10,
       claimedPct: Number(claimedPct) || 60,
-      description: `${festivalName} exclusive deal.`,
+      description: `${festivalName || 'Festival'} exclusive deal on ${name.trim()}.`,
     });
 
     // Reset form
+    setSelectedProductId('');
     setName('');
     setPrice('');
     setMrp('');
     setImagePreview('');
-    alert('Product added to Flash Deal Drop successfully! It is now live on the home page.');
-  };
-
-  // Add from catalog
-  const handleAddFromCatalog = (e: FormEvent) => {
-    e.preventDefault();
-    const prod = products.find((p) => p.id === selectedCatalogId);
-    if (!prod) return;
-
-    const dealPrice = catalogDealPrice ? Number(catalogDealPrice) : Math.round(prod.price * 0.85);
-
-    addFlashDealItem({
-      name: prod.name,
-      brand: prod.brand,
-      category: prod.category,
-      price: dealPrice,
-      mrp: prod.mrp,
-      color: prod.color,
-      badge: catalogBadge || 'Festival Special',
-      stock: prod.stock || 15,
-      claimedPct: Math.floor(55 + Math.random() * 30),
-      description: prod.description,
-    });
-
-    setCatalogDealPrice('');
-    alert(`"${prod.name}" added to Flash Deal Drop!`);
+    alert('Product added to Flash Deal Drop successfully! It is now live on the storefront with your uploaded image.');
   };
 
   return (
@@ -482,245 +634,216 @@ export default function AdminFlashDeals() {
           </div>
 
           {/* 2. Add Deal Product Form */}
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, border: `1px solid ${C.border}`, boxShadow: '0 4px 20px rgba(0,0,0,.03)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Icon name="tag" size={19} color={C.danger} />
-                <div style={{ fontWeight: 800, fontSize: 16 }}>Add Product to Flash Deal Drop</div>
-              </div>
-
-              {/* Tabs */}
-              <div style={{ display: 'flex', background: C.tint2, borderRadius: 10, padding: 3 }}>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('upload')}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: 8,
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: activeTab === 'upload' ? '#fff' : 'transparent',
-                    boxShadow: activeTab === 'upload' ? '0 2px 6px rgba(0,0,0,.08)' : 'none',
-                    color: activeTab === 'upload' ? C.primary : C.muted,
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Upload New Item
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('catalog')}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: 8,
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: activeTab === 'catalog' ? '#fff' : 'transparent',
-                    boxShadow: activeTab === 'catalog' ? '0 2px 6px rgba(0,0,0,.08)' : 'none',
-                    color: activeTab === 'catalog' ? C.primary : C.muted,
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  From Catalog
-                </button>
-              </div>
+          <div style={{ background: '#fff', borderRadius: 20, padding: '20px 16px', border: `1px solid ${C.border}`, boxShadow: '0 4px 20px rgba(0,0,0,.03)', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+              <Icon name="tag" size={19} color={C.danger} />
+              <div style={{ fontWeight: 800, fontSize: 16 }}>Add Product to Flash Deal Drop</div>
             </div>
 
-            {activeTab === 'upload' ? (
-              <form onSubmit={handleAddCustomProduct} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      PRODUCT NAME *
-                    </label>
+            <form onSubmit={handleAddProduct} style={{ display: 'flex', flexDirection: 'column', gap: 14, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+              {/* Custom Dropdown: Choose from added store products (Never overflows mobile screen!) */}
+              <div style={{ background: C.tint2, borderRadius: 14, padding: '12px 14px', border: `1.5px solid ${C.primarySoft}`, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: C.primary, marginBottom: 6 }}>
+                  📦 SELECT EXISTING STORE PRODUCT (Auto-fills Details, Price &amp; Photo):
+                </label>
+                <CustomProductSelect
+                  products={products}
+                  selectedId={selectedProductId}
+                  onSelect={handleSelectProduct}
+                />
+                <div style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>
+                  Selecting a product automatically fills its brand, category, colors, storage variant, pricing and official photo.
+                </div>
+              </div>
+
+              {/* Product Name, Brand, Category */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    PRODUCT NAME *
+                  </label>
+                  <input
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Samsung Galaxy S24 Ultra 5G"
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    BRAND
+                  </label>
+                  <input
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    placeholder="Samsung, Apple..."
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    CATEGORY
+                  </label>
+                  <CustomCategorySelect
+                    value={category}
+                    onChange={(cat) => setCategory(cat)}
+                  />
+                </div>
+              </div>
+
+              {/* Deal Price, Original MRP, Badge, Claimed % */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    DEAL PRICE (₹) *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="49999"
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 700, color: C.primary }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    ORIGINAL MRP (₹) *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    value={mrp}
+                    onChange={(e) => setMrp(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="69999"
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    FESTIVAL BADGE
+                  </label>
+                  <input
+                    value={badge}
+                    onChange={(e) => setBadge(e.target.value)}
+                    placeholder="Festival Offer, 50% OFF"
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    CLAIMED %
+                  </label>
+                  <input
+                    type="number"
+                    max={98}
+                    min={10}
+                    value={claimedPct}
+                    onChange={(e) => setClaimedPct(Number(e.target.value))}
+                    placeholder="65"
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                  />
+                </div>
+              </div>
+
+              {/* Finish Colour & Storage Variant & Stock */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    FINISH COLOUR
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', maxWidth: '100%' }}>
                     <input
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. iPhone 15 Pro 128GB Festival Pack"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13 }}
+                      type="color"
+                      value={color}
+                      onChange={(e) => setColor(e.target.value)}
+                      style={{ width: 44, height: 38, padding: 0, borderRadius: 8, border: `1.5px solid ${C.border}`, cursor: 'pointer', flexShrink: 0 }}
                     />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      BRAND
-                    </label>
                     <input
-                      value={brand}
-                      onChange={(e) => setBrand(e.target.value)}
-                      placeholder="Apple, OnePlus..."
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13 }}
+                      value={color}
+                      onChange={(e) => setColor(e.target.value)}
+                      style={{ flex: 1, minWidth: 0, padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 12, fontWeight: 600 }}
                     />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      CATEGORY
-                    </label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value as Category)}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, background: '#fff' }}
-                    >
-                      <option value="smartphones">Smartphones</option>
-                      <option value="iphones">iPhones</option>
-                      <option value="accessories">Accessories</option>
-                      <option value="home-appliances">Home Appliances</option>
-                    </select>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      DEAL PRICE (₹) *
-                    </label>
-                    <input
-                      required
-                      type="number"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="49999"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 700, color: C.primary }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      ORIGINAL MRP (₹) *
-                    </label>
-                    <input
-                      required
-                      type="number"
-                      value={mrp}
-                      onChange={(e) => setMrp(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="69999"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13 }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      FESTIVAL BADGE
-                    </label>
-                    <input
-                      value={badge}
-                      onChange={(e) => setBadge(e.target.value)}
-                      placeholder="50% OFF, Diwali Deal"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13 }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      CLAIMED %
-                    </label>
-                    <input
-                      type="number"
-                      max={98}
-                      min={10}
-                      value={claimedPct}
-                      onChange={(e) => setClaimedPct(Number(e.target.value))}
-                      placeholder="65"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13 }}
-                    />
-                  </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    STORAGE VARIANT(S)
+                  </label>
+                  <input
+                    value={storageVariant}
+                    onChange={(e) => setStorageVariant(e.target.value)}
+                    placeholder="128GB, 256GB"
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                  />
                 </div>
 
-                {/* Image upload and Preview */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 14, alignItems: 'center' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      UPLOAD PRODUCT IMAGE (Optional)
-                    </label>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
+                    STOCK (Units)
+                  </label>
+                  <input
+                    type="number"
+                    value={stock}
+                    onChange={(e) => setStock(Number(e.target.value))}
+                    placeholder="15"
+                    style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, fontWeight: 600 }}
+                  />
+                </div>
+              </div>
+
+              {/* Upload Product Image & Preview */}
+              <div style={{ background: '#f8fafc', padding: 14, borderRadius: 14, border: `1px solid ${C.border}` }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: C.text, marginBottom: 8 }}>
+                  📸 UPLOAD PRODUCT IMAGE (Displayed directly on User Website):
+                </label>
+
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                  {imagePreview ? (
+                    <div style={{ position: 'relative', width: 72, height: 72, borderRadius: 12, background: '#fff', border: `2px solid ${C.primarySoft}`, display: 'grid', placeItems: 'center', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                      <img src={imagePreview} alt="Preview" style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
+                      <button
+                        type="button"
+                        onClick={() => setImagePreview('')}
+                        title="Remove image"
+                        style={{ position: 'absolute', top: 2, right: 2, width: 20, height: 20, borderRadius: '50%', background: '#fee2e2', color: '#dc2626', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 800, display: 'grid', placeItems: 'center' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ width: 72, height: 72, borderRadius: 12, background: C.tint2, border: `1.5px dashed ${C.border}`, display: 'grid', placeItems: 'center', color: C.muted, fontSize: 10, textAlign: 'center', padding: 4 }}>
+                      No Image Uploaded
+                    </div>
+                  )}
+
+                  <div style={{ flex: 1, minWidth: 220 }}>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleImageFile}
-                      style={{ width: '100%', padding: '8px', borderRadius: 10, border: `1.5px dashed ${C.border}`, fontSize: 12, background: C.tint2 }}
+                      style={{ width: '100%', padding: '8px', borderRadius: 10, border: `1.5px dashed ${C.border}`, fontSize: 12, background: '#fff' }}
                     />
                     <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
-                      If no image is uploaded, a smart 3D device mockup in selected theme color will be displayed.
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      THEME / COLOR SWATCH
-                    </label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <input
-                        type="color"
-                        value={color}
-                        onChange={(e) => setColor(e.target.value)}
-                        style={{ width: 44, height: 38, padding: 0, borderRadius: 8, border: `1.5px solid ${C.border}`, cursor: 'pointer' }}
-                      />
-                      <input
-                        value={color}
-                        onChange={(e) => setColor(e.target.value)}
-                        style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 12 }}
-                      />
+                      {imageUploading
+                        ? 'Optimizing and processing image...'
+                        : imagePreview
+                        ? '✓ Image ready! This exact image will be shown on the home page Flash Deal Drop.'
+                        : 'Upload an image file (PNG/JPG/WebP). If left empty, default high-definition theme artwork is shown.'}
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                  <Btn type="submit" variant="primary" style={{ padding: '12px 24px', fontSize: 13, background: C.danger }}>
-                    ⚡ Upload & Place into Flash Deal Drop
-                  </Btn>
-                </div>
-              </form>
-            ) : (
-              /* Add from Catalog */
-              <form onSubmit={handleAddFromCatalog} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                    SELECT PRODUCT FROM STORE
-                  </label>
-                  <select
-                    value={selectedCatalogId}
-                    onChange={(e) => setSelectedCatalogId(e.target.value)}
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13, background: '#fff' }}
-                  >
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.brand}) — Regular: {money(p.price)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      SPECIAL FESTIVAL DEAL PRICE (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={catalogDealPrice}
-                      onChange={(e) => setCatalogDealPrice(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="Leave empty for automatic 15% discount"
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13 }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 5 }}>
-                      FESTIVAL BADGE
-                    </label>
-                    <input
-                      value={catalogBadge}
-                      onChange={(e) => setCatalogBadge(e.target.value)}
-                      placeholder="Special Festival Drop"
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${C.border}`, fontSize: 13 }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                  <Btn type="submit" variant="primary" style={{ padding: '12px 24px', fontSize: 13, background: C.danger }}>
-                    ⚡ Feature in Flash Deal Drop
-                  </Btn>
-                </div>
-              </form>
-            )}
+              {/* Submit Button */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+                <Btn type="submit" variant="primary" style={{ padding: '12px 26px', fontSize: 13.5, background: C.danger }}>
+                  ⚡ Add Product to Flash Deal Drop
+                </Btn>
+              </div>
+            </form>
           </div>
         </div>
 

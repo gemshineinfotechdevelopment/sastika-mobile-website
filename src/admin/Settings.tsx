@@ -3,6 +3,7 @@ import { C } from '../theme';
 import Icon from '../components/Icon';
 import { AButton, FieldRow, PageTitle, Tag, Toggle, field, panel } from './ui';
 import defaultLogo from '../assets/logo.png';
+import { api } from '../api';
 
 interface Cfg {
   business: string;
@@ -16,8 +17,17 @@ interface Cfg {
   autoInvoice: boolean;
   smsUpdates: boolean;
   codOn: boolean;
+  codFee: string;
   upiOn: boolean;
   freeShipAbove: string;
+  // Personnel Directory
+  managerName: string;
+  managerPhone: string;
+  salesRepName: string;
+  salesRepPhone: string;
+  // Admin Credentials
+  adminUsername: string;
+  adminPassword: string;
 }
 
 const DEFAULT: Cfg = {
@@ -32,11 +42,21 @@ const DEFAULT: Cfg = {
   autoInvoice: true,
   smsUpdates: true,
   codOn: true,
+  codFee: '50',
   upiOn: true,
   freeShipAbove: '0',
+  // Store Personnel Defaults
+  managerName: 'S. Ramanathan',
+  managerPhone: '+91 95434 34344',
+  salesRepName: 'M. Karthi',
+  salesRepPhone: '+91 98401 23456',
+  // Admin Credentials Defaults
+  adminUsername: 'admin@sastikamobiles.com',
+  adminPassword: 'admin123',
 };
 
 export default function Settings() {
+  const [showAdminPass, setShowAdminPass] = useState(false);
   const [cfg, setCfg] = useState<Cfg>(() => {
     try {
       const raw = localStorage.getItem('sastika:settings');
@@ -56,9 +76,35 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
   const [dirty, setDirty] = useState(false);
 
+  // Fetch settings from backend database on mount
+  useEffect(() => {
+    api
+      .getSettings()
+      .then((res) => {
+        if (res && res.success && res.data) {
+          setCfg((prev) => {
+            const merged: Cfg = {
+              ...prev,
+              ...res.data,
+              codFee: res.data.codFee !== undefined ? String(res.data.codFee) : prev.codFee,
+              managerName: res.data.managerName || prev.managerName,
+              managerPhone: res.data.managerPhone || prev.managerPhone,
+              salesRepName: res.data.salesRepName || prev.salesRepName,
+              salesRepPhone: res.data.salesRepPhone || prev.salesRepPhone,
+              adminUsername: res.data.adminUsername || prev.adminUsername,
+              adminPassword: res.data.adminPassword || prev.adminPassword,
+            };
+            localStorage.setItem('sastika:settings', JSON.stringify(merged));
+            return merged;
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (!saved) return;
-    const t = window.setTimeout(() => setSaved(false), 2200);
+    const t = window.setTimeout(() => setSaved(false), 2400);
     return () => window.clearTimeout(t);
   }, [saved]);
 
@@ -76,10 +122,18 @@ export default function Settings() {
     setDirty(true);
   };
 
-  const save = () => {
+  const save = async () => {
     try {
       localStorage.setItem('sastika:settings', JSON.stringify(cfg));
       window.dispatchEvent(new Event('sastika:settings_changed'));
+
+      // Persist to backend database so all customer devices receive updated settings
+      await api
+        .updateSettings({
+          ...cfg,
+          codFee: Number(cfg.codFee) || 0,
+        })
+        .catch(() => {});
     } catch {
       /* ignore */
     }
@@ -87,20 +141,9 @@ export default function Settings() {
     setDirty(false);
   };
 
-  const reset = () => {
-    if (window.confirm('Reset all demo data (products, orders, tickets, settings) to defaults?')) {
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith('sastika:'))
-        .forEach((k) => localStorage.removeItem(k));
-      window.location.reload();
-    }
-  };
-
+  // Only keep requested switches (removed GST Tax Engine, Automated Invoicing, UPI Payments as circled by user)
   const switches: { k: keyof Cfg; t: string; s: string }[] = [
-    { k: 'gstOn', t: 'GST Tax Engine', s: 'Include GSTIN 33BQTPJ5275L1Z6 breakdown on all invoices' },
-    { k: 'autoInvoice', t: 'Automated Invoicing', s: 'Generate and email tax bill automatically on order dispatch' },
     { k: 'lowStockAlerts', t: 'Low-Stock Alerts', s: 'Notify managers when inventory drops below reorder threshold' },
-    { k: 'upiOn', t: 'UPI Payments (GPay, PhonePe, Paytm)', s: 'Accept instant zero-fee UPI payments at checkout' },
     { k: 'codOn', t: 'Cash on Delivery / In-Store Pickup', s: 'Allow payment upon delivery or during store pickup' },
   ];
 
@@ -108,23 +151,18 @@ export default function Settings() {
     <div>
       <PageTitle
         title="Enterprise Retail Settings"
-        sub="Configure shop details, GSTIN tax credentials, store address, and retail controls."
+        sub="Configure shop details, store personnel contacts, admin credentials, and checkout controls."
         actions={
-          <>
-            <AButton variant="danger" onClick={reset}>
-              Reset Demo Data
-            </AButton>
-            <AButton onClick={save} disabled={!dirty && !saved}>
-              {saved ? '✓ Saved' : 'Save Configuration'}
-            </AButton>
-          </>
+          <AButton onClick={save} disabled={!dirty && !saved} style={{ minWidth: 160 }}>
+            {saved ? '✓ Saved Successfully' : 'Save Configuration'}
+          </AButton>
         }
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* Row 1: Brand Logo & Tax Invoice Profile Card */}
         <div className="admin-split-grid" style={{ alignItems: 'stretch' }}>
-          {/* Brand Logo & Identity (Text Removed) */}
+          {/* Brand Logo & Identity */}
           <div style={{ ...panel, animation: 'fadeUp .5s ease .05s both', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
@@ -136,67 +174,40 @@ export default function Settings() {
               <Tag tone="green">Static Logo</Tag>
             </div>
 
-            <div style={{ display: 'flex', gap: 28, alignItems: 'center', padding: '8px 0 4px' }}>
+            <div style={{ display: 'flex', gap: 24, alignItems: 'center', padding: '8px 0 4px' }}>
               <div style={{ textAlign: 'center' }}>
                 <div
                   style={{
-                    width: 76,
-                    height: 76,
+                    width: 72,
+                    height: 72,
                     borderRadius: '50%',
                     background: '#fff',
+                    display: 'grid',
+                    placeItems: 'center',
                     border: '2.5px solid #d4af37',
                     boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    overflow: 'hidden',
                     margin: '0 auto 6px',
+                    overflow: 'hidden',
                   }}
                 >
-                  <img
-                    src={defaultLogo}
-                    alt="Official Logo Light"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
+                  <img src={defaultLogo} alt="Sastika Mobiles" style={{ width: 58, height: 58, objectFit: 'cover' }} />
                 </div>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>Light Mode</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.primaryDark }}>Current Icon</div>
               </div>
 
-              <div style={{ textAlign: 'center' }}>
-                <div
-                  style={{
-                    width: 76,
-                    height: 76,
-                    borderRadius: '50%',
-                    background: C.primary,
-                    border: '2.5px solid #d4af37',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    overflow: 'hidden',
-                    margin: '0 auto 6px',
-                  }}
-                >
-                  <img
-                    src={defaultLogo}
-                    alt="Official Logo Dark"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                </div>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>Dark / Admin</div>
+              <div style={{ flex: 1, fontSize: 13, lineHeight: 1.6, color: '#4b5563' }}>
+                Golden Peacock emblem with <b>SASTIKA MOBILES</b> Sivakasi hallmark. Automatically applied across storefront, invoices, and mobile navigation.
               </div>
             </div>
           </div>
 
-          {/* Tax Invoice Info Badge */}
+          {/* Quick Invoice Card */}
           <div
             style={{
               ...panel,
-              background: '#fffdf6',
-              border: '1.5px solid #f6c445',
               animation: 'fadeUp .5s ease .08s both',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #fff 0%, #fdfbf7 100%)',
+              border: '1.5px solid #ecd8a5',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -220,7 +231,7 @@ export default function Settings() {
                   {cfg.business || 'Sastika Mobiles'}
                 </div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b' }}>
-                  Sales &amp; Service &bull; TAX INVOICE PROFILE
+                  Sales &bull; Service &bull; TAX INVOICE PROFILE
                 </div>
               </div>
             </div>
@@ -242,7 +253,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Row 2: Store Details & Tax Profile - 100% FULL WIDTH */}
+        {/* Row 2: Store Details & Tax Profile */}
         <div style={{ ...panel, animation: 'fadeUp .5s ease .1s both' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
             <div>
@@ -283,12 +294,12 @@ export default function Settings() {
               />
             </FieldRow>
 
-            <FieldRow label="PHONE / CONTACT NUMBER">
+            <FieldRow label="STORE HELPLINE PHONE">
               <input
                 style={field}
                 value={cfg.phone}
                 onChange={(e) => set('phone', e.target.value)}
-                placeholder="+91 98765 43210"
+                placeholder="+91 95434 34344"
               />
             </FieldRow>
 
@@ -319,8 +330,168 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Row 3: Automation & Payments - FULL WIDTH */}
-        <div style={{ ...panel, animation: 'fadeUp .5s ease .15s both' }}>
+        {/* ========================================================================= */}
+        {/* ROW 3: STORE PERSONNEL & CONTACT DIRECTORY (FOR WEBSITE /contact PAGE)    */}
+        {/* ========================================================================= */}
+        <div style={{ ...panel, animation: 'fadeUp .5s ease .12s both', border: '1.5px solid #bfdbfe', background: '#ffffff' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: C.text, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>👥</span>
+                <span>Store Personnel &amp; Direct Contact Directory</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
+                Enter the Store Manager and Sales Representative details. Changes made here automatically update on the customer website's <b>Stores &amp; Contact</b> page (<code>/#/contact</code>).
+              </div>
+            </div>
+            <Tag tone="green">Live On Website</Tag>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+            {/* Store Manager Section */}
+            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontWeight: 800, fontSize: 14, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>👔</span>
+                <span>Store Manager Details</span>
+              </div>
+
+              <div style={{ display: 'grid', gap: 12 }}>
+                <FieldRow label="STORE MANAGER NAME">
+                  <input
+                    style={field}
+                    value={cfg.managerName}
+                    onChange={(e) => set('managerName', e.target.value)}
+                    placeholder="S. Ramanathan"
+                  />
+                </FieldRow>
+
+                <FieldRow label="STORE MANAGER MOBILE (CALL & WHATSAPP)">
+                  <input
+                    style={field}
+                    value={cfg.managerPhone}
+                    onChange={(e) => set('managerPhone', e.target.value)}
+                    placeholder="+91 95434 34344"
+                  />
+                </FieldRow>
+              </div>
+            </div>
+
+            {/* Sales Representative Section */}
+            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontWeight: 800, fontSize: 14, color: '#0891b2', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>💼</span>
+                <span>Sales Representative Details</span>
+              </div>
+
+              <div style={{ display: 'grid', gap: 12 }}>
+                <FieldRow label="SALES REP NAME">
+                  <input
+                    style={field}
+                    value={cfg.salesRepName}
+                    onChange={(e) => set('salesRepName', e.target.value)}
+                    placeholder="M. Karthi"
+                  />
+                </FieldRow>
+
+                <FieldRow label="SALES REP MOBILE (CALL & WHATSAPP)">
+                  <input
+                    style={field}
+                    value={cfg.salesRepPhone}
+                    onChange={(e) => set('salesRepPhone', e.target.value)}
+                    placeholder="+91 98401 23456"
+                  />
+                </FieldRow>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* ROW 4: ADMIN LOGIN & SECURITY CREDENTIALS                                 */}
+        {/* ========================================================================= */}
+        <div style={{ ...panel, animation: 'fadeUp .5s ease .14s both', border: '1.5px solid #fed7aa', background: '#fff' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: '#9a3412', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>🔐</span>
+                <span>Admin Login &amp; Security Credentials</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
+                Change your administrator username / email and login password used to access the <b>Sastika Admin Portal</b> (<code>/#/admin/login</code>).
+              </div>
+            </div>
+            <Tag tone="amber">Admin Security</Tag>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+            <FieldRow label="ADMIN USERNAME / EMAIL">
+              <input
+                style={field}
+                value={cfg.adminUsername}
+                onChange={(e) => set('adminUsername', e.target.value)}
+                placeholder="admin@sastikamobiles.com"
+                autoComplete="username"
+              />
+            </FieldRow>
+
+            <FieldRow label="ADMIN PASSWORD">
+              <div style={{ position: 'relative' }}>
+                <input
+                  style={{ ...field, paddingRight: 40 }}
+                  type={showAdminPass ? 'text' : 'password'}
+                  value={cfg.adminPassword}
+                  onChange={(e) => set('adminPassword', e.target.value)}
+                  placeholder="Enter new admin password"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAdminPass(!showAdminPass)}
+                  style={{
+                    position: 'absolute',
+                    right: 10,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: C.muted,
+                    cursor: 'pointer',
+                    fontSize: 14,
+                    padding: 4,
+                  }}
+                  title={showAdminPass ? 'Hide password' : 'Show password'}
+                >
+                  <Icon name="eye" size={16} />
+                </button>
+              </div>
+            </FieldRow>
+          </div>
+
+          <div
+            style={{
+              marginTop: 12,
+              padding: '10px 14px',
+              borderRadius: 10,
+              background: '#fffbeb',
+              border: '1px solid #fde68a',
+              fontSize: 12,
+              color: '#92400e',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <span>ℹ️</span>
+            <span>
+              After saving, use these updated credentials to sign into the Admin Portal at <code>/#/admin/login</code>.
+            </span>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* ROW 5: AUTOMATION & PAYMENTS (WITH COD EXTRA AMOUNT & LOW STOCK)          */}
+        {/* ========================================================================= */}
+        <div style={{ ...panel, animation: 'fadeUp .5s ease .16s both' }}>
           <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 12 }}>Automation &amp; Payments</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '0 24px' }}>
             {switches.map((s) => (
@@ -341,6 +512,59 @@ export default function Settings() {
                 <Toggle on={cfg[s.k] as boolean} onChange={(v) => set(s.k, v as Cfg[typeof s.k])} />
               </div>
             ))}
+
+            {/* Cash on Delivery Extra Fee Configuration Card */}
+            <div
+              style={{
+                gridColumn: '1 / -1',
+                background: '#f8fafc',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: 14,
+                padding: '16px 20px',
+                marginTop: 14,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 16,
+              }}
+            >
+              <div style={{ flex: '1 1 320px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 20 }}>💵</span>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: C.text }}>
+                    Cash on Delivery (COD) Extra Amount (₹)
+                  </div>
+                </div>
+                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4, lineHeight: 1.45 }}>
+                  Enter the extra fee to charge when a customer selects Cash on Delivery at checkout. This amount is automatically displayed and added to the user's total payment.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: C.primary }}>₹</span>
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  style={{
+                    ...field,
+                    width: 130,
+                    fontSize: 16,
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    background: '#fff',
+                    border: `2px solid ${C.primary}`,
+                    borderRadius: 10,
+                    padding: '9px 12px',
+                    color: C.primaryDark,
+                  }}
+                  value={cfg.codFee}
+                  onChange={(e) => set('codFee', e.target.value)}
+                  placeholder="50"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

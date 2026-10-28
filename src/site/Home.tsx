@@ -419,7 +419,7 @@ function FlashDeal({ deal, onAdd }: { deal: FlashDealConfig; onAdd: (id: string)
                 onClick={() => nav(`/product/${p.id}`)}
                 style={{ cursor: 'pointer', height: 160, borderRadius: 14, background: C.tint2, display: 'grid', placeItems: 'center', overflow: 'hidden' }}
               >
-                <ProductArt category={p.category} color={p.color} size={130} image={p.image} alt={p.name} float />
+                <ProductArt category={p.category} color={p.color} size={130} image={p.image} alt={p.name} />
               </div>
               <div
                 onClick={() => nav(`/product/${p.id}`)}
