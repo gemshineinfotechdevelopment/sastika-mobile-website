@@ -1,6 +1,6 @@
+import mongoose from 'mongoose';
 import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
-import { SEED_ORDERS } from '../data/seedData.js';
 import { getDbStatus } from '../config/db.js';
 import { memoryProducts } from './productController.js';
 
@@ -22,11 +22,14 @@ export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
     if (getDbStatus()) {
-      const order = await Order.findOne({ id });
+      const filter = mongoose.isValidObjectId(id)
+        ? { $or: [{ id }, { _id: id }, { id: '#' + id }, { id: id.replace(/^#/, '') }] }
+        : { $or: [{ id }, { id: '#' + id }, { id: id.replace(/^#/, '') }] };
+      const order = await Order.findOne(filter);
       if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
       return res.json({ success: true, data: order });
     }
-    const order = memoryOrders.find((o) => o.id === id);
+    const order = memoryOrders.find((o) => o.id === id || o.id === '#' + id || o.id.replace(/^#/, '') === id.replace(/^#/, ''));
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
     return res.json({ success: true, data: order });
   } catch (err) {
@@ -98,11 +101,10 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     if (getDbStatus()) {
-      const updated = await Order.findOneAndUpdate(
-        { $or: [{ id: rawId }, { id: '#' + rawId }, { id: rawId.replace(/^#/, '') }] },
-        patch,
-        { new: true }
-      );
+      const filter = mongoose.isValidObjectId(rawId)
+        ? { $or: [{ id: rawId }, { _id: rawId }, { id: '#' + rawId }, { id: rawId.replace(/^#/, '') }] }
+        : { $or: [{ id: rawId }, { id: '#' + rawId }, { id: rawId.replace(/^#/, '') }] };
+      const updated = await Order.findOneAndUpdate(filter, patch, { new: true });
       if (!updated) return res.status(404).json({ success: false, message: 'Order not found' });
       return res.json({ success: true, data: updated });
     }
@@ -113,6 +115,27 @@ export const updateOrderStatus = async (req, res) => {
     if (idx === -1) return res.status(404).json({ success: false, message: 'Order not found' });
     memoryOrders[idx] = { ...memoryOrders[idx], ...patch };
     return res.json({ success: true, data: memoryOrders[idx] });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const deleteOrder = async (req, res) => {
+  try {
+    const rawId = decodeURIComponent(req.params.id);
+    if (getDbStatus()) {
+      const filter = mongoose.isValidObjectId(rawId)
+        ? { $or: [{ id: rawId }, { _id: rawId }, { id: '#' + rawId }, { id: rawId.replace(/^#/, '') }] }
+        : { $or: [{ id: rawId }, { id: '#' + rawId }, { id: rawId.replace(/^#/, '') }] };
+      const deleted = await Order.findOneAndDelete(filter);
+      if (!deleted) return res.status(404).json({ success: false, message: 'Order not found' });
+      return res.json({ success: true, message: 'Order deleted successfully' });
+    }
+
+    memoryOrders = memoryOrders.filter(
+      (o) => o.id !== rawId && o.id !== '#' + rawId && o.id.replace(/^#/, '') !== rawId.replace(/^#/, '')
+    );
+    return res.json({ success: true, message: 'Order deleted successfully' });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }

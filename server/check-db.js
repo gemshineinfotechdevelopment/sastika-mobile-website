@@ -8,10 +8,17 @@ console.log('Connecting to:', uri ? uri.replace(/:[^:@]+@/, ':***@') : 'NONE');
 try {
   await mongoose.connect(uri);
   console.log('Connected to MongoDB!');
-  const collections = await mongoose.connection.db.listCollections().toArray();
-  for (const c of collections) {
-    const count = await mongoose.connection.db.collection(c.name).countDocuments();
-    console.log(`${c.name}: ${count} documents`);
+  const admin = mongoose.connection.db.admin();
+  const dbs = await admin.listDatabases();
+  console.log('Databases on this Atlas cluster:');
+  for (const d of dbs.databases) {
+    console.log('-', d.name, `(${(d.sizeOnDisk / 1024).toFixed(1)} KB)`);
+    const dbInst = mongoose.connection.client.db(d.name);
+    const colList = await dbInst.listCollections().toArray();
+    for (const c of colList) {
+      const cnt = await dbInst.collection(c.name).countDocuments();
+      console.log(`   * ${c.name}: ${cnt}`);
+    }
   }
 
   // Print any products
@@ -29,10 +36,15 @@ try {
     console.log('  Payment:', o.paymentMethod, o.paymentStatus);
   });
 
-  // Print any tickets
-  const tickets = await mongoose.connection.db.collection('tickets').find({}).toArray();
-  console.log('\nTickets count:', tickets.length);
-  tickets.forEach(t => console.log(`- [${t.id || t._id}] ${t.customer} - ${t.device} (${t.status})`));
+  // Print flashdeal
+  const flashdeals = await mongoose.connection.db.collection('flashdeals').find({}).toArray();
+  console.log('\nFlash Deals count:', flashdeals.length);
+  flashdeals.forEach(fd => {
+    console.log('- Active:', fd.isActive, 'Title:', fd.title, 'Items count:', fd.items?.length);
+    if (fd.items?.length) {
+      fd.items.forEach(it => console.log('   * Item:', it.id, it.name));
+    }
+  });
 
   await mongoose.disconnect();
 } catch (err) {

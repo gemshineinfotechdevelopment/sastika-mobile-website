@@ -76,6 +76,7 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(order),
     }),
+  deleteOrder: (id: string) => request<{ message: string }>(`/orders/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   updateOrderStatus: (id: string, status: OrderStatus, cancelReason?: string) =>
     request<Order>(`/orders/${encodeURIComponent(id)}`, {
       method: 'PATCH',

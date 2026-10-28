@@ -138,10 +138,55 @@ const DEFAULT_STORE_SETTINGS: Record<string, any> = {
   adminUsername: 'admin@sastikaamobiles.com',
 };
 
+const DUMMY_PRODUCT_IDS = new Set([
+  'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10',
+  'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18'
+]);
+const DUMMY_ORDER_IDS = new Set([
+  '#SM-884220', '#SM-884219', '#SM-884218', '#SM-884217', '#SM-884216', '#SM-884215',
+  'SM-884220', 'SM-884219', 'SM-884218', 'SM-884217', 'SM-884216', 'SM-884215'
+]);
+const DUMMY_TICKET_IDS = new Set([
+  'SR-5521', 'SR-5520', 'SR-5519', 'SR-5518', 'SR-5517', 'SR-5516', 'SR-5515'
+]);
+
 const Ctx = createContext<StoreShape | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useLocalState<Product[]>('products_live', []);
+  const getCleanLocalProducts = (): Product[] => {
+    try {
+      const raw = localStorage.getItem('sastika:products_live');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed.filter((p: Product) => !DUMMY_PRODUCT_IDS.has(p.id));
+      }
+    } catch {}
+    return [];
+  };
+
+  const getCleanLocalOrders = (): Order[] => {
+    try {
+      const raw = localStorage.getItem('sastika:orders');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed.filter((o: Order) => !DUMMY_ORDER_IDS.has(o.id));
+      }
+    } catch {}
+    return [];
+  };
+
+  const getCleanLocalTickets = (): Ticket[] => {
+    try {
+      const raw = localStorage.getItem('sastika:tickets');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed.filter((t: Ticket) => !DUMMY_TICKET_IDS.has(t.id));
+      }
+    } catch {}
+    return [];
+  };
+
+  const [products, setProducts] = useLocalState<Product[]>('products_live', getCleanLocalProducts());
   const [user, setUser] = useLocalState<AuthUser | null>('auth_user_v3', null);
   const [token, setToken] = useLocalState<string | null>('customer_token', null);
 
@@ -181,8 +226,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>(getInitialCart);
   const [wishlist, setWishlist] = useState<string[]>(getInitialWishlist);
   const [coupon, setCoupon] = useLocalState<string>('coupon', '');
-  const [orders, setOrders] = useLocalState<Order[]>('orders', []);
-  const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', []);
+  const [orders, setOrders] = useLocalState<Order[]>('orders', getCleanLocalOrders());
+  const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', getCleanLocalTickets());
   // Robust logo state: discard any stale dev paths (/src/...) from localStorage
   const getInitialLogo = (): string => {
     try {
@@ -214,6 +259,37 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (raw && (raw.includes('/src/') || raw.includes('undefined') || raw.includes('/logo.png'))) {
         localStorage.removeItem('sastika:logo');
         setLogoState(defaultLogo);
+      }
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try {
+      ['products', 'products_v1', 'products_v2', 'products_v3', 'products_v4'].forEach((k) => {
+        localStorage.removeItem('sastika:' + k);
+      });
+      const o = localStorage.getItem('sastika:orders');
+      if (o) {
+        const parsed = JSON.parse(o);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter((it: Order) => !DUMMY_ORDER_IDS.has(it.id));
+          localStorage.setItem('sastika:orders', JSON.stringify(cleaned));
+        }
+      }
+      const t = localStorage.getItem('sastika:tickets');
+      if (t) {
+        const parsed = JSON.parse(t);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter((it: Ticket) => !DUMMY_TICKET_IDS.has(it.id));
+          localStorage.setItem('sastika:tickets', JSON.stringify(cleaned));
+        }
+      }
+      const p = localStorage.getItem('sastika:products_live');
+      if (p) {
+        const parsed = JSON.parse(p);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter((it: Product) => !DUMMY_PRODUCT_IDS.has(it.id));
+          localStorage.setItem('sastika:products_live', JSON.stringify(cleaned));
+        }
       }
     } catch {}
   }, []);
@@ -273,9 +349,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const applyProducts = (serverProducts: any) => {
       const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
       if (Array.isArray(cleanProducts)) {
+        const filtered = cleanProducts.filter((sp: Product) => !DUMMY_PRODUCT_IDS.has(sp.id));
         setProducts((prev) => {
-          const pendingOptimistic = prev.filter((p) => p.id && p.id.startsWith('n') && !cleanProducts.some((sp: Product) => sp.id === p.id));
-          const merged = pendingOptimistic.length > 0 ? [...cleanProducts, ...pendingOptimistic] : cleanProducts;
+          const pendingOptimistic = prev.filter((p) => p.id && p.id.startsWith('n') && !filtered.some((sp: Product) => sp.id === p.id));
+          const merged = pendingOptimistic.length > 0 ? [...filtered, ...pendingOptimistic] : filtered;
           if (prev.length === merged.length && JSON.stringify(prev) === JSON.stringify(merged)) {
             return prev;
           }
@@ -301,14 +378,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const applyOrders = (serverOrders: any) => {
       const cleanOrders = Array.isArray(serverOrders) ? serverOrders : (serverOrders as any)?.data;
       if (Array.isArray(cleanOrders)) {
-        setOrders((prev) => (prev.length === cleanOrders.length && JSON.stringify(prev) === JSON.stringify(cleanOrders) ? prev : cleanOrders));
+        const filtered = cleanOrders.filter((so: Order) => !DUMMY_ORDER_IDS.has(so.id));
+        setOrders((prev) => (prev.length === filtered.length && JSON.stringify(prev) === JSON.stringify(filtered) ? prev : filtered));
       }
     };
 
     const applyTickets = (serverTickets: any) => {
       const cleanTickets = Array.isArray(serverTickets) ? serverTickets : (serverTickets as any)?.data;
       if (Array.isArray(cleanTickets)) {
-        setTickets((prev) => (prev.length === cleanTickets.length && JSON.stringify(prev) === JSON.stringify(cleanTickets) ? prev : cleanTickets));
+        const filtered = cleanTickets.filter((st: Ticket) => !DUMMY_TICKET_IDS.has(st.id));
+        setTickets((prev) => (prev.length === filtered.length && JSON.stringify(prev) === JSON.stringify(filtered) ? prev : filtered));
       }
     };
 
