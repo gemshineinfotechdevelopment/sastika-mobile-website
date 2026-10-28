@@ -8,7 +8,7 @@ import { computeTotals } from './pricing';
 
 const NAV_LINKS: { to: string; label: string; icon: IconName; badge?: string }[] = [
   { to: '/', label: 'Home', icon: 'home' },
-  { to: '/mobiles', label: 'All Mobiles', icon: 'phone', badge: '18 Deals' },
+  { to: '/mobiles', label: 'All Mobiles', icon: 'phone' },
   { to: '/accessories', label: 'Accessories', icon: 'headphones' },
   { to: '/appliances', label: 'Home Appliances', icon: 'tv', badge: 'New' },
   { to: '/services', label: 'Care & Repair', icon: 'tool' },
