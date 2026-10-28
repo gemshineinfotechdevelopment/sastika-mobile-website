@@ -44,3 +44,4 @@ clean().catch((err) => {
   console.error('Error cleaning database:', err);
   process.exit(1);
 });
+
