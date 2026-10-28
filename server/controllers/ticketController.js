@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Ticket } from '../models/Ticket.js';
 import { getDbStatus } from '../config/db.js';
 
@@ -19,11 +20,12 @@ export const getTicketById = async (req, res) => {
   try {
     const { id } = req.params;
     if (getDbStatus()) {
-      const ticket = await Ticket.findOne({ id });
+      const filter = mongoose.isValidObjectId(id) ? { $or: [{ id }, { _id: id }] } : { id };
+      const ticket = await Ticket.findOne(filter);
       if (!ticket) return res.status(404).json({ success: false, message: 'Ticket not found' });
       return res.json({ success: true, data: ticket });
     }
-    const ticket = memoryTickets.find((t) => t.id === id);
+    const ticket = memoryTickets.find((t) => t.id === id || t._id === id);
     if (!ticket) return res.status(404).json({ success: false, message: 'Ticket not found' });
     return res.json({ success: true, data: ticket });
   } catch (err) {
@@ -78,12 +80,13 @@ export const updateTicketStatus = async (req, res) => {
     if (cost !== undefined) patch.cost = Number(cost);
 
     if (getDbStatus()) {
-      const updated = await Ticket.findOneAndUpdate({ id }, patch, { new: true });
+      const filter = mongoose.isValidObjectId(id) ? { $or: [{ id }, { _id: id }] } : { id };
+      const updated = await Ticket.findOneAndUpdate(filter, patch, { new: true });
       if (!updated) return res.status(404).json({ success: false, message: 'Ticket not found' });
       return res.json({ success: true, data: updated });
     }
 
-    const idx = memoryTickets.findIndex((t) => t.id === id);
+    const idx = memoryTickets.findIndex((t) => t.id === id || t._id === id);
     if (idx === -1) return res.status(404).json({ success: false, message: 'Ticket not found' });
     memoryTickets[idx] = { ...memoryTickets[idx], ...patch };
     return res.json({ success: true, data: memoryTickets[idx] });
@@ -96,10 +99,11 @@ export const deleteTicket = async (req, res) => {
   try {
     const { id } = req.params;
     if (getDbStatus()) {
-      await Ticket.findOneAndDelete({ id });
+      const filter = mongoose.isValidObjectId(id) ? { $or: [{ id }, { _id: id }] } : { id };
+      await Ticket.findOneAndDelete(filter);
       return res.json({ success: true, message: 'Ticket deleted successfully' });
     }
-    memoryTickets = memoryTickets.filter((t) => t.id !== id);
+    memoryTickets = memoryTickets.filter((t) => t.id !== id && t._id !== id);
     return res.json({ success: true, message: 'Ticket deleted successfully' });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

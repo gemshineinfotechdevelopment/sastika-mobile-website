@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Product } from '../models/Product.js';
 import { getDbStatus } from '../config/db.js';
 
@@ -72,12 +73,13 @@ export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
     if (getDbStatus()) {
-      const product = await Product.findOne({ id });
+      const filter = mongoose.isValidObjectId(id) ? { $or: [{ id }, { _id: id }] } : { id };
+      const product = await Product.findOne(filter);
       if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
       return res.json({ success: true, data: product });
     }
 
-    const product = memoryProducts.find((p) => p.id === id);
+    const product = memoryProducts.find((p) => p.id === id || p._id === id);
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
     return res.json({ success: true, data: product });
   } catch (err) {
@@ -89,7 +91,32 @@ export const createProduct = async (req, res) => {
   try {
     const body = req.body;
     const newId = body.id || 'p_' + Date.now().toString(36);
-    const newProduct = { ...body, id: newId };
+    const brandPrefix = (body.brand || 'SM').replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase() || 'SM';
+    const newSku = body.sku || `SKU-${brandPrefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newPrice = Number(body.price) || 0;
+    const newMrp = Number(body.mrp) || newPrice;
+
+    // Safely normalize specs to array of strings
+    let normalizedSpecs = [];
+    if (Array.isArray(body.specs)) {
+      normalizedSpecs = body.specs.map((s) => (typeof s === 'string' ? s : (s && typeof s === 'object') ? Object.entries(s).map(([k, v]) => `${k}: ${v}`).join(', ') : String(s)));
+    } else if (typeof body.specs === 'string') {
+      normalizedSpecs = body.specs.split('\n').map((s) => s.trim()).filter(Boolean);
+    } else if (body.specs && typeof body.specs === 'object') {
+      normalizedSpecs = Object.entries(body.specs).map(([k, v]) => `${k}: ${v}`);
+    }
+
+    const newProduct = {
+      ...body,
+      id: newId,
+      sku: newSku,
+      price: newPrice,
+      mrp: newMrp,
+      specs: normalizedSpecs,
+      stock: Number(body.stock) || 0,
+      rating: Number(body.rating) || 4.5,
+      reviews: Number(body.reviews) || 0,
+    };
 
     if (getDbStatus()) {
       const created = await Product.create(newProduct);
@@ -109,12 +136,13 @@ export const updateProduct = async (req, res) => {
     const patch = req.body;
 
     if (getDbStatus()) {
-      const updated = await Product.findOneAndUpdate({ id }, patch, { new: true });
+      const filter = mongoose.isValidObjectId(id) ? { $or: [{ id }, { _id: id }] } : { id };
+      const updated = await Product.findOneAndUpdate(filter, patch, { new: true });
       if (!updated) return res.status(404).json({ success: false, message: 'Product not found' });
       return res.json({ success: true, data: updated });
     }
 
-    const idx = memoryProducts.findIndex((p) => p.id === id);
+    const idx = memoryProducts.findIndex((p) => p.id === id || p._id === id);
     if (idx === -1) return res.status(404).json({ success: false, message: 'Product not found' });
     memoryProducts[idx] = { ...memoryProducts[idx], ...patch };
     return res.json({ success: true, data: memoryProducts[idx] });
@@ -128,12 +156,13 @@ export const deleteProduct = async (req, res) => {
     const { id } = req.params;
 
     if (getDbStatus()) {
-      const deleted = await Product.findOneAndDelete({ id });
+      const filter = mongoose.isValidObjectId(id) ? { $or: [{ id }, { _id: id }] } : { id };
+      const deleted = await Product.findOneAndDelete(filter);
       if (!deleted) return res.status(404).json({ success: false, message: 'Product not found' });
       return res.json({ success: true, message: 'Product removed' });
     }
 
-    memoryProducts = memoryProducts.filter((p) => p.id !== id);
+    memoryProducts = memoryProducts.filter((p) => p.id !== id && p._id !== id);
     return res.json({ success: true, message: 'Product removed' });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
