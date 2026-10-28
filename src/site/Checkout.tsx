@@ -349,7 +349,7 @@ export default function Checkout() {
 
       // Step B: Launch Razorpay Checkout Modal
       const options = {
-        key: orderRes.keyId,
+        key: orderRes.keyId || (import.meta.env.VITE_RAZORPAY_KEY_ID as string) || 'rzp_test_Tsw5kgEtalVrnx',
         amount: orderRes.amount,
         currency: orderRes.currency || 'INR',
         name: 'Sastikaa Mobiles',
