@@ -436,34 +436,6 @@ export default function Login() {
             </div>
           )}
 
-          {/* Footer Admin Link */}
-          <div
-            style={{
-              textAlign: 'center',
-              marginTop: 18,
-              paddingTop: 14,
-              borderTop: `1px solid ${C.border}`,
-              fontSize: 12,
-              color: C.muted,
-            }}
-          >
-            Store Manager or Staff?{' '}
-            <button
-              type="button"
-              onClick={() => nav('/admin/login')}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: C.primary,
-                fontWeight: 800,
-                cursor: 'pointer',
-                padding: 0,
-                textDecoration: 'underline',
-              }}
-            >
-              Admin Portal Login →
-            </button>
-          </div>
 
           {/* Google OAuth Setup Guidance Modal */}
           {showGoogleSetupModal && (
