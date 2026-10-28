@@ -20,7 +20,7 @@ const NAV_LINKS: { to: string; label: string; icon: IconName; badge?: string }[]
 export default function SiteLayout() {
   const { pathname } = useLocation();
   const nav = useNavigate();
-  const { cart, cartCount, wishlist, products, logo, user, logoutUser, authPromptModal, closeAuthPrompt } = useStore();
+  const { cart, cartCount, wishlist, products, logo, user, logoutUser, authPromptModal, closeAuthPrompt, settings } = useStore();
   const [drawer, setDrawer] = useState(false);
   const [searching, setSearching] = useState(false);
   const [mobileSearch, setMobileSearch] = useState(false);
@@ -83,11 +83,11 @@ export default function SiteLayout() {
           <div onClick={() => nav('/')} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <img
               src={logo || logoImg}
-              alt="Sastika Mobiles"
+              alt="Sastikaa Mobiles"
               style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #d4af37', background: '#fff', objectFit: 'cover' }}
             />
             <div>
-              <div style={{ fontWeight: 900, fontSize: 14.5, letterSpacing: 0.3, lineHeight: 1.1, color: '#fff' }}>SASTIKA MOBILES</div>
+              <div style={{ fontWeight: 900, fontSize: 14.5, letterSpacing: 0.3, lineHeight: 1.1, color: '#fff' }}>SASTIKAA MOBILES</div>
               <div style={{ fontSize: 8.5, letterSpacing: 1.4, color: C.accent, fontWeight: 800 }}>SALES &amp; SERVICE</div>
             </div>
           </div>
@@ -370,7 +370,7 @@ export default function SiteLayout() {
           >
             <img
               src={logo || logoImg}
-              alt="Sastika Mobiles Logo"
+              alt="Sastikaa Mobiles Logo"
               style={{
                 width: 44,
                 height: 44,
@@ -384,7 +384,7 @@ export default function SiteLayout() {
             />
             <div style={{ lineHeight: 1.15 }}>
               <div style={{ fontWeight: 900, fontSize: 18, letterSpacing: 0.4, color: '#fff' }}>
-                SASTIKA MOBILES
+                SASTIKAA MOBILES
               </div>
               <div style={{ fontSize: 9.5, letterSpacing: 1.8, color: C.accent, fontWeight: 800, marginTop: 2 }}>
                 SALES &amp; SERVICE • SIVAKASI
@@ -791,7 +791,7 @@ export default function SiteLayout() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
               <img
                 src={logo || logoImg}
-                alt="Sastika Mobiles"
+                alt="Sastikaa Mobiles"
                 style={{
                   width: 46,
                   height: 46,
@@ -801,7 +801,7 @@ export default function SiteLayout() {
                 }}
               />
               <div>
-                <div style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>Sastika Mobiles</div>
+                <div style={{ fontWeight: 900, fontSize: 18, color: '#fff' }}>{settings?.business || 'Sastikaa Mobiles'}</div>
                 <div style={{ fontSize: 10, letterSpacing: 2, color: C.accent, fontWeight: 800 }}>SALES &amp; SERVICE</div>
               </div>
             </div>
@@ -809,9 +809,9 @@ export default function SiteLayout() {
               Leading multi-brand smartphone showroom, genuine accessories, and instant repair service in Sivakasi and Sithurajapuram.
             </p>
             <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'rgba(255,255,255,0.9)' }}>
-              <div>📍 <b>Branch:</b> Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189.</div>
-              <div>📞 <b>Phone / WhatsApp:</b> +91 95434 34344</div>
-              <div>📄 <b>GSTIN:</b> 33BQTPJ5275L1Z6</div>
+              <div>📍 <b>Branch:</b> {settings?.address || 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189.'}</div>
+              <div>📞 <b>Phone / WhatsApp:</b> {settings?.phone || settings?.managerPhone || '+91 95434 34344'}</div>
+              <div>📄 <b>GSTIN:</b> {settings?.gstin || '33BQTPJ5275L1Z6'}</div>
             </div>
           </div>
 
@@ -879,7 +879,7 @@ export default function SiteLayout() {
           }}
         >
           <div>
-            © 2026 <b>Sastika Mobiles</b>. All Rights Reserved. Sivakasi &amp; Sithurajapuram, Tamil Nadu.
+            © 2026 <b>Sastikaa Mobiles</b>. All Rights Reserved. Sivakasi &amp; Sithurajapuram, Tamil Nadu.
           </div>
           <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
             <span style={{ color: C.accent }}>● 100% Secure Checkout</span>
@@ -923,11 +923,11 @@ export default function SiteLayout() {
               <div onClick={() => { setDrawer(false); nav('/'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <img
                   src={logo || logoImg}
-                  alt="Sastika Mobiles"
+                  alt="Sastikaa Mobiles"
                   style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d4af37' }}
                 />
                 <div>
-                  <div style={{ fontWeight: 900, fontSize: 17, color: '#fff' }}>SASTIKA</div>
+                  <div style={{ fontWeight: 900, fontSize: 17, color: '#fff' }}>SASTIKAA</div>
                   <div style={{ color: C.accent, fontSize: 9.5, letterSpacing: 2, fontWeight: 800 }}>MOBILES</div>
                 </div>
               </div>
@@ -1035,7 +1035,7 @@ export default function SiteLayout() {
 
             <div style={{ marginTop: 'auto', padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 12.5 }}>
               <div style={{ fontWeight: 800, color: C.accent, marginBottom: 2 }}>Need Help?</div>
-              Call / WhatsApp: +91 95434 34344
+              Call / WhatsApp: {settings?.phone || settings?.managerPhone || '+91 95434 34344'}
             </div>
           </aside>
         </>

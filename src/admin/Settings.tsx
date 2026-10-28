@@ -31,9 +31,9 @@ interface Cfg {
 }
 
 const DEFAULT: Cfg = {
-  business: 'Sastika Mobiles',
+  business: 'Sastikaa Mobiles',
   gstin: '33BQTPJ5275L1Z6',
-  email: 'sastikamobiles.svk@gmail.com',
+  email: 'sastikaamobiles.svk@gmail.com',
   phone: '+91 98765 43210',
   address: 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189',
   currency: 'INR (₹)',
@@ -51,7 +51,7 @@ const DEFAULT: Cfg = {
   salesRepName: 'M. Karthi',
   salesRepPhone: '+91 98401 23456',
   // Admin Credentials Defaults
-  adminUsername: 'admin@sastikamobiles.com',
+  adminUsername: 'admin@sastikaamobiles.com',
   adminPassword: 'admin123',
 };
 
@@ -168,7 +168,7 @@ export default function Settings() {
               <div>
                 <div style={{ fontWeight: 800, fontSize: 17 }}>Brand Logo &amp; Identity</div>
                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>
-                  Official store logo permanently configured for Sastika Mobiles.
+                  Official store logo permanently configured for Sastikaa Mobiles.
                 </div>
               </div>
               <Tag tone="green">Static Logo</Tag>
@@ -190,13 +190,13 @@ export default function Settings() {
                     overflow: 'hidden',
                   }}
                 >
-                  <img src={defaultLogo} alt="Sastika Mobiles" style={{ width: 58, height: 58, objectFit: 'cover' }} />
+                  <img src={defaultLogo} alt="Sastikaa Mobiles" style={{ width: 58, height: 58, objectFit: 'cover' }} />
                 </div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: C.primaryDark }}>Current Icon</div>
               </div>
 
               <div style={{ flex: 1, fontSize: 13, lineHeight: 1.6, color: '#4b5563' }}>
-                Golden Peacock emblem with <b>SASTIKA MOBILES</b> Sivakasi hallmark. Automatically applied across storefront, invoices, and mobile navigation.
+                Golden Peacock emblem with <b>SASTIKAA MOBILES</b> Sivakasi hallmark. Automatically applied across storefront, invoices, and mobile navigation.
               </div>
             </div>
           </div>
@@ -228,7 +228,7 @@ export default function Settings() {
               </span>
               <div>
                 <div style={{ fontWeight: 800, fontSize: 16, color: C.primary }}>
-                  {cfg.business || 'Sastika Mobiles'}
+                  {cfg.business || 'Sastikaa Mobiles'}
                 </div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#b8860b' }}>
                   Sales &bull; Service &bull; TAX INVOICE PROFILE
@@ -259,7 +259,7 @@ export default function Settings() {
             <div>
               <div style={{ fontWeight: 800, fontSize: 18 }}>Store Details &amp; Tax Profile</div>
               <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>
-                Official store credentials and business information from Sastika Mobiles Tax Invoice (Sithurajapuram, Sivakasi)
+                Official store credentials and business information from Sastikaa Mobiles Tax Invoice (Sithurajapuram, Sivakasi)
               </div>
             </div>
             <Tag tone="amber">GST Registered</Tag>
@@ -271,7 +271,7 @@ export default function Settings() {
                 style={field}
                 value={cfg.business}
                 onChange={(e) => set('business', e.target.value)}
-                placeholder="Sastika Mobiles"
+                placeholder="Sastikaa Mobiles"
               />
             </FieldRow>
 
@@ -290,7 +290,7 @@ export default function Settings() {
                 type="email"
                 value={cfg.email}
                 onChange={(e) => set('email', e.target.value)}
-                placeholder="sastikamobiles.svk@gmail.com"
+                placeholder="sastikaamobiles.svk@gmail.com"
               />
             </FieldRow>
 
@@ -417,7 +417,7 @@ export default function Settings() {
                 <span>Admin Login &amp; Security Credentials</span>
               </div>
               <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
-                Change your administrator username / email and login password used to access the <b>Sastika Admin Portal</b> (<code>/#/admin/login</code>).
+                Change your administrator username / email and login password used to access the <b>Sastikaa Admin Portal</b> (<code>/#/admin/login</code>).
               </div>
             </div>
             <Tag tone="amber">Admin Security</Tag>
@@ -429,7 +429,7 @@ export default function Settings() {
                 style={field}
                 value={cfg.adminUsername}
                 onChange={(e) => set('adminUsername', e.target.value)}
-                placeholder="admin@sastikamobiles.com"
+                placeholder="admin@sastikaamobiles.com"
                 autoComplete="username"
               />
             </FieldRow>

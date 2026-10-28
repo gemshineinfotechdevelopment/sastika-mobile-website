@@ -216,6 +216,67 @@ export default function Checkout() {
     setStep((s) => s + 1);
   };
 
+  const handleSimulateDemoPayment = async () => {
+    setShowKeysSetupModal(false);
+    setBusy(true);
+    setVerifyingPayment(true);
+
+    const orderId = '#SM-' + String(Math.floor(100000 + Math.random() * 899999));
+    const items = cart
+      .map((l) => {
+        const p = products.find((x) => x.id === l.id) || flashDeal.items?.find((x) => x.id === l.id);
+        return p ? { productId: p.id, name: p.name, qty: l.qty, price: p.price } : null;
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+
+    try {
+      const demoOrderId = 'order_demo_' + Date.now();
+      const demoPaymentId = 'pay_demo_' + Date.now();
+      const verifyRes = await api.verifyRazorpayPayment({
+        razorpay_order_id: demoOrderId,
+        razorpay_payment_id: demoPaymentId,
+        razorpay_signature: 'demo_mock_signature',
+        orderData: {
+          id: orderId,
+          customer: form.name.trim() || user?.name || 'Customer',
+          phone: '+91 ' + (form.phone.trim() || '9876543210'),
+          email: form.email.trim() || user?.email || '',
+          address: `${form.address.trim()}, ${form.city.trim()} ${form.pin.trim()}`,
+          city: form.city.trim(),
+          items: items,
+          total: t.payable,
+          paymentMethod: 'Razorpay Online (Demo Simulation)',
+        },
+      });
+
+      if (verifyRes && verifyRes.success && verifyRes.verified) {
+        placeOrder({
+          id: orderId,
+          name: form.name.trim() || user?.name || 'Customer',
+          phone: '+91 ' + (form.phone.trim() || '9876543210'),
+          email: form.email.trim() || user?.email || '',
+          address: `${form.address.trim()}, ${form.city.trim()} ${form.pin.trim()}`,
+          city: form.city.trim(),
+          payment: 'Razorpay Online (Demo Simulation)',
+          discount: t.couponDiscount,
+        });
+        setBusy(false);
+        setVerifyingPayment(false);
+        setPaymentSuccessModal({
+          open: true,
+          orderId: orderId,
+          paymentId: demoPaymentId,
+        });
+      } else {
+        throw new Error(verifyRes?.message || 'Demo payment simulation failed');
+      }
+    } catch (e: any) {
+      setBusy(false);
+      setVerifyingPayment(false);
+      setError(e?.message || 'Demo payment simulation failed');
+    }
+  };
+
   const pay = async () => {
     setError('');
     setBusy(true);
@@ -260,8 +321,17 @@ export default function Checkout() {
           orderId: orderId,
         },
       }).catch((err: any) => {
+        if (err?.message?.includes('not configured') || err?.message?.includes('RAZORPAY_KEY')) {
+          setShowKeysSetupModal(true);
+          return null;
+        }
         throw new Error(err?.message || 'Failed to connect to Razorpay server');
       });
+
+      if (!orderRes) {
+        setBusy(false);
+        return;
+      }
 
       if (!orderRes || !orderRes.success || !orderRes.orderId) {
         if (orderRes?.configured === false || orderRes?.message?.includes('not configured')) {
@@ -282,7 +352,7 @@ export default function Checkout() {
         key: orderRes.keyId,
         amount: orderRes.amount,
         currency: orderRes.currency || 'INR',
-        name: 'Sastika Mobiles',
+        name: 'Sastikaa Mobiles',
         description: `Order Payment ${orderId}`,
         image: logo || undefined,
         order_id: orderRes.orderId,
@@ -292,7 +362,7 @@ export default function Checkout() {
           contact: form.phone.trim() || '',
         },
         theme: {
-          color: '#0b4a43', // Sastika emerald theme
+          color: '#0b4a43', // Sastikaa emerald theme
         },
         modal: {
           ondismiss: function () {
@@ -368,7 +438,7 @@ export default function Checkout() {
             console.error('Payment verification error:', verifyErr);
             setError(
               verifyErr?.message ||
-                'Server payment verification error. Please contact Sastika Mobiles with your transaction details.'
+                'Server payment verification error. Please contact Sastikaa Mobiles with your transaction details.'
             );
           } finally {
             setVerifyingPayment(false);
@@ -396,7 +466,7 @@ export default function Checkout() {
 
   return (
     <div className="site-page-container" style={{ maxWidth: 840, margin: '0 auto', position: 'relative' }}>
-      <PageHead title="Secure Checkout" sub="Encrypted · Sastika Protected · Doorstep Delivery Across Tamil Nadu" />
+      <PageHead title="Secure Checkout" sub="Encrypted · Sastikaa Protected · Doorstep Delivery Across Tamil Nadu" />
 
       {/* stepper */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '10px 22px 18px' }}>
@@ -587,28 +657,7 @@ export default function Checkout() {
               </button>
             ))}
 
-            {form.payment === 'RAZORPAY' && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '10px 14px',
-                  background: '#f0fdf4',
-                  border: '1px solid #bbf7d0',
-                  borderRadius: 10,
-                  color: '#15803d',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  marginTop: 10,
-                }}
-              >
-                <Icon name="check" size={16} color="#15803d" />
-                <span>
-                  Protected by Razorpay 256-bit encryption. Payment is verified directly with our backend server.
-                </span>
-              </div>
-            )}
+
 
             {isCodAllowed ? (
               <div
@@ -911,7 +960,7 @@ export default function Checkout() {
             </h3>
 
             <p style={{ margin: '0 0 16px', fontSize: 13, color: '#4b5563', lineHeight: 1.55 }}>
-              Your payment has been verified by the backend and your order is securely saved in the Sastika Mobiles database.
+              Your payment has been verified by the backend and your order is securely saved in the Sastikaa Mobiles database.
             </p>
 
             <div
@@ -1066,7 +1115,27 @@ RAZORPAY_KEY_SECRET=your_key_secret`}
               Log into <a href="https://dashboard.razorpay.com/#/access/api-keys" target="_blank" rel="noreferrer" style={{ color: C.primary, fontWeight: 700 }}>Razorpay Dashboard</a> → Settings → API Keys → Generate Key.
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginTop: 14 }}>
+              <button
+                type="button"
+                onClick={handleSimulateDemoPayment}
+                style={{
+                  padding: '9px 15px',
+                  background: '#f0fdf4',
+                  color: '#15803d',
+                  border: '1.5px solid #86efac',
+                  borderRadius: 10,
+                  fontSize: 12.5,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <span>⚡</span>
+                <span>Test with Demo Payment</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setShowKeysSetupModal(false)}

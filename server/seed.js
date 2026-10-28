@@ -36,7 +36,7 @@ const DEFAULT_FLASH_DEAL = {
 
 async function seedDatabase() {
   console.log('========================================================');
-  console.log('🌱 Starting Sastika Mobiles Database Seed on VPS...');
+  console.log('🌱 Starting Sastikaa Mobiles Database Seed on VPS...');
   console.log(`🔗 Connecting to: ${MONGO_URI}`);
   console.log(`📂 Database:     ${DB_NAME}`);
   console.log('========================================================');
@@ -54,11 +54,10 @@ async function seedDatabase() {
     const insertedProducts = await Product.insertMany(SEED_PRODUCTS);
     console.log(`   ✓ Inserted ${insertedProducts.length} retail products.`);
 
-    // 2. Seed Orders
-    console.log('📋 Seeding Orders...');
+    // 2. Clear Demo Orders (Only real website orders are stored)
+    console.log('📋 Clearing Orders collection...');
     await Order.deleteMany({});
-    const insertedOrders = await Order.insertMany(SEED_ORDERS);
-    console.log(`   ✓ Inserted ${insertedOrders.length} demo orders.`);
+    console.log('   ✓ Orders collection cleared. Ready for real customer orders.');
 
     // 3. Seed Service Tickets
     console.log('🔧 Seeding Service Tickets...');
@@ -74,11 +73,11 @@ async function seedDatabase() {
 
     // 5. Seed Admin User
     console.log('👤 Seeding Admin User...');
-    const adminEmail = 'admin@sastikamobiles.com';
+    const adminEmail = 'admin@sastikaamobiles.com';
     await User.deleteMany({ email: adminEmail });
     const hashedPassword = await bcrypt.hash('admin123', 10);
     await User.create({
-      name: 'Sastika Admin',
+      name: 'Sastikaa Admin',
       email: adminEmail,
       password: hashedPassword,
       role: 'admin',

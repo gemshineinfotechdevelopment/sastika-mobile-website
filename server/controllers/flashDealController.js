@@ -19,12 +19,6 @@ export const getFlashDeal = async (req, res) => {
       let deal = await FlashDeal.findOne({ dealId: 'main_flash_deal' });
       if (!deal) {
         deal = await FlashDeal.create(DEFAULT_FLASH_DEAL);
-      } else if (deal.items?.some((i) => i.id === 'fd1' || i.id === 'fd2' || i.id === 'p1' || i.id === 'p3')) {
-        // Clean up legacy demo seed so flash deal is not automatically active
-        deal.items = [];
-        deal.isActive = false;
-        deal.endTime = '';
-        await deal.save();
       }
       return res.json({ success: true, data: deal });
     }

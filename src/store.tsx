@@ -105,6 +105,9 @@ interface StoreShape {
   addFlashDealItem: (item: Omit<FlashDealItem, 'id'>) => void;
   removeFlashDealItem: (id: string) => void;
 
+  settings: Record<string, any>;
+  updateSettings: (patch: Record<string, any>) => Promise<void>;
+
   user: AuthUser | null;
   token: string | null;
   loginUser: (user: AuthUser, token?: string) => void;
@@ -113,6 +116,28 @@ interface StoreShape {
   register: (data: { name: string; email: string; password: string; phone?: string }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
 }
+
+const DEFAULT_STORE_SETTINGS: Record<string, any> = {
+  business: 'Sastikaa Mobiles',
+  gstin: '33BQTPJ5275L1Z6',
+  email: 'sastikaamobiles.svk@gmail.com',
+  phone: '+91 95434 34344',
+  address: 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189',
+  currency: 'INR (₹)',
+  gstOn: true,
+  lowStockAlerts: true,
+  autoInvoice: true,
+  smsUpdates: true,
+  codOn: true,
+  codFee: 50,
+  upiOn: true,
+  freeShipAbove: '0',
+  managerName: 'S. Ramanathan',
+  managerPhone: '+91 95434 34344',
+  salesRepName: 'M. Karthi',
+  salesRepPhone: '+91 98401 23456',
+  adminUsername: 'admin@sastikaamobiles.com',
+};
 
 const Ctx = createContext<StoreShape | null>(null);
 
@@ -157,11 +182,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>(getInitialCart);
   const [wishlist, setWishlist] = useState<string[]>(getInitialWishlist);
   const [coupon, setCoupon] = useLocalState<string>('coupon', '');
-  const [orders, setOrders] = useLocalState<Order[]>('orders', SEED_ORDERS);
+  const [orders, setOrders] = useLocalState<Order[]>('orders', []);
   const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
   const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
   const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v4', DEFAULT_FLASH_DEAL);
+  const [settings, setSettings] = useLocalState<Record<string, any>>('settings_v2', DEFAULT_STORE_SETTINGS);
+
+  useEffect(() => {
+    const handleSettingsChanged = () => {
+      try {
+        const raw = localStorage.getItem('sastika:settings');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          setSettings((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch {}
+    };
+    window.addEventListener('sastika:settings_changed', handleSettingsChanged);
+    return () => window.removeEventListener('sastika:settings_changed', handleSettingsChanged);
+  }, [setSettings]);
 
   const [authPromptModal, setAuthPromptModal] = useState<{
     open: boolean;
@@ -215,12 +255,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
       if (Array.isArray(cleanProducts) && cleanProducts.length > 0) {
         setProducts((prev) => {
-          const serverMap = new Map(cleanProducts.map((p: Product) => [p.id, p]));
-          const localOnly = prev.filter((p) => !serverMap.has(p.id));
-          const merged = localOnly.length > 0 ? [...cleanProducts, ...localOnly] : cleanProducts;
+          const pendingOptimistic = prev.filter((p) => p.id && p.id.startsWith('n') && !cleanProducts.some((sp: Product) => sp.id === p.id));
+          const merged = pendingOptimistic.length > 0 ? [...cleanProducts, ...pendingOptimistic] : cleanProducts;
           if (prev.length === merged.length && JSON.stringify(prev) === JSON.stringify(merged)) {
             return prev;
           }
+          return merged;
+        });
+      }
+    };
+
+    const applySettings = (serverSettings: any) => {
+      const cleanSettings = serverSettings?.data || serverSettings;
+      if (cleanSettings && typeof cleanSettings === 'object' && Object.keys(cleanSettings).length > 0) {
+        setSettings((prev) => {
+          const merged = { ...prev, ...cleanSettings };
+          if (JSON.stringify(prev) === JSON.stringify(merged)) return prev;
+          try {
+            localStorage.setItem('sastika:settings', JSON.stringify(merged));
+          } catch {}
           return merged;
         });
       }
@@ -253,11 +306,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           setServerOnline(true);
         }
 
-        const [serverProducts, serverOrders, serverTickets, serverFlashDeal] = await Promise.all([
+        const [serverProducts, serverOrders, serverTickets, serverFlashDeal, serverSettings] = await Promise.all([
           api.getProducts().catch(() => null),
           api.getOrders().catch(() => null),
           api.getTickets().catch(() => null),
           apiGetFlashDeal().catch(() => null),
+          api.getSettings().catch(() => null),
         ]);
 
         if (mounted) {
@@ -265,6 +319,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           applyOrders(serverOrders);
           applyTickets(serverTickets);
           applyFlashDeal(serverFlashDeal);
+          applySettings(serverSettings);
         }
       } catch {
         if (mounted) {
@@ -279,11 +334,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const pollTimer = setInterval(async () => {
       if (!mounted) return;
       try {
-        const [serverProducts, serverOrders, serverTickets, serverFlashDeal] = await Promise.all([
+        const [serverProducts, serverOrders, serverTickets, serverFlashDeal, serverSettings] = await Promise.all([
           api.getProducts().catch(() => null),
           api.getOrders().catch(() => null),
           api.getTickets().catch(() => null),
           apiGetFlashDeal().catch(() => null),
+          api.getSettings().catch(() => null),
         ]);
 
         if (mounted) {
@@ -291,6 +347,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           applyOrders(serverOrders);
           applyTickets(serverTickets);
           applyFlashDeal(serverFlashDeal);
+          applySettings(serverSettings);
         }
       } catch {}
     }, 4000);
@@ -353,7 +410,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       specs: [
         'Official Festival Special Deal with authentic manufacturer warranty',
         '100% Original sealed pack with all inbox accessories',
-        'Instant billing & warranty registered at Sastika Mobiles',
+        'Instant billing & warranty registered at Sastikaa Mobiles',
         'Free same-day doorstep express delivery across Sivakasi & Tamil Nadu',
       ],
       stock: item.stock || 10,
@@ -361,7 +418,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       sku: `FD-${item.id.toUpperCase()}`,
       description:
         item.description ||
-        `${item.name} is available on exclusive Flash Deal Drop at Sastika Mobiles. Grab festival special pricing with authentic store guarantee.`,
+        `${item.name} is available on exclusive Flash Deal Drop at Sastikaa Mobiles. Grab festival special pricing with authentic store guarantee.`,
       image: item.image,
       images: item.image ? [item.image] : [],
       colors: item.color ? [item.color] : ['#2f7d6d'],
@@ -472,6 +529,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       api.updateOrderStatus(id, status, cancelReason).catch(() => {});
     },
     [setOrders],
+  );
+
+  const updateSettings = useCallback(
+    async (patch: Record<string, any>) => {
+      setSettings((prev) => {
+        const next = { ...prev, ...patch };
+        try {
+          localStorage.setItem('sastika:settings', JSON.stringify(next));
+          window.dispatchEvent(new Event('sastika:settings_changed'));
+        } catch {}
+        return next;
+      });
+      await api.updateSettings(patch).catch(() => {});
+    },
+    [setSettings],
   );
 
   const syncWithBackend = useCallback(
@@ -742,6 +814,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setLogo,
 
       serverOnline,
+      settings,
+      updateSettings,
 
       flashDeal,
       updateFlashDeal,
@@ -774,6 +848,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       logo,
       setLogo,
       serverOnline,
+      settings,
+      updateSettings,
       flashDeal,
       updateFlashDeal,
       addFlashDealItem,

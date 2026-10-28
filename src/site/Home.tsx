@@ -43,7 +43,7 @@ export default function Home() {
             <span>TOP CERTIFIED 5G BRANDS IN STOCK</span>
             <span style={{ color: C.success }}>100% ORIGINAL &amp; SEALED WITH WARRANTY</span>
           </div>
-          <Marquee speed={55} repeat={4}>
+          <Marquee speed={75} repeat={2}>
             {brandList.map((b) => (
               <div
                 key={b}
@@ -131,7 +131,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Sastika Care & Repair Services */}
+        {/* Sastikaa Care & Repair Services */}
         <CareServices onOpen={() => nav('/services')} />
 
         {/* Trust & Guarantee Shield */}
@@ -625,7 +625,7 @@ function Spotlight({ onBuy }: { onBuy: (id: string) => void }) {
 
 function CareServices({ onOpen }: { onOpen: () => void }) {
   const items: { icon: IconName; title: string; sub: string }[] = [
-    { icon: 'phone', title: 'Same-day Screen Repair', sub: 'Original OEM display with 1-year Sastika warranty card' },
+    { icon: 'phone', title: 'Same-day Screen Repair', sub: 'Original OEM display with 1-year Sastikaa warranty card' },
     { icon: 'refresh', title: 'Safe Data Transfer', sub: 'WhatsApp chats, photos and contacts safely migrated' },
     { icon: 'shield', title: 'Brand Warranty Guidance', sub: 'Full assistance at authorized brand service centers' },
     { icon: 'truck', title: 'Doorstep Service Pickup', sub: 'Express collection across Sivakasi and Sithurajapuram' },
@@ -633,7 +633,7 @@ function CareServices({ onOpen }: { onOpen: () => void }) {
   return (
     <section style={{ padding: '40px 0 0' }}>
       <Reveal>
-        <SectionHead title="Sastika Care & Repair Desk" sub="Certified technician support beyond mobile sales" action="Book Service" onAction={onOpen} />
+        <SectionHead title="Sastikaa Care & Repair Desk" sub="Certified technician support beyond mobile sales" action="Book Service" onAction={onOpen} />
       </Reveal>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
         {items.map((it, i) => (
@@ -700,7 +700,7 @@ function TrustShield() {
       <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 30px' }}>
         <Pill tone="accent">PEACE OF MIND</Pill>
         <h2 style={{ fontSize: 26, fontWeight: 900, margin: '8px 0 6px', color: C.primary }}>
-          Why Sivakasi Chooses Sastika Mobiles
+          Why Sivakasi Chooses Sastikaa Mobiles
         </h2>
         <p style={{ margin: 0, fontSize: 13.5, color: C.muted }}>
           Our commitment to authentic technology, honest pricing, and friendly after-sales care.

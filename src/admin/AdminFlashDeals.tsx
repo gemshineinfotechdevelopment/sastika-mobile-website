@@ -385,7 +385,7 @@ export default function AdminFlashDeals() {
               <div style={{ fontWeight: 800, fontSize: 16 }}>Festival / Campaign Settings</div>
             </div>
 
-            <form onSubmit={handleSaveSettings} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+            <form id="campaignSettingsForm" onSubmit={handleSaveSettings} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: C.muted, marginBottom: 6 }}>
                   FESTIVAL / CAMPAIGN NAME
@@ -602,33 +602,15 @@ export default function AdminFlashDeals() {
                 </div>
               </div>
 
-              <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, flexWrap: 'wrap', gap: 10 }}>
-                <div style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>
-                  {savedMsg && '✓ Festival settings saved and updated on storefront!'}
+              <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, flexWrap: 'wrap', gap: 10 }}>
+                <div style={{ fontSize: 12, color: C.muted, fontStyle: 'italic' }}>
+                  💡 Use the Action Bar at the bottom of the page to Save or Delete this campaign.
                 </div>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginLeft: 'auto' }}>
-                  <button
-                    type="button"
-                    onClick={handleDeleteCampaign}
-                    className="tap"
-                    style={{
-                      background: '#fee2e2',
-                      color: C.danger,
-                      border: `1.5px solid ${C.dangerSoft || '#fca5a5'}`,
-                      borderRadius: 12,
-                      padding: '10px 18px',
-                      fontWeight: 800,
-                      fontSize: 13,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                    }}
-                  >
-                    <Icon name="trash" size={15} /> Delete Campaign
-                  </button>
-                  <Btn type="submit" variant="primary">Save Campaign Settings</Btn>
-                </div>
+                {savedMsg && (
+                  <div style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>
+                    ✓ Festival settings saved and updated on storefront!
+                  </div>
+                )}
               </div>
             </form>
           </div>
@@ -999,6 +981,82 @@ export default function AdminFlashDeals() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 4. BOTTOM ACTION BAR: DELETE CAMPAIGN & SAVE CAMPAIGN (Placed at the end)   */}
+      {/* ========================================================================= */}
+      <div
+        style={{
+          marginTop: 28,
+          background: '#fff',
+          borderRadius: 20,
+          padding: '18px 24px',
+          border: `1.5px solid ${C.border}`,
+          boxShadow: '0 8px 30px rgba(0,0,0,0.06)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 14,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ fontWeight: 800, fontSize: 15, color: C.text }}>
+            Campaign Management Actions
+          </div>
+          {savedMsg && (
+            <span
+              style={{
+                fontSize: 12.5,
+                color: C.success,
+                fontWeight: 700,
+                background: '#dcfce7',
+                padding: '4px 12px',
+                borderRadius: 99,
+              }}
+            >
+              ✓ Festival settings saved & active on storefront!
+            </span>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginLeft: 'auto' }}>
+          <button
+            type="button"
+            onClick={handleDeleteCampaign}
+            className="tap"
+            style={{
+              background: '#fee2e2',
+              color: C.danger,
+              border: `1.5px solid ${C.dangerSoft || '#fca5a5'}`,
+              borderRadius: 12,
+              padding: '11px 22px',
+              fontWeight: 800,
+              fontSize: 13.5,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              transition: 'all .15s ease',
+            }}
+          >
+            <Icon name="trash" size={16} /> Delete Campaign
+          </button>
+          <Btn
+            type="button"
+            variant="primary"
+            onClick={(e) => handleSaveSettings(e as any)}
+            style={{
+              padding: '11px 26px',
+              fontSize: 14,
+              fontWeight: 800,
+              boxShadow: '0 4px 14px rgba(11,74,67,0.25)',
+            }}
+          >
+            Save Campaign Settings
+          </Btn>
         </div>
       </div>
     </div>

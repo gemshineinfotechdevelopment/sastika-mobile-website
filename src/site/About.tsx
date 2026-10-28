@@ -108,7 +108,7 @@ export default function About() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
           <img
             src={logo || defaultLogo}
-            alt="Sastika Mobiles Logo"
+            alt="Sastikaa Mobiles Logo"
             style={{
               width: 54,
               height: 54,
@@ -132,10 +132,10 @@ export default function About() {
                 letterSpacing: -0.5,
               }}
             >
-              Sastika Mobiles
+              Sastikaa Mobiles
             </h1>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#e4f3ef', letterSpacing: 0.5 }}>
-              SASTIKA MOBILES &bull; SALES &amp; SERVICE
+              SASTIKAA MOBILES &bull; SALES &amp; SERVICE
             </div>
           </div>
         </div>

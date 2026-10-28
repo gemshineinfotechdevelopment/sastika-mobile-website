@@ -508,28 +508,13 @@ export function getUniqueProductBrands(products: { brand?: string }[]): string[]
 }
 
 export const TESTIMONIALS: Testimonial[] = [
-  { name: 'Kavitha R.', meta: 'Bought OPPO K14x 5G', text: 'Purchased OPPO K14x 5G at Sastika Mobiles Sivakasi. The staff helped migrate my WhatsApp data seamlessly without losing a single message.' },
+  { name: 'Kavitha R.', meta: 'Bought OPPO K14x 5G', text: 'Purchased OPPO K14x 5G at Sastikaa Mobiles Sivakasi. The staff helped migrate my WhatsApp data seamlessly without losing a single message.' },
   { name: 'Dr. Rajeshwari S.', meta: 'Verified • Sivakasi', text: 'The staff transferred 128GB of my medical photos and clinic chats without losing a single file. Genuinely warm customer care.' },
   { name: 'Arun K.', meta: 'Bought Redmi A7 Pro 5G', text: 'Genuine product, GST invoice and same-day delivery in Sithurajapuram. Cleanest buying experience I have had.' },
   { name: 'Meena P.', meta: 'Screen repair customer', text: 'Original display fitted in one afternoon with a 1-year warranty card. Honest pricing, no surprises.' },
 ];
 
-export const SEED_ORDERS: Order[] = [
-  { id: '#SM-884224', customer: 'S. Sundarapandian', phone: '+91 94431 88990', city: 'Sivakasi', address: '12 Chairman Shanmugam Road, Sivakasi', items: [{ productId: 'p3', name: 'OPPO K14x 5G (6GB + 128GB) Blue', qty: 1, price: 14499 }], total: 14499, status: 'Placed', payment: 'UPI', date: '2026-10-25' },
-  { id: '#SM-884223', customer: 'Kavitha Murugan', phone: '+91 97880 12345', city: 'Sithurajapuram', address: 'Near Kennedy Medicals, Sithurajapuram', items: [{ productId: 'p1', name: 'Redmi A7 Pro 5G (4GB + 64GB) Orange', qty: 1, price: 9999 }], total: 9999, status: 'Placed', payment: 'UPI', date: '2026-10-24' },
-  { id: '#SM-884222', customer: 'V. Balaji', phone: '+91 98421 55667', city: 'Sivakasi', address: '55 Velayutham Road, Sivakasi', items: [{ productId: 'p7', name: 'Vivo Y11 5G (4GB + 64GB) Gold', qty: 1, price: 9499 }], total: 9499, status: 'Packed', payment: 'UPI', date: '2026-10-23' },
-  { id: '#SM-884221', customer: 'Deepa Lakshmi', phone: '+91 99440 66778', city: 'Sivakasi', address: 'Bypass Road, Sivakasi', items: [{ productId: 'p17', name: 'OPPO Reno 16c 5G (12GB + 256GB) Twilight Violet', qty: 1, price: 29999 }], total: 29999, status: 'Shipped', payment: 'Credit Card', date: '2026-10-22' },
-  { id: '#SM-884220', customer: 'Rajesh Kumar', phone: '+91 98401 23456', city: 'Sivakasi', address: '42 Gandhi Road, Sivakasi', items: [{ productId: 'p3', name: 'OPPO K14x 5G (6GB + 128GB) Blue', qty: 1, price: 14499 }], total: 14499, status: 'Packed', payment: 'UPI', date: '2026-10-17' },
-  { id: '#SM-884219', customer: 'Ananya Sundaram', phone: '+91 99620 11223', city: 'Sithurajapuram', address: 'Sri Renga Complex, Sithurajapuram', items: [{ productId: 'p1', name: 'Redmi A7 Pro 5G (4GB + 64GB) Orange', qty: 1, price: 9999 }], total: 9999, status: 'Shipped', payment: 'Credit Card', date: '2026-10-16' },
-  { id: '#SM-884218', customer: 'M. Selvaraj', phone: '+91 97890 55677', city: 'Sivakasi', address: 'Near Bus Stand, Sivakasi', items: [{ productId: 'p9', name: 'Nothing 4b 5G (8GB + 256GB) White', qty: 1, price: 27999 }], total: 27999, status: 'Placed', payment: 'COD', date: '2026-10-16' },
-  { id: '#SM-884217', customer: 'R. Priya', phone: '+91 90030 99881', city: 'Sivakasi', address: 'Police Station Road, Sivakasi', items: [{ productId: 'p7', name: 'Vivo Y11 5G (4GB + 64GB) Gold', qty: 1, price: 9499 }], total: 9499, status: 'Delivered', payment: 'UPI', date: '2026-10-15' },
-  { id: '#SM-884216', customer: 'Karthik N.', phone: '+91 98945 66120', city: 'Sithurajapuram', address: 'Kennedy Medical Road, Sithurajapuram', items: [{ productId: 'p17', name: 'OPPO Reno 16c 5G (12GB + 256GB) Twilight Violet', qty: 1, price: 29999 }], total: 29999, status: 'Delivered', payment: 'Net Banking', date: '2026-10-14' },
-  { id: '#SM-884215', customer: 'Divya S.', phone: '+91 96290 33445', city: 'Sivakasi', address: 'PKN Road, Sivakasi', items: [{ productId: 'p1', name: 'Redmi A7 Pro 5G (4GB + 64GB) Orange', qty: 1, price: 9999 }], total: 9999, status: 'Delivered', payment: 'UPI', date: '2026-10-13' },
-  { id: '#SM-884214', customer: 'Ganesh Ram', phone: '+91 94860 11229', city: 'Sivakasi', address: 'Thiruthangal Road, Sivakasi', items: [{ productId: 'p3', name: 'OPPO K14x 5G (6GB + 128GB) Blue', qty: 1, price: 14499 }], total: 14499, status: 'Delivered', payment: 'UPI', date: '2026-10-12' },
-  { id: '#SM-884213', customer: 'Meenakshi Sundaram', phone: '+91 98430 44556', city: 'Sithurajapuram', address: 'Renga Nagar, Sithurajapuram', items: [{ productId: 'p9', name: 'Nothing 4b 5G (8GB + 256GB) White', qty: 1, price: 27999 }], total: 27999, status: 'Delivered', payment: 'Credit Card', date: '2026-10-11' },
-  { id: '#SM-884212', customer: 'Arunmozhi Varman', phone: '+91 97500 77889', city: 'Sivakasi', address: 'South Car Street, Sivakasi', items: [{ productId: 'p7', name: 'Vivo Y11 5G (4GB + 64GB) Gold', qty: 1, price: 9499 }], total: 9499, status: 'Delivered', payment: 'Net Banking', date: '2026-10-10' },
-  { id: '#SM-884211', customer: 'Subhashini T.', phone: '+91 99420 88991', city: 'Sivakasi', address: 'Kamarajar Salai, Sivakasi', items: [{ productId: 'p1', name: 'Redmi A7 Pro 5G (4GB + 64GB) Orange', qty: 1, price: 9999 }], total: 9999, status: 'Delivered', payment: 'UPI', date: '2026-10-09' },
-];
+export const SEED_ORDERS: Order[] = [];
 
 export const SEED_TICKETS: Ticket[] = [
   { id: 'SR-5521', customer: 'Arun K.', phone: '+91 98400 12345', device: 'OnePlus 11 5G (Eternal Green)', issue: 'Fluid AMOLED display panel assembly', status: 'In Progress', tech: 'Mahesh (Certified)', eta: 'Today, 5:30 PM', cost: 8499 },
@@ -550,7 +535,7 @@ export const SERVICES = [
 
 export const STORES = [
   {
-    name: 'Sastika Mobiles - Main Store',
+    name: 'Sastikaa Mobiles - Main Store',
     addr: 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189',
     hours: '09:30 AM – 09:30 PM (Mon - Sun)',
     tag: 'Flagship Showroom & Service Center',

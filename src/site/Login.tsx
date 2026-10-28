@@ -251,11 +251,11 @@ export default function Login() {
               overflow: 'hidden',
             }}
           >
-            <img src={logo || logoImg} alt="Sastika Mobiles" style={{ width: 42, height: 42, objectFit: 'cover' }} />
+            <img src={logo || logoImg} alt="Sastikaa Mobiles" style={{ width: 42, height: 42, objectFit: 'cover' }} />
           </div>
 
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: C.accent, marginBottom: 3 }}>
-            SASTIKA MOBILES • SIVAKASI
+            SASTIKAA MOBILES • SIVAKASI
           </div>
           <h1 style={{ margin: 0, fontSize: 20, fontWeight: 900, letterSpacing: -0.3 }}>
             {redirectTo.includes('checkout') ? 'Sign In to Checkout' : 'Customer Sign In'}

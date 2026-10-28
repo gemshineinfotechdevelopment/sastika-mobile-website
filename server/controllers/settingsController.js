@@ -5,9 +5,9 @@ import { readData, writeData } from '../dataHelper.js';
 import bcrypt from 'bcryptjs';
 
 const DEFAULT_SETTINGS = {
-  business: 'Sastika Mobiles',
+  business: 'Sastikaa Mobiles',
   gstin: '33BQTPJ5275L1Z6',
-  email: 'sastikamobiles.svk@gmail.com',
+  email: 'sastikaamobiles.svk@gmail.com',
   phone: '+91 98765 43210',
   address: 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189',
   currency: 'INR (₹)',
@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = {
   salesRepName: 'M. Karthi',
   salesRepPhone: '+91 98401 23456',
   // Admin Login Credentials
-  adminUsername: 'admin@sastikamobiles.com',
+  adminUsername: 'admin@sastikaamobiles.com',
   adminPassword: 'admin123',
 };
 
@@ -81,7 +81,7 @@ export const updateSettings = async (req, res) => {
           await User.findByIdAndUpdate(adminUser._id, { $set: updateFields });
         } else {
           await User.create({
-            name: 'Sastika Admin',
+            name: 'Sastikaa Admin',
             email: adminEmail,
             password: updateFields.password || (await bcrypt.hash('admin123', 10)),
             role: 'admin',

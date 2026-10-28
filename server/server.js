@@ -46,7 +46,7 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    message: 'Sastika Mobiles API is running smoothly',
+    message: 'Sastikaa Mobiles API is running smoothly',
     port: PORT,
     timestamp: new Date().toISOString(),
   });
@@ -71,7 +71,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`===============================================`);
-  console.log(`🚀 Sastika Mobiles Server running on port ${PORT}`);
+  console.log(`🚀 Sastikaa Mobiles Server running on port ${PORT}`);
   console.log(`📡 URL: http://localhost:${PORT}`);
   console.log(`🌐 Allowed Client URL: ${CLIENT_URL}`);
   console.log(`===============================================`);

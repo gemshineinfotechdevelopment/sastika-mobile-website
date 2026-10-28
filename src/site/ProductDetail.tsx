@@ -50,7 +50,7 @@ export default function ProductDetail() {
   const specs = p.specs && p.specs.length > 0 ? p.specs : [
     'Official Festival Special Deal with authentic manufacturer warranty',
     '100% Original sealed pack with all inbox accessories',
-    'Instant billing & warranty registered at Sastika Mobiles',
+    'Instant billing & warranty registered at Sastikaa Mobiles',
     'Free same-day doorstep express delivery in Sivakasi',
   ];
 
@@ -543,7 +543,7 @@ export default function ProductDetail() {
             ))}
           {tab === 'overview' && (
             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: C.text }}>
-              {p.description || `${p.name} with official manufacturer warranty and original sealed box from Sastika Mobiles.`}
+              {p.description || `${p.name} with official manufacturer warranty and original sealed box from Sastikaa Mobiles.`}
             </p>
           )}
           {tab === 'reviews' && (

@@ -65,7 +65,7 @@ app.use((req, res, next) => {
 // Root Welcome Endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'Welcome to Sastika Mobiles API Server',
+    message: 'Welcome to Sastikaa Mobiles API Server',
     health: '/api/health',
     documentation: 'See /api/products, /api/orders, /api/tickets, /api/auth, /api/flash-deals',
     port: PORT,
@@ -85,7 +85,7 @@ const startServer = async () => {
   await connectDB();
   serverInstance = app.listen(PORT, '0.0.0.0', () => {
     console.log(`===============================================`);
-    console.log(`🚀 Sastika Mobiles Server is running on port ${PORT}`);
+    console.log(`🚀 Sastikaa Mobiles Server is running on port ${PORT}`);
     console.log(`📡 API Base:   http://0.0.0.0:${PORT}/api`);
     console.log(`🩺 Health:     http://0.0.0.0:${PORT}/api/health`);
     console.log(`🛒 Products:   http://0.0.0.0:${PORT}/api/products`);

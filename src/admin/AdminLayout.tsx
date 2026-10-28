@@ -74,7 +74,7 @@ export default function AdminLayout() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
             <img
               src={logo || logoImg}
-              alt="Sastika Mobiles Logo"
+              alt="Sastikaa Mobiles Logo"
               style={{
                 width: 38,
                 height: 38,
@@ -85,7 +85,7 @@ export default function AdminLayout() {
               }}
             />
             <div style={{ lineHeight: 1.15 }}>
-              <div style={{ fontWeight: 900, fontSize: 15, letterSpacing: 0.3 }}>SASTIKA</div>
+              <div style={{ fontWeight: 900, fontSize: 15, letterSpacing: 0.3 }}>SASTIKAA</div>
               <div style={{ fontSize: 9.5, letterSpacing: 1.5, color: C.accent, fontWeight: 800 }}>ADMIN PORTAL</div>
             </div>
           </div>
@@ -215,7 +215,7 @@ export default function AdminLayout() {
 
           {/* Mobile Brand Title */}
           <div className="admin-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 900, fontSize: 13, color: C.primary }}>
-            <span>SASTIKA</span>
+            <span>SASTIKAA</span>
             <span style={{ fontSize: 8.5, background: C.accent, color: C.primaryDark, padding: '1px 5px', borderRadius: 4, fontWeight: 900 }}>ADMIN</span>
           </div>
 

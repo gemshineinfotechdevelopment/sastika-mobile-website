@@ -51,7 +51,7 @@ export default function AdminLogin() {
         }
 
         const adminToken = res.token;
-        const adminUser = res.user || { name: 'Sastika Admin', role: 'admin', email: email.trim() };
+        const adminUser = res.user || { name: 'Sastikaa Admin', role: 'admin', email: email.trim() };
         localStorage.setItem('sastika_admin_token', adminToken);
         localStorage.setItem('sastika_admin_user', JSON.stringify(adminUser));
         sessionStorage.setItem('sastika_admin_token', adminToken);
@@ -63,12 +63,12 @@ export default function AdminLogin() {
       // Offline / fallback verification against dynamic settings
       const cleanEmail = email.trim().toLowerCase();
       const customSettings = JSON.parse(localStorage.getItem('sastika:settings') || '{}');
-      const customUser = (customSettings.adminUsername || 'admin@sastikamobiles.com').trim().toLowerCase();
+      const customUser = (customSettings.adminUsername || 'admin@sastikaamobiles.com').trim().toLowerCase();
       const customPass = customSettings.adminPassword || 'admin123';
 
       if (cleanEmail === customUser && password === customPass) {
         const dummyToken = 'admin_jwt_' + Date.now();
-        const dummyUser = { id: 'u_admin', name: 'Sastika Admin', email: customUser, role: 'admin' };
+        const dummyUser = { id: 'u_admin', name: 'Sastikaa Admin', email: customUser, role: 'admin' };
         localStorage.setItem('sastika_admin_token', dummyToken);
         localStorage.setItem('sastika_admin_user', JSON.stringify(dummyUser));
         sessionStorage.setItem('sastika_admin_token', dummyToken);
@@ -82,11 +82,11 @@ export default function AdminLogin() {
       // Offline fallback verification
       const cleanEmail = email.trim().toLowerCase();
       const customSettings = JSON.parse(localStorage.getItem('sastika:settings') || '{}');
-      const customUser = (customSettings.adminUsername || 'admin@sastikamobiles.com').trim().toLowerCase();
+      const customUser = (customSettings.adminUsername || 'admin@sastikaamobiles.com').trim().toLowerCase();
       const customPass = customSettings.adminPassword || 'admin123';
       if (cleanEmail === customUser && password === customPass) {
         const dummyToken = 'admin_jwt_' + Date.now();
-        const dummyUser = { id: 'u_admin', name: 'Sastika Admin', email: customUser, role: 'admin' };
+        const dummyUser = { id: 'u_admin', name: 'Sastikaa Admin', email: customUser, role: 'admin' };
         localStorage.setItem('sastika_admin_token', dummyToken);
         localStorage.setItem('sastika_admin_user', JSON.stringify(dummyUser));
         sessionStorage.setItem('sastika_admin_token', dummyToken);
@@ -159,12 +159,12 @@ export default function AdminLogin() {
           >
             <img
               src={logo || logoImg}
-              alt="Sastika Mobiles"
+              alt="Sastikaa Mobiles"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900, letterSpacing: -0.3, color: '#fff' }}>
-            SASTIKA MOBILES
+            SASTIKAA MOBILES
           </h1>
           <div
             style={{
@@ -223,7 +223,7 @@ export default function AdminLogin() {
                   setEmail(e.target.value);
                   if (error) setError('');
                 }}
-                placeholder="admin@sastikamobiles.com"
+                placeholder="admin@sastikaamobiles.com"
                 required
                 style={{
                   width: '100%',

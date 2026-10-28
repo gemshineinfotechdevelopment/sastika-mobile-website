@@ -4,16 +4,12 @@ import { SEED_ORDERS } from '../data/seedData.js';
 import { getDbStatus } from '../config/db.js';
 import { memoryProducts } from './productController.js';
 
-export let memoryOrders = [...SEED_ORDERS];
+export let memoryOrders = [];
 
 export const getOrders = async (req, res) => {
   try {
     if (getDbStatus()) {
-      let orders = await Order.find({}).sort({ createdAt: -1 });
-      if (orders.length === 0) {
-        await Order.insertMany(SEED_ORDERS);
-        orders = await Order.find({}).sort({ createdAt: -1 });
-      }
+      const orders = await Order.find({}).sort({ createdAt: -1 });
       return res.json({ success: true, count: orders.length, data: orders });
     }
     return res.json({ success: true, count: memoryOrders.length, data: memoryOrders });

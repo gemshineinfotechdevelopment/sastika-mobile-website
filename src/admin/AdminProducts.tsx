@@ -341,7 +341,7 @@ function toProduct(d: Draft): Omit<Product, 'id'> {
     stock: Number(d.stock) || 0,
     reorderAt: Number(d.reorderAt) || 2,
     sku: d.sku.trim() || generateSku(d.brand, d.name),
-    description: d.description.trim() || 'Genuine product with Sastika warranty.',
+    description: d.description.trim() || 'Genuine product with Sastikaa warranty.',
     image: d.image.trim() || undefined,
     storage: d.storage && d.storage.length > 0 ? d.storage : (isSmartphone(d.category, d.brand) || isIPhone(d.category, d.brand) ? ['8GB + 128GB'] : undefined),
     emi: emiVal > 0 ? emiVal : Math.round(price / 12),

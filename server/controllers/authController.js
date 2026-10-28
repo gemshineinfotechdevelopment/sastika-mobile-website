@@ -11,8 +11,8 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const DEFAULT_USERS = [
   {
     id: 'u_admin',
-    name: 'Sastika Admin',
-    email: 'admin@sastikamobiles.com',
+    name: 'Sastikaa Admin',
+    email: 'admin@sastikaamobiles.com',
     passwordHash: bcrypt.hashSync('admin123', 8),
     role: 'admin',
     phone: '+91 98401 23456',
@@ -20,7 +20,7 @@ const DEFAULT_USERS = [
   {
     id: 'u_hari',
     name: 'Hariharan S.',
-    email: 'hari@sastikamobiles.com',
+    email: 'hari@sastikaamobiles.com',
     passwordHash: bcrypt.hashSync('customer123', 8),
     role: 'customer',
     phone: '+91 95434 34344',
@@ -62,19 +62,19 @@ export const login = async (req, res) => {
       if (getDbStatus()) {
         currentSettings = await Settings.findOne({ key: 'global_settings' }).catch(() => null);
       }
-      const confUser = (currentSettings?.adminUsername || 'admin@sastikamobiles.com').trim().toLowerCase();
+      const confUser = (currentSettings?.adminUsername || 'admin@sastikaamobiles.com').trim().toLowerCase();
       const confPass = currentSettings?.adminPassword || 'admin123';
 
       const isAttemptingAdmin =
         normalizedInput === confUser ||
         normalizedInput === 'admin' ||
-        normalizedInput === 'admin@sastikamobiles.com';
+        normalizedInput === 'admin@sastikaamobiles.com';
 
       if (isAttemptingAdmin) {
         if (normalizedInput === confUser && password === confPass) {
           const dynamicAdminUser = {
             id: 'u_admin',
-            name: 'Sastika Admin',
+            name: 'Sastikaa Admin',
             email: currentSettings?.adminUsername || confUser,
             role: 'admin',
             phone: currentSettings?.phone || '+91 95434 34344',
@@ -130,9 +130,9 @@ export const login = async (req, res) => {
 
     // 2. Check persistent users.json / memory storage
     memoryUsers = loadStoredUsers();
-    const isAdminEmail = (normalizedInput === 'admin@sastikamobiles.com' || normalizedInput === 'admin@sastika.com' || normalizedInput === 'admin');
+    const isAdminEmail = (normalizedInput === 'admin@sastikaamobiles.com' || normalizedInput === 'admin@sastika.com' || normalizedInput === 'admin');
     let user = memoryUsers.find((u) => {
-      if (isAdminEmail && (u.role === 'admin' || u.id === 'u_admin' || u.email === 'admin@sastikamobiles.com')) return true;
+      if (isAdminEmail && (u.role === 'admin' || u.id === 'u_admin' || u.email === 'admin@sastikaamobiles.com')) return true;
       if (u.email && u.email.toLowerCase() === normalizedInput) return true;
       if (cleanPhone.length >= 10 && u.phone) {
         const uClean = u.phone.replace(/\D/g, '').slice(-10);
@@ -151,9 +151,9 @@ export const login = async (req, res) => {
     const hashToCompare = user.passwordHash || user.password;
     let isMatch = hashToCompare ? bcrypt.compareSync(password, hashToCompare) : false;
     if (!isMatch) {
-      if ((user.id === 'u_admin' || user.email === 'admin@sastikamobiles.com' || user.role === 'admin') && (password === 'admin123' || password === 'admin' || password === 'password123')) {
+      if ((user.id === 'u_admin' || user.email === 'admin@sastikaamobiles.com' || user.role === 'admin') && (password === 'admin123' || password === 'admin' || password === 'password123')) {
         isMatch = true;
-      } else if ((user.id === 'u_hari' || user.email === 'hari@sastikamobiles.com') && (password === 'customer123' || password === 'password123' || password === 'admin123')) {
+      } else if ((user.id === 'u_hari' || user.email === 'hari@sastikaamobiles.com') && (password === 'customer123' || password === 'password123' || password === 'admin123')) {
         isMatch = true;
       }
     }
@@ -557,7 +557,7 @@ export const googleLogin = async (req, res) => {
           id: String(dbUser._id),
           name: dbUser.name,
           email: dbUser.email,
-          role: dbUser.role || (normalizedEmail === 'admin@sastikamobiles.com' ? 'admin' : 'customer'),
+          role: dbUser.role || (normalizedEmail === 'admin@sastikaamobiles.com' ? 'admin' : 'customer'),
           phone: dbUser.phone || '',
           avatar: dbUser.avatar || googleUser.avatar || '',
           authProvider: 'google',
@@ -571,7 +571,7 @@ export const googleLogin = async (req, res) => {
           googleId: googleUser.googleId,
           avatar: googleUser.avatar,
           authProvider: 'google',
-          role: normalizedEmail === 'admin@sastikamobiles.com' ? 'admin' : 'customer',
+          role: normalizedEmail === 'admin@sastikaamobiles.com' ? 'admin' : 'customer',
           cart: [],
           wishlist: [],
         });
@@ -607,7 +607,7 @@ export const googleLogin = async (req, res) => {
           id: localUser.id,
           name: localUser.name,
           email: localUser.email,
-          role: localUser.role || (normalizedEmail === 'admin@sastikamobiles.com' ? 'admin' : 'customer'),
+          role: localUser.role || (normalizedEmail === 'admin@sastikaamobiles.com' ? 'admin' : 'customer'),
           phone: localUser.phone || '',
           avatar: localUser.avatar || '',
           authProvider: 'google',
@@ -624,7 +624,7 @@ export const googleLogin = async (req, res) => {
         googleId: googleUser.googleId,
         avatar: googleUser.avatar,
         authProvider: 'google',
-        role: normalizedEmail === 'admin@sastikamobiles.com' ? 'admin' : 'customer',
+        role: normalizedEmail === 'admin@sastikaamobiles.com' ? 'admin' : 'customer',
         cart: [],
         wishlist: [],
         createdAt: new Date().toISOString(),
@@ -722,7 +722,7 @@ export const googleCallback = async (req, res) => {
           id: String(dbUser._id),
           name: dbUser.name,
           email: dbUser.email,
-          role: dbUser.role || (normalizedEmail === 'admin@sastikamobiles.com' ? 'admin' : 'customer'),
+          role: dbUser.role || (normalizedEmail === 'admin@sastikaamobiles.com' ? 'admin' : 'customer'),
           phone: dbUser.phone || '',
           avatar: dbUser.avatar || profile.picture || '',
           authProvider: 'google',
@@ -734,7 +734,7 @@ export const googleCallback = async (req, res) => {
           googleId: profile.sub,
           avatar: profile.picture || '',
           authProvider: 'google',
-          role: normalizedEmail === 'admin@sastikamobiles.com' ? 'admin' : 'customer',
+          role: normalizedEmail === 'admin@sastikaamobiles.com' ? 'admin' : 'customer',
         });
         authUser = {
           id: String(newUser._id),
@@ -759,7 +759,7 @@ export const googleCallback = async (req, res) => {
         googleId: profile.sub,
         avatar: profile.picture || '',
         authProvider: 'google',
-        role: normalizedEmail === 'admin@sastikamobiles.com' ? 'admin' : 'customer',
+        role: normalizedEmail === 'admin@sastikaamobiles.com' ? 'admin' : 'customer',
         createdAt: new Date().toISOString(),
       };
       memoryUsers.push(localUser);

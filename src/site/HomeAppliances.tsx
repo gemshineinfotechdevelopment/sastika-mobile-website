@@ -181,7 +181,7 @@ export default function HomeAppliances() {
             }}
           >
             <span>🏠</span>
-            <span>SASTIKA HOME ELECTRONICS & APPLIANCES</span>
+            <span>SASTIKAA HOME ELECTRONICS & APPLIANCES</span>
           </div>
 
           <h1 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 900, lineHeight: 1.2, margin: '0 0 10px' }}>
@@ -302,7 +302,7 @@ export default function HomeAppliances() {
             <div
               className="marquee-track"
               style={{
-                animation: 'marquee 22s linear infinite',
+                animation: 'marquee 65s linear infinite',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 16,

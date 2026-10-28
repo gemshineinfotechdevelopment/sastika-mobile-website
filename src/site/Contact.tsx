@@ -127,7 +127,7 @@ export default function Contact() {
           }}
         />
         <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.4, color: C.accent }}>
-          SASTIKA MOBILES &bull; SIVAKASI
+          SASTIKAA MOBILES &bull; SIVAKASI
         </div>
         <h1 style={{ margin: '8px 0 8px', fontSize: 26, lineHeight: 1.15, fontWeight: 800, letterSpacing: -0.6 }}>
           Direct Store Contacts &amp; Location
@@ -353,7 +353,7 @@ export default function Contact() {
                 </a>
 
                 <a
-                  href={`https://wa.me/91${c.rawPhone}?text=${encodeURIComponent(`Hi ${c.name}, I'm contacting Sastika Mobiles Sivakasi regarding mobile phone enquiry & support.`)}`}
+                  href={`https://wa.me/91${c.rawPhone}?text=${encodeURIComponent(`Hi ${c.name}, I'm contacting Sastikaa Mobiles Sivakasi regarding mobile phone enquiry & support.`)}`}
                   target="_blank"
                   rel="noreferrer"
                   style={{
@@ -407,7 +407,7 @@ export default function Contact() {
           </div>
 
           <a
-            href="mailto:sastikamobiles.svk@gmail.com"
+            href="mailto:sastikaamobiles.svk@gmail.com"
             style={{
               padding: '9px 18px',
               borderRadius: 12,
