@@ -251,7 +251,7 @@ export default function Login() {
               overflow: 'hidden',
             }}
           >
-            <img src={logo || logoImg} alt="Sastikaa Mobiles" style={{ width: 42, height: 42, objectFit: 'cover' }} />
+            <img src={logo || logoImg || '/logo.png'} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }} alt="Sastikaa Mobiles" style={{ width: 42, height: 42, objectFit: 'cover' }} />
           </div>
 
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: C.accent, marginBottom: 3 }}>

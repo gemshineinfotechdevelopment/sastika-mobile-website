@@ -82,7 +82,8 @@ export default function SiteLayout() {
           </button>
           <div onClick={() => nav('/')} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <img
-              src={logo || logoImg}
+              src={logo || logoImg || '/logo.png'}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }}
               alt="Sastikaa Mobiles"
               style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #d4af37', background: '#fff', objectFit: 'cover' }}
             />
@@ -369,7 +370,8 @@ export default function SiteLayout() {
             }}
           >
             <img
-              src={logo || logoImg}
+              src={logo || logoImg || '/logo.png'}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }}
               alt="Sastikaa Mobiles Logo"
               style={{
                 width: 44,
@@ -790,7 +792,8 @@ export default function SiteLayout() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
               <img
-                src={logo || logoImg}
+                src={logo || logoImg || '/logo.png'}
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }}
                 alt="Sastikaa Mobiles"
                 style={{
                   width: 46,
@@ -922,7 +925,8 @@ export default function SiteLayout() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div onClick={() => { setDrawer(false); nav('/'); }} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <img
-                  src={logo || logoImg}
+                  src={logo || logoImg || '/logo.png'}
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }}
                   alt="Sastikaa Mobiles"
                   style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', border: '2px solid #d4af37' }}
                 />

@@ -184,7 +184,40 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [coupon, setCoupon] = useLocalState<string>('coupon', '');
   const [orders, setOrders] = useLocalState<Order[]>('orders', []);
   const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
-  const [logo, setLogo] = useLocalState<string>('logo', defaultLogo);
+  // Robust logo state: discard any stale dev paths (/src/...) from localStorage
+  const getInitialLogo = (): string => {
+    try {
+      const raw = localStorage.getItem('sastika:logo');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed === 'string' && parsed.trim() && !parsed.startsWith('/src/')) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return defaultLogo || '/logo.png';
+  };
+
+  const [logo, setLogoState] = useState<string>(getInitialLogo);
+
+  const setLogo = useCallback((newLogo: string) => {
+    setLogoState(newLogo);
+    try {
+      if (newLogo && !newLogo.startsWith('/src/')) {
+        localStorage.setItem('sastika:logo', JSON.stringify(newLogo));
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('sastika:logo');
+      if (raw && (raw.includes('/src/') || raw.includes('undefined'))) {
+        localStorage.removeItem('sastika:logo');
+        setLogoState(defaultLogo || '/logo.png');
+      }
+    } catch {}
+  }, []);
   const [serverOnline, setServerOnline] = useState<boolean>(false);
   const [flashDeal, setFlashDeal] = useLocalState<FlashDealConfig>('flash_deal_v4', DEFAULT_FLASH_DEAL);
   const [settings, setSettings] = useLocalState<Record<string, any>>('settings_v2', DEFAULT_STORE_SETTINGS);

@@ -5,11 +5,30 @@ import { Product } from '../models/Product.js';
 import { getDbStatus } from '../config/db.js';
 import { memoryOrders } from './orderController.js';
 
-const getRazorpayInstance = () => {
-  const key_id = (process.env.RAZORPAY_KEY_ID || '').trim();
-  const key_secret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+const FALLBACK_TEST_KEY_ID = 'rzp_test_Tsw5kgEtalVrnx';
+const FALLBACK_TEST_KEY_SECRET = '1VzcDOllPmtDYgQsyTbw0rN8';
 
-  if (!key_id || !key_secret || key_id.includes('your_razorpay_key_id')) {
+export const getRazorpayKeyId = () => {
+  const envKey = (process.env.RAZORPAY_KEY_ID || '').trim();
+  if (envKey && !envKey.includes('your_razorpay_key_id')) {
+    return envKey;
+  }
+  return FALLBACK_TEST_KEY_ID;
+};
+
+export const getRazorpayKeySecret = () => {
+  const envSecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+  if (envSecret && !envSecret.includes('your_razorpay_key_secret')) {
+    return envSecret;
+  }
+  return FALLBACK_TEST_KEY_SECRET;
+};
+
+const getRazorpayInstance = () => {
+  const key_id = getRazorpayKeyId();
+  const key_secret = getRazorpayKeySecret();
+
+  if (!key_id || !key_secret) {
     return null;
   }
 
@@ -21,20 +40,15 @@ const getRazorpayInstance = () => {
  * Returns public Razorpay Key ID and status so frontend knows whether gateway is live
  */
 export const getPaymentConfig = (req, res) => {
-  const key_id = (process.env.RAZORPAY_KEY_ID || '').trim();
-  const key_secret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+  const key_id = getRazorpayKeyId();
+  const key_secret = getRazorpayKeySecret();
 
-  const isConfigured = Boolean(
-    key_id &&
-    key_secret &&
-    !key_id.includes('your_razorpay_key_id') &&
-    !key_secret.includes('your_razorpay_key_secret')
-  );
+  const isConfigured = Boolean(key_id && key_secret);
 
   return res.json({
     success: true,
     configured: isConfigured,
-    keyId: isConfigured ? key_id : '',
+    keyId: key_id,
     currency: 'INR',
   });
 };
@@ -77,7 +91,7 @@ export const createRazorpayOrder = async (req, res) => {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      keyId: (process.env.RAZORPAY_KEY_ID || '').trim(),
+      keyId: getRazorpayKeyId(),
     });
   } catch (err) {
     console.error('[RAZORPAY_CREATE_ORDER_ERROR]', err);
@@ -119,7 +133,7 @@ export const verifyRazorpayPayment = async (req, res) => {
       });
     }
 
-    const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+    const keySecret = getRazorpayKeySecret();
     const isDemoOrder = Boolean(razorpay_order_id && razorpay_order_id.startsWith('order_demo_')) || Boolean(razorpay_payment_id && razorpay_payment_id.startsWith('pay_demo_'));
 
     if (!keySecret) {
