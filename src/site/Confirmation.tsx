@@ -3,6 +3,7 @@ import { C, money } from '../theme';
 import { useStore } from '../store';
 import Icon from '../components/Icon';
 import { Btn } from './ui';
+import logoImg from '../assets/logo.png';
 
 const CONFETTI = Array.from({ length: 22 }, (_, i) => ({
   left: (i * 37) % 100,
@@ -16,7 +17,7 @@ export default function Confirmation() {
   const { id } = useParams();
   const orderId = decodeURIComponent(id ?? '');
   const nav = useNavigate();
-  const { orders } = useStore();
+  const { orders, logo } = useStore();
   const order = orders.find((o) => o.id === orderId);
 
   const steps = ['Confirmed', 'Packing', 'Shipped', 'Delivered'];
@@ -27,6 +28,15 @@ export default function Confirmation() {
         {CONFETTI.map((c, i) => (
           <span key={i} style={{ position: 'absolute', top: 0, left: `${c.left}%`, width: c.size, height: c.size * 1.6, background: c.color, borderRadius: 2, animation: `confetti ${c.dur}s ease-in ${c.delay}s both` }} />
         ))}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, marginBottom: 16 }}>
+          <img
+            src={logo || logoImg || '/logo.png'}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }}
+            alt="Sastikaa Mobiles"
+            style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #d4af37', objectFit: 'cover', background: '#fff' }}
+          />
+          <span style={{ fontWeight: 900, fontSize: 13.5, letterSpacing: 1, color: '#fff' }}>SASTIKAA MOBILES</span>
+        </div>
         <div style={{ width: 84, height: 84, borderRadius: 99, background: C.accent, margin: '0 auto 16px', display: 'grid', placeItems: 'center', animation: 'bounceIn .7s ease both', boxShadow: '0 0 0 10px rgba(246,196,69,.2)' }}>
           <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke={C.primaryDark} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 6L9 17l-5-5" strokeDasharray="30" strokeDashoffset="30" style={{ animation: 'draw .6s ease .5s forwards' }} />
