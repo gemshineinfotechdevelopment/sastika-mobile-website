@@ -17,6 +17,7 @@ type ApplianceDraft = {
   price: string;
   mrp: string;
   emi: string;
+  enableEmi: boolean;
   stock: string;
   rating: string;
   sku: string;
@@ -36,6 +37,7 @@ const getFreshDraft = (): ApplianceDraft => ({
   price: '',
   mrp: '',
   emi: '',
+  enableEmi: true,
   stock: '5',
   rating: '4.8',
   sku: generateSku('APP', 'ITEM'),
@@ -279,9 +281,11 @@ export default function AdminAppliances() {
                             <span style={{ color: C.success, fontWeight: 700 }}>{off}% off</span>
                           </div>
                         )}
-                        {a.emi ? (
+                        {a.emi && a.emi > 0 ? (
                           <div style={{ fontSize: 10.5, color: C.primary, fontWeight: 700 }}>EMI: {money(a.emi)}/mo</div>
-                        ) : null}
+                        ) : (
+                          <div style={{ fontSize: 10.5, color: C.muted, fontWeight: 600 }}>No EMI</div>
+                        )}
                       </div>
                     </td>
                     <td style={td}>
@@ -380,14 +384,18 @@ export default function AdminAppliances() {
           onClose={closeForm}
           onSubmit={(draft) => {
             const allImages = (draft.images && draft.images.length > 0 ? draft.images : [draft.image]).filter(Boolean);
+            const appPrice = Number(draft.price) || 0;
+            const autoEmi = appPrice > 0 ? Math.round(appPrice / 12) : 0;
+            const customEmi = Number(draft.emi);
+            const finalEmi = draft.enableEmi ? (customEmi > 0 ? customEmi : autoEmi) : 0;
             addProduct({
               name: draft.name.trim(),
               brand: draft.brand.trim(),
               subCategory: draft.subCategory.trim() || 'Appliance',
               category: 'home-appliances',
-              price: Number(draft.price) || 0,
-              mrp: Number(draft.mrp) || Number(draft.price) || 0,
-              emi: Number(draft.emi) || (Number(draft.price) ? Math.round(Number(draft.price) / 12) : undefined),
+              price: appPrice,
+              mrp: Number(draft.mrp) || appPrice,
+              emi: finalEmi,
               stock: Number(draft.stock) || 0,
               reorderAt: Number(draft.reorderAt) || 2,
               rating: Number(draft.rating) || 4.8,
@@ -418,7 +426,8 @@ export default function AdminAppliances() {
             subCategory: editing.subCategory || editing.badge || 'Smart TV',
             price: String(editing.price),
             mrp: String(editing.mrp),
-            emi: editing.emi ? String(editing.emi) : '',
+            emi: editing.emi && editing.emi > 0 ? String(editing.emi) : '',
+            enableEmi: editing.emi !== undefined && editing.emi !== null ? Number(editing.emi) > 0 : true,
             stock: String(editing.stock),
             rating: String(editing.rating ?? 4.8),
             sku: editing.sku,
@@ -434,13 +443,17 @@ export default function AdminAppliances() {
           onClose={closeForm}
           onSubmit={(draft) => {
             const allImages = (draft.images && draft.images.length > 0 ? draft.images : [draft.image]).filter(Boolean);
+            const editAppPrice = Number(draft.price) || 0;
+            const editAutoEmi = editAppPrice > 0 ? Math.round(editAppPrice / 12) : 0;
+            const editCustomEmi = Number(draft.emi);
+            const editFinalEmi = draft.enableEmi ? (editCustomEmi > 0 ? editCustomEmi : editAutoEmi) : 0;
             updateProduct(editing.id, {
               name: draft.name.trim(),
               brand: draft.brand.trim(),
               subCategory: draft.subCategory.trim() || 'Appliance',
-              price: Number(draft.price) || 0,
-              mrp: Number(draft.mrp) || Number(draft.price) || 0,
-              emi: Number(draft.emi) || (Number(draft.price) ? Math.round(Number(draft.price) / 12) : undefined),
+              price: editAppPrice,
+              mrp: Number(draft.mrp) || editAppPrice,
+              emi: editFinalEmi,
               stock: Number(draft.stock) || 0,
               reorderAt: Number(draft.reorderAt) || 2,
               rating: Number(draft.rating) || 4.8,
@@ -519,7 +532,7 @@ function ApplianceFormModal({
   });
   const [urlInput, setUrlInput] = useState('');
 
-  const set = (k: keyof ApplianceDraft, v: string) => {
+  const set = <K extends keyof ApplianceDraft>(k: K, v: ApplianceDraft[K]) => {
     if (error) setError('');
     setD((prev) => ({ ...prev, [k]: v }));
   };
@@ -934,24 +947,91 @@ function ApplianceFormModal({
               />
             </FieldRow>
 
-            <FieldRow label="MONTHLY EMI (₹ / month)">
-              <div style={{ position: 'relative' }}>
-                <input
-                  style={{ ...field, paddingRight: 45, fontWeight: 700 }}
-                  type="number"
-                  min={0}
-                  value={d.emi}
-                  onChange={(e) => set('emi', e.target.value)}
-                  placeholder={autoEmi > 0 ? String(autoEmi) : 'e.g. 2415'}
-                />
-                <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.muted, fontWeight: 700 }}>
-                  /mo
-                </span>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <label style={{ fontSize: 11.5, fontWeight: 800, color: C.text, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  Monthly EMI Option
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !d.enableEmi;
+                    set('enableEmi', next);
+                    if (next && !d.emi && autoEmi > 0) {
+                      set('emi', String(autoEmi));
+                    }
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '3px 10px',
+                    borderRadius: 99,
+                    border: `1.5px solid ${d.enableEmi ? C.primary : '#cbd5e1'}`,
+                    background: d.enableEmi ? C.primary : '#f1f5f9',
+                    color: d.enableEmi ? '#fff' : '#64748b',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all .2s ease',
+                  }}
+                  title="Toggle monthly EMI on/off"
+                >
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: d.enableEmi ? '#34d399' : '#94a3b8',
+                      boxShadow: d.enableEmi ? '0 0 6px #34d399' : 'none',
+                    }}
+                  />
+                  {d.enableEmi ? 'EMI ON' : 'EMI OFF'}
+                </button>
               </div>
-              <div style={{ fontSize: 10.5, color: C.muted, marginTop: 4 }}>
-                {d.emi ? `Custom EMI: ₹${Number(d.emi).toLocaleString('en-IN')}/mo` : autoEmi > 0 ? `Auto: ₹${autoEmi.toLocaleString('en-IN')}/mo (12 mo)` : 'Auto-calculated'}
-              </div>
-            </FieldRow>
+
+              {d.enableEmi ? (
+                <div>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      style={{ ...field, paddingRight: 45, fontWeight: 700 }}
+                      type="number"
+                      min={0}
+                      value={d.emi !== '' ? d.emi : autoEmi > 0 ? String(autoEmi) : ''}
+                      onChange={(e) => set('emi', e.target.value)}
+                      placeholder={autoEmi > 0 ? String(autoEmi) : 'e.g. 2415'}
+                    />
+                    <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.muted, fontWeight: 700 }}>
+                      /mo
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 10.5, color: C.primary, marginTop: 4, fontWeight: 600 }}>
+                    {d.emi && Number(d.emi) !== autoEmi
+                      ? `✓ Custom EMI: ₹${Number(d.emi).toLocaleString('en-IN')}/mo (Static default was ₹${autoEmi.toLocaleString('en-IN')})`
+                      : autoEmi > 0
+                      ? `✓ Static default: ₹${autoEmi.toLocaleString('en-IN')}/mo (Type to change if needed)`
+                      : 'Active on storefront'}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: 10,
+                    background: '#f8fafc',
+                    border: '1.5px dashed #cbd5e1',
+                    color: '#64748b',
+                    fontSize: 11.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <span>🚫</span>
+                  <span><strong>EMI is OFF</strong> · No EMI badge will be shown to users.</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Live Discount Calculation Banner */}

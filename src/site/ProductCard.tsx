@@ -86,9 +86,13 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
           <span style={{ fontSize: 16.5, fontWeight: 800 }}>{money(p.price)}</span>
           {p.mrp > p.price && <span style={{ fontSize: 11, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp)}</span>}
         </div>
-        <div style={{ fontSize: 11, color: C.primarySoft, fontWeight: 700, marginTop: 1, minHeight: 16 }}>
-          EMI from {money(p.emi && p.emi > 0 ? p.emi : Math.round(p.price / 12))}/mo
-        </div>
+        {p.emi && p.emi > 0 ? (
+          <div style={{ fontSize: 11, color: C.primarySoft, fontWeight: 700, marginTop: 1, minHeight: 16 }}>
+            EMI from {money(p.emi)}/mo
+          </div>
+        ) : (
+          <div style={{ minHeight: 16 }} />
+        )}
         {p.colors && p.colors.length > 1 && (
           <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 2 }}>
             {p.colors.map((c, idx) => (

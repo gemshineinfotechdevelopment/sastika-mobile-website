@@ -62,6 +62,7 @@ type Draft = {
   price: string;
   mrp: string;
   emi: string;
+  enableEmi: boolean;
   stock: string;
   rating: string;
   sku: string;
@@ -81,6 +82,7 @@ const getFreshDraft = (): Draft => ({
   price: '',
   mrp: '',
   emi: '',
+  enableEmi: true,
   stock: '',
   rating: '4.8',
   sku: generateSku(),
@@ -234,9 +236,15 @@ export default function AdminProducts() {
                   <td style={{ ...td }}>
                     <div style={{ fontWeight: 800, fontSize: 14 }}>{money(p.price)}</div>
                     <div style={{ fontSize: 11, color: C.muted, fontWeight: 500, textDecoration: 'line-through' }}>{money(p.mrp)}</div>
-                    <div style={{ fontSize: 11, color: C.primarySoft, fontWeight: 700, marginTop: 1 }}>
-                      EMI: ₹{emiVal.toLocaleString('en-IN')}/mo
-                    </div>
+                    {p.emi && p.emi > 0 ? (
+                      <div style={{ fontSize: 11, color: C.primary, fontWeight: 700, marginTop: 1 }}>
+                        EMI: ₹{p.emi.toLocaleString('en-IN')}/mo
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 10.5, color: C.muted, fontWeight: 600, marginTop: 1 }}>
+                        No EMI
+                      </div>
+                    )}
                   </td>
                   <td style={td}><Tag tone="green">{discount(p.price, p.mrp)}% off</Tag></td>
                   <td style={{ ...td, fontWeight: 800, color: p.stock <= (p.reorderAt ?? 2) ? C.danger : C.text }}>{p.stock}</td>
@@ -277,7 +285,8 @@ export default function AdminProducts() {
             category: editing.category,
             price: String(editing.price),
             mrp: String(editing.mrp),
-            emi: editing.emi ? String(editing.emi) : '',
+            emi: editing.emi && editing.emi > 0 ? String(editing.emi) : '',
+            enableEmi: editing.emi !== undefined && editing.emi !== null ? Number(editing.emi) > 0 : true,
             stock: String(editing.stock),
             rating: String(editing.rating ?? 4.8),
             sku: editing.sku,
@@ -324,7 +333,9 @@ export default function AdminProducts() {
 function toProduct(d: Draft): Omit<Product, 'id'> {
   const price = Number(d.price) || 0;
   const mrp = Number(d.mrp) || price;
-  const emiVal = Number(d.emi);
+  const defaultEmi = price > 0 ? Math.round(price / 12) : 0;
+  const customEmi = Number(d.emi);
+  const finalEmi = d.enableEmi ? (customEmi > 0 ? customEmi : defaultEmi) : 0;
   const primaryColor = d.colors[0] || d.color || '#2f7d6d';
   return {
     name: d.name.trim(),
@@ -344,7 +355,7 @@ function toProduct(d: Draft): Omit<Product, 'id'> {
     description: d.description.trim() || 'Genuine product with Sastikaa warranty.',
     image: d.image.trim() || undefined,
     storage: d.storage && d.storage.length > 0 ? d.storage : (isSmartphone(d.category, d.brand) || isIPhone(d.category, d.brand) ? ['8GB + 128GB'] : undefined),
-    emi: emiVal > 0 ? emiVal : Math.round(price / 12),
+    emi: finalEmi,
   };
 }
 
@@ -618,24 +629,91 @@ function ProductForm({
               />
             </FieldRow>
 
-            <FieldRow label="MONTHLY EMI (₹ / month)">
-              <div style={{ position: 'relative' }}>
-                <input
-                  style={{ ...field, paddingRight: 45, fontWeight: 700 }}
-                  type="number"
-                  min={0}
-                  value={d.emi}
-                  onChange={(e) => set('emi', e.target.value)}
-                  placeholder={defaultEmi > 0 ? String(defaultEmi) : 'e.g. 1099'}
-                />
-                <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.muted, fontWeight: 700 }}>
-                  /mo
-                </span>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <label style={{ fontSize: 11.5, fontWeight: 800, color: C.text, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  Monthly EMI Option
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !d.enableEmi;
+                    set('enableEmi', next);
+                    if (next && !d.emi && defaultEmi > 0) {
+                      set('emi', String(defaultEmi));
+                    }
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '3px 10px',
+                    borderRadius: 99,
+                    border: `1.5px solid ${d.enableEmi ? C.primary : '#cbd5e1'}`,
+                    background: d.enableEmi ? C.primary : '#f1f5f9',
+                    color: d.enableEmi ? '#fff' : '#64748b',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all .2s ease',
+                  }}
+                  title="Toggle monthly EMI on/off"
+                >
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: d.enableEmi ? '#34d399' : '#94a3b8',
+                      boxShadow: d.enableEmi ? '0 0 6px #34d399' : 'none',
+                    }}
+                  />
+                  {d.enableEmi ? 'EMI ON' : 'EMI OFF'}
+                </button>
               </div>
-              <div style={{ fontSize: 10.5, color: C.muted, marginTop: 4 }}>
-                {d.emi ? `Custom EMI: ₹${Number(d.emi).toLocaleString('en-IN')}/mo` : defaultEmi > 0 ? `Auto: ₹${defaultEmi.toLocaleString('en-IN')}/mo (12 mo)` : 'Shows on website'}
-              </div>
-            </FieldRow>
+
+              {d.enableEmi ? (
+                <div>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      style={{ ...field, paddingRight: 45, fontWeight: 700 }}
+                      type="number"
+                      min={0}
+                      value={d.emi !== '' ? d.emi : defaultEmi > 0 ? String(defaultEmi) : ''}
+                      onChange={(e) => set('emi', e.target.value)}
+                      placeholder={defaultEmi > 0 ? String(defaultEmi) : 'e.g. 1099'}
+                    />
+                    <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.muted, fontWeight: 700 }}>
+                      /mo
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 10.5, color: C.primary, marginTop: 4, fontWeight: 600 }}>
+                    {d.emi && Number(d.emi) !== defaultEmi
+                      ? `✓ Custom EMI: ₹${Number(d.emi).toLocaleString('en-IN')}/mo (Static default was ₹${defaultEmi.toLocaleString('en-IN')})`
+                      : defaultEmi > 0
+                      ? `✓ Static default: ₹${defaultEmi.toLocaleString('en-IN')}/mo (Type to change if needed)`
+                      : 'Active on storefront'}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: 10,
+                    background: '#f8fafc',
+                    border: '1.5px dashed #cbd5e1',
+                    color: '#64748b',
+                    fontSize: 11.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <span>🚫</span>
+                  <span><strong>EMI is OFF</strong> · No EMI badge will be shown to users.</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Dynamic Live Calculated Discount Banner */}

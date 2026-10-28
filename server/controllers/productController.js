@@ -116,6 +116,7 @@ export const createProduct = async (req, res) => {
       stock: Number(body.stock) || 0,
       rating: Number(body.rating) || 4.5,
       reviews: Number(body.reviews) || 0,
+      emi: body.emi !== undefined && body.emi !== null ? Number(body.emi) : undefined,
     };
 
     if (getDbStatus()) {

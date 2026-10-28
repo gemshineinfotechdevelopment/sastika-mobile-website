@@ -39,7 +39,8 @@ export default function ProductDetail() {
 
   const art = color ?? p.color;
   const off = discount(p.price, p.mrp);
-  const emi = p.emi && p.emi > 0 ? p.emi : Math.round(p.price / 12);
+  const hasEmi = Boolean(p.emi && p.emi > 0);
+  const emi = p.emi || 0;
   const similar = products.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4);
   const wished = wishlist.includes(p.id);
   const colors = (p.colors && p.colors.length > 0) ? p.colors : [p.color, ...COLORS.filter((c) => c !== p.color)].slice(0, 3);
@@ -360,9 +361,11 @@ export default function ProductDetail() {
               <span style={{ fontSize: 14, fontWeight: 800, color: C.success }}>{off}% off</span>
             </div>
 
-            <div style={{ marginTop: 6, fontSize: 13, color: C.muted }}>
-              or <b style={{ color: C.text }}>{money(emi)}/month</b> with no-cost EMI
-            </div>
+            {hasEmi && (
+              <div style={{ marginTop: 6, fontSize: 13, color: C.muted }}>
+                or <b style={{ color: C.text }}>{money(emi)}/month</b> with no-cost EMI
+              </div>
+            )}
 
             <div style={{ marginTop: 10, fontSize: 12.5, fontWeight: 700, color: p.stock > reorderAt ? C.success : p.stock > 0 ? C.danger : C.danger, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ width: 8, height: 8, borderRadius: 9, background: 'currentColor', animation: 'pulseDot 1.6s infinite' }} />
