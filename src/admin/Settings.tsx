@@ -190,7 +190,7 @@ export default function Settings() {
                     overflow: 'hidden',
                   }}
                 >
-                  <img src={defaultLogo || '/logo.png'} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/logo.png'; }} alt="Sastikaa Mobiles" style={{ width: 58, height: 58, objectFit: 'cover' }} />
+                  <img src={defaultLogo} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = defaultLogo; }} alt="Sastikaa Mobiles" style={{ width: 58, height: 58, objectFit: 'cover' }} />
                 </div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: C.primaryDark }}>Current Icon</div>
               </div>

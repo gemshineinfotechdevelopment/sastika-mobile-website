@@ -30,8 +30,8 @@ export default function Confirmation() {
         ))}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, marginBottom: 16 }}>
           <img
-            src={logo || logoImg || '/logo.png'}
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }}
+            src={logo || logoImg}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg; }}
             alt="Sastikaa Mobiles"
             style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #d4af37', objectFit: 'cover', background: '#fff' }}
           />

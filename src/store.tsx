@@ -194,7 +194,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch {}
-    return defaultLogo || '/logo.png';
+    return defaultLogo;
   };
 
   const [logo, setLogoState] = useState<string>(getInitialLogo);
@@ -211,9 +211,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem('sastika:logo');
-      if (raw && (raw.includes('/src/') || raw.includes('undefined'))) {
+      if (raw && (raw.includes('/src/') || raw.includes('undefined') || raw.includes('/logo.png'))) {
         localStorage.removeItem('sastika:logo');
-        setLogoState(defaultLogo || '/logo.png');
+        setLogoState(defaultLogo);
       }
     } catch {}
   }, []);

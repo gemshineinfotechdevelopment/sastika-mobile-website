@@ -73,8 +73,8 @@ export default function AdminLayout() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px 18px', borderBottom: '1px solid rgba(255,255,255,.1)', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
             <img
-              src={logo || logoImg || '/logo.png'}
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }}
+              src={logo || logoImg}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg; }}
               alt="Sastikaa Mobiles Logo"
               style={{
                 width: 38,

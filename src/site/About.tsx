@@ -107,8 +107,8 @@ export default function About() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
           <img
-            src={logo || defaultLogo || '/logo.png'}
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = defaultLogo || '/logo.png'; }}
+            src={logo || defaultLogo}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = defaultLogo; }}
             alt="Sastikaa Mobiles Logo"
             style={{
               width: 54,

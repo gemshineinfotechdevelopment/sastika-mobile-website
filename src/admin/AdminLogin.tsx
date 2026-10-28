@@ -158,8 +158,8 @@ export default function AdminLogin() {
             }}
           >
             <img
-              src={logo || logoImg || '/logo.png'}
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg || '/logo.png'; }}
+              src={logo || logoImg}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoImg; }}
               alt="Sastikaa Mobiles"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
