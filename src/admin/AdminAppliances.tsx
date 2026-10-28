@@ -9,7 +9,6 @@ import ProductArt from '../components/ProductArt';
 import { AButton, AdminTableScroll, FieldRow, Kpi, Modal, PageTitle, Tag, field, panel, td, th } from './ui';
 import { generateSku } from './AdminProducts';
 
-const COMMON_BRANDS = ['LG', 'Samsung', 'Whirlpool', 'Daikin', 'Philips', 'IFB', 'Haier', 'Godrej', 'Sony', 'Prestige', 'Voltas', 'Bosch'];
 
 type ApplianceDraft = {
   name: string;
@@ -501,6 +500,14 @@ function ApplianceFormModal({
   onClose: () => void;
   onSubmit: (d: ApplianceDraft) => void;
 }) {
+  const { products } = useStore();
+  const applianceBrands = useMemo(() => {
+    const set = new Set<string>();
+    products.filter((p) => isAppliance(p.category)).forEach((p) => {
+      if (p.brand?.trim()) set.add(p.brand.trim());
+    });
+    return Array.from(set);
+  }, [products]);
   const [d, setD] = useState<ApplianceDraft>(initial);
   const [error, setError] = useState('');
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -639,7 +646,7 @@ function ApplianceFormModal({
             list="appliance-brands-list"
           />
           <datalist id="appliance-brands-list">
-            {COMMON_BRANDS.map((b) => (
+            {applianceBrands.map((b) => (
               <option key={b} value={b} />
             ))}
           </datalist>

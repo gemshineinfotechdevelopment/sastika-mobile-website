@@ -34,7 +34,7 @@ const DEFAULT: Cfg = {
   business: 'Sastikaa Mobiles',
   gstin: '33BQTPJ5275L1Z6',
   email: 'sastikaamobiles.svk@gmail.com',
-  phone: '+91 98765 43210',
+  phone: '+91 95434 34344',
   address: 'Sri Renga Complex, Near Kennedy Medicals, Sithurajapuram, Sivakasi - 626189',
   currency: 'INR (₹)',
   gstOn: true,
@@ -46,10 +46,10 @@ const DEFAULT: Cfg = {
   upiOn: true,
   freeShipAbove: '0',
   // Store Personnel Defaults
-  managerName: 'S. Ramanathan',
-  managerPhone: '+91 95434 34344',
-  salesRepName: 'M. Karthi',
-  salesRepPhone: '+91 98401 23456',
+  managerName: '',
+  managerPhone: '',
+  salesRepName: '',
+  salesRepPhone: '',
   // Admin Credentials Defaults
   adminUsername: 'admin@sastikaamobiles.com',
   adminPassword: 'admin123',

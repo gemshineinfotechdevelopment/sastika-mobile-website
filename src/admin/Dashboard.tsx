@@ -270,7 +270,7 @@ export default function Dashboard() {
               <Tag tone={lowStock.length ? 'red' : 'green'}>{lowStock.length} Models</Tag>
             </div>
             {lowStock.length === 0 ? (
-              <div style={{ color: C.muted, fontSize: 13, padding: '12px 0' }}>All 18 mobile models have healthy stock levels.</div>
+              <div style={{ color: C.muted, fontSize: 13, padding: '12px 0' }}>All store products have healthy stock levels.</div>
             ) : (
               lowStock.slice(0, 4).map((p) => (
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -741,29 +741,40 @@ function DynamicRevenueChart({ orders }: { orders: Order[] }) {
 function BrandShareDonut({ products }: { products: Product[] }) {
   const [ref, seen] = useInView<HTMLDivElement>(0.2);
 
-  // Dynamically compute brands and their stock share
+  // Dynamically compute brands from actual store products without hardcoded dummy brands
   const brandGroups = useMemo(() => {
-    const brands = ['Redmi', 'OPPO', 'Vivo', 'Nothing', 'Samsung', 'Poco'];
-    const colors: Record<string, string> = {
-      Redmi: '#ea580c',
-      OPPO: '#0284c7',
-      Vivo: '#2563eb',
-      Nothing: '#475569',
-      Samsung: '#7c3aed',
-      Poco: '#ca8a04',
-    };
-    return brands.map((brand) => {
-      const brandProducts = products.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
-      const units = brandProducts.reduce((sum, p) => sum + p.stock, 0);
-      return {
-        label: brand,
-        units,
-        color: colors[brand] || C.primary,
-      };
+    const brandMap = new Map<string, number>();
+    products.forEach((p) => {
+      const rawBrand = (p.brand || '').trim();
+      if (!rawBrand) return;
+      const key = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1);
+      brandMap.set(key, (brandMap.get(key) || 0) + (p.stock || 0));
     });
+
+    if (brandMap.size === 0) return [];
+
+    const palette = ['#0b4a43', '#0284c7', '#ea580c', '#7c3aed', '#10b981', '#f59e0b', '#ec4899', '#6366f1'];
+    let idx = 0;
+    return Array.from(brandMap.entries()).map(([label, units]) => ({
+      label,
+      units,
+      color: palette[idx++ % palette.length],
+    }));
   }, [products]);
 
-  const totalUnits = brandGroups.reduce((n, g) => n + g.units, 0) || 1;
+  const totalUnits = brandGroups.reduce((n, g) => n + g.units, 0);
+
+  if (brandGroups.length === 0 || totalUnits === 0) {
+    return (
+      <div style={{ padding: '36px 16px', textAlign: 'center', color: C.muted, fontSize: 13 }}>
+        <div style={{ fontSize: 28, marginBottom: 8 }}>🏷️</div>
+        <div style={{ fontWeight: 800, color: C.text, fontSize: 14 }}>No Brand Inventory Yet</div>
+        <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
+          When products are added to the store, their brand stock distribution will appear here dynamically.
+        </div>
+      </div>
+    );
+  }
   const R = 62;
   const circ = 2 * Math.PI * R;
   let offset = 0;
