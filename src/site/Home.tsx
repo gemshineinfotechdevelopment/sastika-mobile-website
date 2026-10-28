@@ -49,46 +49,48 @@ export default function Home() {
       {/* Main Container */}
       <div className="site-page-container" style={{ maxWidth: 1360, margin: '0 auto' }}>
         {/* Certified Brands Ticker */}
-        <section style={{ padding: '20px 0 10px' }}>
-          <div className="brand-ticker-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, fontSize: 13, fontWeight: 800, color: C.muted, letterSpacing: 0.6 }}>
-            <span>TOP CERTIFIED 5G BRANDS IN STOCK</span>
-            <span style={{ color: C.success }}>100% ORIGINAL &amp; SEALED WITH WARRANTY</span>
-          </div>
-          <Marquee speed={75} repeat={2}>
-            {brandList.map((b) => (
-              <div
-                key={b}
-                onClick={() => nav(`/mobiles?brand=${encodeURIComponent(b)}`)}
-                style={{
-                  padding: '10px 24px',
-                  borderRadius: 99,
-                  background: '#fff',
-                  border: `1.5px solid ${C.border}`,
-                  fontWeight: 800,
-                  fontSize: 14,
-                  color: C.primary,
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                  whiteSpace: 'nowrap',
-                  userSelect: 'none',
-                  transition: 'all .2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.borderColor = C.accent;
-                  e.currentTarget.style.boxShadow = '0 6px 14px rgba(11,74,67,0.12)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.borderColor = C.border;
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
-                }}
-              >
-                {b}
-              </div>
-            ))}
-          </Marquee>
-        </section>
+        {brandList.length > 0 && (
+          <section style={{ padding: '20px 0 10px' }}>
+            <div className="brand-ticker-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, fontSize: 13, fontWeight: 800, color: C.muted, letterSpacing: 0.6 }}>
+              <span>TOP CERTIFIED 5G BRANDS IN STOCK</span>
+              <span style={{ color: C.success }}>100% ORIGINAL &amp; SEALED WITH WARRANTY</span>
+            </div>
+            <Marquee speed={75} repeat={2}>
+              {brandList.map((b) => (
+                <div
+                  key={b}
+                  onClick={() => nav(`/mobiles?brand=${encodeURIComponent(b)}`)}
+                  style={{
+                    padding: '10px 24px',
+                    borderRadius: 99,
+                    background: '#fff',
+                    border: `1.5px solid ${C.border}`,
+                    fontWeight: 800,
+                    fontSize: 14,
+                    color: C.primary,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    whiteSpace: 'nowrap',
+                    userSelect: 'none',
+                    transition: 'all .2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.borderColor = C.accent;
+                    e.currentTarget.style.boxShadow = '0 6px 14px rgba(11,74,67,0.12)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.borderColor = C.border;
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                  }}
+                >
+                  {b}
+                </div>
+              ))}
+            </Marquee>
+          </section>
+        )}
 
         {/* Flash Deals */}
         {isDealActive && (

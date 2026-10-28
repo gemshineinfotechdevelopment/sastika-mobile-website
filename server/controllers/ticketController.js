@@ -1,17 +1,12 @@
 import { Ticket } from '../models/Ticket.js';
-import { SEED_TICKETS } from '../data/seedData.js';
 import { getDbStatus } from '../config/db.js';
 
-let memoryTickets = [...SEED_TICKETS];
+let memoryTickets = [];
 
 export const getTickets = async (req, res) => {
   try {
     if (getDbStatus()) {
-      let tickets = await Ticket.find({}).sort({ createdAt: -1 });
-      if (tickets.length === 0) {
-        await Ticket.insertMany(SEED_TICKETS);
-        tickets = await Ticket.find({}).sort({ createdAt: -1 });
-      }
+      const tickets = await Ticket.find({}).sort({ createdAt: -1 });
       return res.json({ success: true, count: tickets.length, data: tickets });
     }
     return res.json({ success: true, count: memoryTickets.length, data: memoryTickets });
