@@ -17,8 +17,7 @@ export let memoryProducts = loadSeedProducts();
 
 export const getProducts = async (req, res) => {
   try {
-    // If memory products were empty, re-read
-    if (!memoryProducts || memoryProducts.length === 0) {
+    if (memoryProducts === null || memoryProducts === undefined) {
       memoryProducts = loadSeedProducts();
     }
     const { category, brand, search } = req.query;
@@ -48,10 +47,7 @@ export const getProducts = async (req, res) => {
         ];
       }
       let products = await Product.find(query).sort({ createdAt: -1 });
-      if (products.length === 0 && !category && !brand && !search) {
-        await Product.insertMany(SEED_PRODUCTS);
-        products = await Product.find({});
-      }
+      // No automatic re-seeding: only show products explicitly saved in database
       return res.json({ success: true, count: products.length, data: products });
     }
 

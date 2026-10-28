@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUniqueProductBrands, SERVICES, TESTIMONIALS } from '../data';
 import { C, discount, money } from '../theme';
 import { useStore } from '../store';
+import { isSmartphone, isIPhone, isAccessory, isAppliance } from '../categoryUtils';
 import Icon, { type IconName } from '../components/Icon';
 import ProductArt from '../components/ProductArt';
 import { CountUp, FillBar, Marquee, Reveal, Typewriter, useCountdown } from '../components/anim';
@@ -14,9 +15,19 @@ import heroBannerImg from '../assets/hero-banner.png';
 export default function Home() {
   const nav = useNavigate();
   const { products, addToCart, flashDeal } = useStore();
-  const phones = products.filter((p) => p.category === 'phone');
-  const gear = products.filter((p) => p.category !== 'phone');
-  const hero = products.find((p) => p.id === 'p1') ?? phones[0];
+  const phones = useMemo(
+    () => products.filter((p) => isSmartphone(p.category, p.brand) || isIPhone(p.category, p.brand)),
+    [products]
+  );
+  const gear = useMemo(
+    () => products.filter((p) => isAccessory(p.category)),
+    [products]
+  );
+  const appliances = useMemo(
+    () => products.filter((p) => isAppliance(p.category)),
+    [products]
+  );
+  const hero = phones[0] ?? products[0];
 
   // Dynamic unique brand list from admin products (no duplicates)
   const brandList = useMemo(() => getUniqueProductBrands(products), [products]);
@@ -94,13 +105,19 @@ export default function Home() {
               onAction={() => nav('/mobiles')}
             />
           </Reveal>
-          <div className="product-cards-grid" style={{ padding: '16px 0 0' }}>
-            {phones.slice(0, 8).map((p, i) => (
-              <Reveal key={p.id} dir="up" delay={i * 50} style={{ height: '100%', display: 'flex' }}>
-                <ProductCard p={p} />
-              </Reveal>
-            ))}
-          </div>
+          {phones.length > 0 ? (
+            <div className="product-cards-grid" style={{ padding: '16px 0 0' }}>
+              {phones.slice(0, 8).map((p, i) => (
+                <Reveal key={p.id} dir="up" delay={i * 50} style={{ height: '100%', display: 'flex' }}>
+                  <ProductCard p={p} />
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '36px 20px', color: C.muted, background: '#fff', borderRadius: 20, border: `1px solid ${C.border}`, marginTop: 16 }}>
+              No smartphones listed in catalog yet. Products published from the Admin panel will appear here automatically.
+            </div>
+          )}
         </section>
 
         {/* Stats Band */}
@@ -560,8 +577,8 @@ function Categories() {
 /* --------------------------------- SPOTLIGHT -------------------------------- */
 
 function Spotlight({ onBuy }: { onBuy: (id: string) => void }) {
-  const { getProduct, products } = useStore();
-  const p = getProduct('p3') || products[0];
+  const { products } = useStore();
+  const p = useMemo(() => products.find((prod) => prod.badge?.toLowerCase().includes('top') || prod.badge?.toLowerCase().includes('deal') || prod.badge?.toLowerCase().includes('recommend')) || products[0], [products]);
   if (!p) return null;
   const highlightSpecs = p.specs?.slice(0, 4) || ['5G Enabled', '50MP Dual Camera', '45W Fast Charging', '120Hz Display'];
   return (

@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { PRODUCTS, SEED_ORDERS, SEED_TICKETS } from './data';
 import type { AuthUser, CartLine, FlashDealConfig, FlashDealItem, Order, OrderStatus, Product, Ticket, TicketStatus, UserProfile } from './types';
 import { api } from './api';
 import { apiGetFlashDeal, apiUpdateFlashDeal, apiAddFlashDealItem, apiDeleteFlashDealItem } from './services/api';
@@ -142,7 +141,7 @@ const DEFAULT_STORE_SETTINGS: Record<string, any> = {
 const Ctx = createContext<StoreShape | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useLocalState<Product[]>('products_v4', PRODUCTS);
+  const [products, setProducts] = useLocalState<Product[]>('products_live', []);
   const [user, setUser] = useLocalState<AuthUser | null>('auth_user_v3', null);
   const [token, setToken] = useLocalState<string | null>('customer_token', null);
 
@@ -183,7 +182,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [wishlist, setWishlist] = useState<string[]>(getInitialWishlist);
   const [coupon, setCoupon] = useLocalState<string>('coupon', '');
   const [orders, setOrders] = useLocalState<Order[]>('orders', []);
-  const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', SEED_TICKETS);
+  const [tickets, setTickets] = useLocalState<Ticket[]>('tickets', []);
   // Robust logo state: discard any stale dev paths (/src/...) from localStorage
   const getInitialLogo = (): string => {
     try {
@@ -267,26 +266,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [user],
   );
 
-  // Initialize default products only if empty, or ensure default appliances exist (run once on mount)
-  useEffect(() => {
-    setProducts((prev) => {
-      if (!prev || prev.length === 0) return PRODUCTS;
-      const hasAppliance = prev.some((p) => p.category === 'appliance');
-      if (!hasAppliance) {
-        const applianceSeeds = PRODUCTS.filter((p) => p.category === 'appliance');
-        return [...prev, ...applianceSeeds];
-      }
-      return prev;
-    });
-  }, [setProducts]);
-
   // Sync with backend API on mount
   useEffect(() => {
     let mounted = true;
 
     const applyProducts = (serverProducts: any) => {
       const cleanProducts = Array.isArray(serverProducts) ? serverProducts : (serverProducts as any)?.data;
-      if (Array.isArray(cleanProducts) && cleanProducts.length > 0) {
+      if (Array.isArray(cleanProducts)) {
         setProducts((prev) => {
           const pendingOptimistic = prev.filter((p) => p.id && p.id.startsWith('n') && !cleanProducts.some((sp: Product) => sp.id === p.id));
           const merged = pendingOptimistic.length > 0 ? [...cleanProducts, ...pendingOptimistic] : cleanProducts;
