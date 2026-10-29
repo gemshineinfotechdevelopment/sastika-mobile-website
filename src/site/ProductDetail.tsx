@@ -39,8 +39,8 @@ export default function ProductDetail() {
 
   const art = color ?? p.color;
   const off = discount(p.price, p.mrp);
-  const hasEmi = Boolean(p.emi && p.emi > 0);
-  const emi = p.emi || 0;
+  const hasEmi = Boolean(p.emi && Number(p.emi) > 0);
+  const emi = Number(p.emi) || 0;
   const similar = products.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4);
   const wished = wishlist.includes(p.id);
   const colors = (p.colors && p.colors.length > 0) ? p.colors : [p.color, ...COLORS.filter((c) => c !== p.color)].slice(0, 3);
@@ -362,8 +362,25 @@ export default function ProductDetail() {
             </div>
 
             {hasEmi && (
-              <div style={{ marginTop: 6, fontSize: 13, color: C.muted }}>
-                or <b style={{ color: C.text }}>{money(emi)}/month</b> with no-cost EMI
+              <div
+                style={{
+                  marginTop: 10,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '7px 14px',
+                  borderRadius: 10,
+                  background: '#ecfdf5',
+                  border: '1.5px solid #a7f3d0',
+                  color: '#047857',
+                  fontSize: 13,
+                  fontWeight: 700,
+                }}
+              >
+                <span style={{ fontSize: 16 }}>💳</span>
+                <span>
+                  No-Cost EMI: <b style={{ color: '#064e3b', fontWeight: 800 }}>{money(emi)}/month</b>
+                </span>
               </div>
             )}
 

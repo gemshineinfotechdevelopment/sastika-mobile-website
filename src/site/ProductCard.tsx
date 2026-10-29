@@ -86,12 +86,28 @@ export default function ProductCard({ p, width, compact }: { p: Product; width?:
           <span style={{ fontSize: 16.5, fontWeight: 800 }}>{money(p.price)}</span>
           {p.mrp > p.price && <span style={{ fontSize: 11, color: C.muted, textDecoration: 'line-through' }}>{money(p.mrp)}</span>}
         </div>
-        {p.emi && p.emi > 0 ? (
-          <div style={{ fontSize: 11, color: C.primarySoft, fontWeight: 700, marginTop: 1, minHeight: 16 }}>
-            EMI from {money(p.emi)}/mo
+        {Number(p.emi) > 0 ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: 11,
+              fontWeight: 700,
+              color: '#047857',
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              padding: '2px 8px',
+              borderRadius: 6,
+              marginTop: 2,
+              width: 'fit-content',
+            }}
+          >
+            <span>💳</span>
+            <span>EMI from {money(Number(p.emi))}/mo</span>
           </div>
         ) : (
-          <div style={{ minHeight: 16 }} />
+          <div style={{ minHeight: 22 }} />
         )}
         {p.colors && p.colors.length > 1 && (
           <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 2 }}>

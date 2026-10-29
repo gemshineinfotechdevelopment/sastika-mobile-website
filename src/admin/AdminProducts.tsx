@@ -236,13 +236,39 @@ export default function AdminProducts() {
                   <td style={{ ...td }}>
                     <div style={{ fontWeight: 800, fontSize: 14 }}>{money(p.price)}</div>
                     <div style={{ fontSize: 11, color: C.muted, fontWeight: 500, textDecoration: 'line-through' }}>{money(p.mrp)}</div>
-                    {p.emi && p.emi > 0 ? (
-                      <div style={{ fontSize: 11, color: C.primary, fontWeight: 700, marginTop: 1 }}>
-                        EMI: ₹{p.emi.toLocaleString('en-IN')}/mo
+                    {Number(p.emi) > 0 ? (
+                      <div style={{ marginTop: 3 }}>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: '#047857',
+                            background: '#ecfdf5',
+                            border: '1px solid #a7f3d0',
+                            padding: '2px 7px',
+                            borderRadius: 6,
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          <span>💳</span> EMI: ₹{Number(p.emi).toLocaleString('en-IN')}/mo
+                        </span>
                       </div>
                     ) : (
-                      <div style={{ fontSize: 10.5, color: C.muted, fontWeight: 600, marginTop: 1 }}>
-                        No EMI
+                      <div style={{ marginTop: 3 }}>
+                        <span
+                          style={{
+                            fontSize: 10.5,
+                            color: '#64748b',
+                            background: '#f1f5f9',
+                            padding: '2px 6px',
+                            borderRadius: 6,
+                            fontWeight: 600,
+                          }}
+                        >
+                          No EMI
+                        </span>
                       </div>
                     )}
                   </td>

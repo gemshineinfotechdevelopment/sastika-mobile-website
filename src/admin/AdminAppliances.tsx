@@ -225,7 +225,7 @@ export default function AdminAppliances() {
               <tr>
                 <th style={th}>Appliance</th>
                 <th style={th}>Brand</th>
-                <th style={th}>Price / MRP</th>
+                <th style={th}>Price & EMI</th>
                 <th style={th}>Stock</th>
                 <th style={th}>Rating</th>
                 <th style={th}>Specs Preview</th>
@@ -281,10 +281,40 @@ export default function AdminAppliances() {
                             <span style={{ color: C.success, fontWeight: 700 }}>{off}% off</span>
                           </div>
                         )}
-                        {a.emi && a.emi > 0 ? (
-                          <div style={{ fontSize: 10.5, color: C.primary, fontWeight: 700 }}>EMI: {money(a.emi)}/mo</div>
+                        {Number(a.emi) > 0 ? (
+                          <div style={{ marginTop: 3 }}>
+                            <span
+                              style={{
+                                fontSize: 10.5,
+                                color: '#047857',
+                                background: '#ecfdf5',
+                                border: '1px solid #a7f3d0',
+                                padding: '2px 7px',
+                                borderRadius: 6,
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                              }}
+                            >
+                              <span>💳</span> EMI: {money(Number(a.emi))}/mo
+                            </span>
+                          </div>
                         ) : (
-                          <div style={{ fontSize: 10.5, color: C.muted, fontWeight: 600 }}>No EMI</div>
+                          <div style={{ marginTop: 3 }}>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                color: '#64748b',
+                                background: '#f1f5f9',
+                                padding: '2px 6px',
+                                borderRadius: 6,
+                                fontWeight: 600,
+                              }}
+                            >
+                              No EMI
+                            </span>
+                          </div>
                         )}
                       </div>
                     </td>
