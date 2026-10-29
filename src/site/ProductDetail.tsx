@@ -7,6 +7,7 @@ import ProductArt from '../components/ProductArt';
 import { Reveal } from '../components/anim';
 import { Btn, Pill, SectionHead, Stars, input } from './ui';
 import ProductCard from './ProductCard';
+import { isSmartphone, isIPhone } from '../categoryUtils';
 
 const COLORS = ['#2f7d6d', '#1c1f24', '#e8e9ec'];
 
@@ -43,7 +44,7 @@ export default function ProductDetail() {
   const emi = Number(p.emi) || 0;
   const similar = products.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4);
   const wished = wishlist.includes(p.id);
-  const colors = (p.colors && p.colors.length > 0) ? p.colors : [p.color, ...COLORS.filter((c) => c !== p.color)].slice(0, 3);
+  const colors = (p.colors && p.colors.length > 0) ? p.colors : (p.color ? [p.color] : []);
 
   const rating = p.rating ?? 4.8;
   const reviews = p.reviews ?? 148;
@@ -390,35 +391,39 @@ export default function ProductDetail() {
             </div>
           </Reveal>
 
-          {/* Color Chooser */}
-          {p.category === 'phone' && (
+          {/* Color & Storage Variant Choosers (Only shown if defined) */}
+          {(colors.length > 0 || (p.storage && p.storage.length > 0)) && (
             <div style={{ marginTop: 18 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>Select Finish Colour</div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                {colors.map((c) => (
-                  <button
-                    key={c}
-                    aria-label="Colour"
-                    onClick={() => setColor(c)}
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 99,
-                      background: c,
-                      border: `3px solid ${art === c ? C.primary : '#fff'}`,
-                      boxShadow: `0 0 0 1.5px ${C.border}`,
-                      transition: 'transform .2s ease',
-                      transform: art === c ? 'scale(1.15)' : 'none',
-                      cursor: 'pointer',
-                    }}
-                  />
-                ))}
-              </div>
+              {colors.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>Select Finish Colour</div>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    {colors.map((c) => (
+                      <button
+                        key={c}
+                        aria-label="Colour"
+                        onClick={() => setColor(c)}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 99,
+                          background: c,
+                          border: `3px solid ${art === c ? C.primary : '#fff'}`,
+                          boxShadow: `0 0 0 1.5px ${C.border}`,
+                          transition: 'transform .2s ease',
+                          transform: art === c ? 'scale(1.15)' : 'none',
+                          cursor: 'pointer',
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
-              {p.storage && (
-                <>
-                  <div style={{ fontSize: 13, fontWeight: 800, margin: '16px 0 8px' }}>Storage Variant</div>
-                  <div style={{ display: 'flex', gap: 8 }}>
+              {p.storage && p.storage.length > 0 && (
+                <div style={{ marginTop: colors.length > 0 ? 16 : 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, margin: '0 0 8px' }}>Storage Variant</div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {p.storage.map((s, i) => (
                       <button
                         key={s}
@@ -439,7 +444,7 @@ export default function ProductDetail() {
                       </button>
                     ))}
                   </div>
-                </>
+                </div>
               )}
             </div>
           )}

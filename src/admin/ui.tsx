@@ -245,13 +245,84 @@ export function Kpi({
 
 export function Modal({ title, onClose, children, width = 560 }: { title: string; onClose: () => void; children: ReactNode; width?: number }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'grid', placeItems: 'center', background: 'rgba(6,51,46,.5)', animation: 'fadeIn .2s ease', padding: 8 }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', background: '#fff', borderRadius: 'clamp(16px, 3vw, 22px)', padding: 'clamp(14px, 3vw, 24px)', animation: 'bounceIn .35s ease', boxShadow: '0 30px 80px rgba(0,0,0,.3)', boxSizing: 'border-box' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>{title}</h2>
-          <button onClick={onClose} aria-label="Close"><Icon name="x" size={22} /></button>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        background: 'rgba(6, 42, 37, 0.65)',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+        padding: 'min(3vh, 20px) 12px',
+        boxSizing: 'border-box',
+        animation: 'fadeIn .2s ease',
+      }}
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width,
+          maxWidth: 'min(96vw, 100%)',
+          maxHeight: 'min(92vh, 920px)',
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#fff',
+          borderRadius: 'clamp(16px, 3vw, 22px)',
+          animation: 'bounceIn .3s cubic-bezier(0.16, 1, 0.3, 1)',
+          boxShadow: '0 30px 80px rgba(0,0,0,.35)',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
+          margin: 'auto 0',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px clamp(14px, 3vw, 24px)',
+            borderBottom: `1px solid ${C.border}`,
+            flexShrink: 0,
+            background: '#fff',
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              background: C.tint2,
+              border: 'none',
+              borderRadius: 99,
+              width: 32,
+              height: 32,
+              display: 'grid',
+              placeItems: 'center',
+              cursor: 'pointer',
+              color: C.muted,
+            }}
+          >
+            <Icon name="x" size={18} />
+          </button>
         </div>
-        {children}
+        <div
+          style={{
+            padding: 'clamp(14px, 3vw, 24px)',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+            flex: 1,
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -82,13 +82,13 @@ const getFreshDraft = (): Draft => ({
   price: '',
   mrp: '',
   emi: '',
-  enableEmi: true,
+  enableEmi: false,
   stock: '',
   rating: '4.8',
   sku: generateSku(),
-  color: '#2f7d6d',
-  colors: ['#2f7d6d', '#18181b'],
-  storage: ['6GB + 128GB', '8GB + 256GB'],
+  color: '',
+  colors: [],
+  storage: [],
   description: '',
   specs: '',
   image: '',
@@ -312,13 +312,13 @@ export default function AdminProducts() {
             price: String(editing.price),
             mrp: String(editing.mrp),
             emi: editing.emi && editing.emi > 0 ? String(editing.emi) : '',
-            enableEmi: editing.emi !== undefined && editing.emi !== null ? Number(editing.emi) > 0 : true,
+            enableEmi: editing.emi !== undefined && editing.emi !== null ? Number(editing.emi) > 0 : false,
             stock: String(editing.stock),
             rating: String(editing.rating ?? 4.8),
             sku: editing.sku,
-            color: editing.color,
-            colors: editing.colors && editing.colors.length > 0 ? editing.colors : [editing.color],
-            storage: editing.storage || (editing.category === 'phone' ? ['8GB + 128GB'] : []),
+            color: editing.color || '',
+            colors: editing.colors && editing.colors.length > 0 ? editing.colors : (editing.color ? [editing.color] : []),
+            storage: editing.storage || [],
             description: editing.description,
             specs: editing.specs.join('\n'),
             image: editing.image || '',
@@ -362,7 +362,7 @@ function toProduct(d: Draft): Omit<Product, 'id'> {
   const defaultEmi = price > 0 ? Math.round(price / 12) : 0;
   const customEmi = Number(d.emi);
   const finalEmi = d.enableEmi ? (customEmi > 0 ? customEmi : defaultEmi) : 0;
-  const primaryColor = d.colors[0] || d.color || '#2f7d6d';
+  const primaryColor = d.colors[0] || d.color || '';
   return {
     name: d.name.trim(),
     brand: d.brand.trim() || 'Generic',
@@ -372,7 +372,7 @@ function toProduct(d: Draft): Omit<Product, 'id'> {
     rating: Math.min(5, Math.max(1, parseFloat(d.rating) || 4.8)),
     reviews: 142,
     color: primaryColor,
-    colors: d.colors.length > 0 ? d.colors : [primaryColor],
+    colors: d.colors.length > 0 ? d.colors : (primaryColor ? [primaryColor] : []),
     badge: 'New',
     specs: d.specs.split('\n').map((s) => s.trim()).filter(Boolean),
     stock: Number(d.stock) || 0,
@@ -380,7 +380,7 @@ function toProduct(d: Draft): Omit<Product, 'id'> {
     sku: d.sku.trim() || generateSku(d.brand, d.name),
     description: d.description.trim() || 'Genuine product with Sastikaa warranty.',
     image: d.image.trim() || undefined,
-    storage: d.storage && d.storage.length > 0 ? d.storage : (isSmartphone(d.category, d.brand) || isIPhone(d.category, d.brand) ? ['8GB + 128GB'] : undefined),
+    storage: d.storage && d.storage.length > 0 ? d.storage : [],
     emi: finalEmi,
   };
 }
@@ -454,17 +454,22 @@ function ProductForm({
   };
 
   const removeColorAt = (idx: number) => {
-    if (d.colors.length <= 1) return;
     const next = d.colors.filter((_, i) => i !== idx);
     set('colors', next);
     setActiveColorIdx(0);
-    set('color', next[0]);
+    set('color', next[0] || '');
   };
 
   const handlePresetColorClick = (hex: string) => {
     if (d.colors.includes(hex)) {
       const existingIdx = d.colors.indexOf(hex);
       setActiveColorIdx(existingIdx);
+      set('color', hex);
+      return;
+    }
+    if (d.colors.length === 0) {
+      set('colors', [hex]);
+      setActiveColorIdx(0);
       set('color', hex);
       return;
     }
@@ -477,8 +482,6 @@ function ProductForm({
       updateColorAt(activeColorIdx, hex);
     }
   };
-
-  // Storage variant management
   const toggleStorage = (variant: string) => {
     const exists = d.storage.includes(variant);
     if (exists) {
@@ -640,7 +643,7 @@ function ProductForm({
                 min={0}
                 value={d.price}
                 onChange={(e) => set('price', e.target.value)}
-                placeholder="e.g. 10009"
+                placeholder=""
               />
             </FieldRow>
 
@@ -651,7 +654,7 @@ function ProductForm({
                 min={0}
                 value={d.mrp}
                 onChange={(e) => set('mrp', e.target.value)}
-                placeholder="e.g. 12999"
+                placeholder=""
               />
             </FieldRow>
 
@@ -707,7 +710,7 @@ function ProductForm({
                       min={0}
                       value={d.emi !== '' ? d.emi : defaultEmi > 0 ? String(defaultEmi) : ''}
                       onChange={(e) => set('emi', e.target.value)}
-                      placeholder={defaultEmi > 0 ? String(defaultEmi) : 'e.g. 1099'}
+                      placeholder={defaultEmi > 0 ? String(defaultEmi) : ''}
                     />
                     <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.muted, fontWeight: 700 }}>
                       /mo
@@ -897,8 +900,7 @@ function ProductForm({
                     />
                     <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'monospace' }}>{c.toUpperCase()}</span>
                     {idx === 0 && <span style={{ fontSize: 9.5, background: C.primary, color: '#fff', padding: '1px 5px', borderRadius: 4, fontWeight: 800 }}>Primary</span>}
-                    {d.colors.length > 1 && (
-                      <button
+                    <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -909,7 +911,6 @@ function ProductForm({
                       >
                         ✕
                       </button>
-                    )}
                   </div>
                 ))}
 

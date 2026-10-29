@@ -37,11 +37,11 @@ const getFreshDraft = (): ApplianceDraft => ({
   price: '',
   mrp: '',
   emi: '',
-  enableEmi: true,
+  enableEmi: false,
   stock: '5',
   rating: '4.8',
   sku: generateSku('APP', 'ITEM'),
-  color: '#1e293b',
+  color: '',
   badge: '',
   image: '',
   images: [],
@@ -431,7 +431,7 @@ export default function AdminAppliances() {
               rating: Number(draft.rating) || 4.8,
               reviews: 12,
               sku: draft.sku || generateSku(draft.brand, draft.name),
-              color: draft.color || '#1e293b',
+              color: draft.color || '',
               badge: draft.badge || draft.subCategory || 'Home Appliance',
               image: allImages[0] || draft.image,
               images: allImages,
@@ -457,11 +457,11 @@ export default function AdminAppliances() {
             price: String(editing.price),
             mrp: String(editing.mrp),
             emi: editing.emi && editing.emi > 0 ? String(editing.emi) : '',
-            enableEmi: editing.emi !== undefined && editing.emi !== null ? Number(editing.emi) > 0 : true,
+            enableEmi: editing.emi !== undefined && editing.emi !== null ? Number(editing.emi) > 0 : false,
             stock: String(editing.stock),
             rating: String(editing.rating ?? 4.8),
             sku: editing.sku,
-            color: editing.color || '#1e293b',
+            color: editing.color || '',
             badge: editing.badge || '',
             image: editing.image || '',
             images: editing.images && editing.images.length > 0 ? editing.images : [editing.image || ''].filter(Boolean),
@@ -488,7 +488,7 @@ export default function AdminAppliances() {
               reorderAt: Number(draft.reorderAt) || 2,
               rating: Number(draft.rating) || 4.8,
               sku: draft.sku,
-              color: draft.color || '#1e293b',
+              color: draft.color || '',
               badge: draft.badge || draft.subCategory || 'Home Appliance',
               image: allImages[0] || draft.image,
               images: allImages,
@@ -962,7 +962,7 @@ function ApplianceFormModal({
                 min={0}
                 value={d.price}
                 onChange={(e) => set('price', e.target.value)}
-                placeholder="e.g. 28990"
+                placeholder=""
               />
             </FieldRow>
 
@@ -973,7 +973,7 @@ function ApplianceFormModal({
                 min={0}
                 value={d.mrp}
                 onChange={(e) => set('mrp', e.target.value)}
-                placeholder="e.g. 49990"
+                placeholder=""
               />
             </FieldRow>
 
@@ -1029,7 +1029,7 @@ function ApplianceFormModal({
                       min={0}
                       value={d.emi !== '' ? d.emi : autoEmi > 0 ? String(autoEmi) : ''}
                       onChange={(e) => set('emi', e.target.value)}
-                      placeholder={autoEmi > 0 ? String(autoEmi) : 'e.g. 2415'}
+                      placeholder={autoEmi > 0 ? String(autoEmi) : ''}
                     />
                     <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.muted, fontWeight: 700 }}>
                       /mo
