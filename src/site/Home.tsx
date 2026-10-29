@@ -32,6 +32,16 @@ export default function Home() {
   // Dynamic unique brand list from admin products (no duplicates)
   const brandList = useMemo(() => getUniqueProductBrands(products), [products]);
 
+  // Seamless continuous rotation list (multiplied to ensure no empty gaps on any screen width)
+  const marqueeBrands = useMemo(() => {
+    if (brandList.length === 0) return [];
+    let list = [...brandList];
+    while (list.length < 16) {
+      list = [...list, ...brandList];
+    }
+    return list;
+  }, [brandList]);
+
   // Flash deal is only active if isActive, has items, has endTime and endTime is strictly in the future
   const isDealActive = useMemo(() => {
     if (!flashDeal?.isActive) return false;
@@ -48,31 +58,83 @@ export default function Home() {
 
       {/* Main Container */}
       <div className="site-page-container" style={{ maxWidth: 1360, margin: '0 auto' }}>
-        {/* Certified Brands Ticker */}
-        {brandList.length > 0 && (
-          <section style={{ padding: '20px 0 10px' }}>
-            <div className="brand-ticker-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, fontSize: 13, fontWeight: 800, color: C.muted, letterSpacing: 0.6 }}>
+        {/* Continuous Running Announcement Ticker */}
+        <div
+          style={{
+            margin: '18px 0 8px',
+            background: `linear-gradient(90deg, #072a25 0%, ${C.primaryDark} 50%, #072a25 100%)`,
+            color: '#fff',
+            borderRadius: 14,
+            padding: '11px 0',
+            overflow: 'hidden',
+            boxShadow: '0 4px 18px rgba(11,74,67,0.18)',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}
+        >
+          <Marquee speed={32} repeat={4} pauseOnHover={false}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 28, fontSize: 13, fontWeight: 800, letterSpacing: 0.5, whiteSpace: 'nowrap' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: C.accent }}>⚡</span>
+                <span>FESTIVAL OFFERS LIVE</span>
+              </span>
+              <span style={{ color: C.accent, opacity: 0.7 }}>•</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span>📱</span>
+                <span>100% ORIGINAL FACTORY SEALED SMARTPHONES</span>
+              </span>
+              <span style={{ color: C.accent, opacity: 0.7 }}>•</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span>🚚</span>
+                <span>FREE SAME-DAY EXPRESS DELIVERY IN SIVAKASI</span>
+              </span>
+              <span style={{ color: C.accent, opacity: 0.7 }}>•</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span>💳</span>
+                <span>NO-COST MONTHLY EMI ON ALL MOBILES &amp; APPLIANCES</span>
+              </span>
+              <span style={{ color: C.accent, opacity: 0.7 }}>•</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span>🧾</span>
+                <span>OFFICIAL GST TAX INVOICE WITH 1-YEAR BRAND WARRANTY</span>
+              </span>
+              <span style={{ color: C.accent, opacity: 0.7 }}>•</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span>🛠️</span>
+                <span>CERTIFIED REPAIR &amp; SERVICE DESK SITHURAJAPURAM</span>
+              </span>
+              <span style={{ color: C.accent, opacity: 0.7 }}>•</span>
+            </div>
+          </Marquee>
+        </div>
+
+        {/* Certified Brands Continuous Rotation Ticker */}
+        {marqueeBrands.length > 0 && (
+          <section style={{ padding: '14px 0 10px' }}>
+            <div className="brand-ticker-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, fontSize: 13, fontWeight: 800, color: C.muted, letterSpacing: 0.6 }}>
               <span>TOP CERTIFIED 5G BRANDS IN STOCK</span>
               <span style={{ color: C.success }}>100% ORIGINAL &amp; SEALED WITH WARRANTY</span>
             </div>
-            <Marquee speed={75} repeat={2}>
-              {brandList.map((b) => (
+            <Marquee speed={30} repeat={2} pauseOnHover={false}>
+              {marqueeBrands.map((b, idx) => (
                 <div
-                  key={b}
+                  key={`${b}-${idx}`}
                   onClick={() => nav(`/mobiles?brand=${encodeURIComponent(b)}`)}
                   style={{
-                    padding: '10px 24px',
+                    padding: '9px 22px',
                     borderRadius: 99,
                     background: '#fff',
                     border: `1.5px solid ${C.border}`,
                     fontWeight: 800,
-                    fontSize: 14,
+                    fontSize: 13.5,
                     color: C.primary,
                     cursor: 'pointer',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                     whiteSpace: 'nowrap',
                     userSelect: 'none',
                     transition: 'all .2s ease',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-2px)';
@@ -85,7 +147,8 @@ export default function Home() {
                     e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
                   }}
                 >
-                  {b}
+                  <span style={{ color: C.accent }}>★</span>
+                  <span>{b}</span>
                 </div>
               ))}
             </Marquee>
@@ -702,7 +765,7 @@ function TrustShield() {
     { icon: 'shield', t: '100% Brand Sealed', s: 'Every smartphone is genuine with unopened manufacturer seal and barcode.' },
     { icon: 'award', t: 'Tax Invoice with GST', s: 'Official bill with GSTIN: 33BQTPJ5275L1Z6 for company warranty claim.' },
     { icon: 'lock', t: 'Safe & Secure Pay', s: 'UPI, Credit Cards, Net Banking & Cash on Delivery supported.' },
-    { icon: 'check', t: 'Local Shop Support', s: 'Walk into our Sithurajapuram or Sivakasi branches for any support.' },
+    { icon: 'check', t: 'Local Shop Support', s: 'Walk into our Sithurajapuram, Sivakasi showroom for any support.' },
   ];
   return (
     <section

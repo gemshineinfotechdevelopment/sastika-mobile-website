@@ -199,8 +199,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const u = JSON.parse(rawUser);
         if (u && u.id) {
           const userCart = localStorage.getItem(`sastika_cart_${u.id}`);
-          if (userCart) return JSON.parse(userCart);
-          if (Array.isArray(u.cart)) return u.cart;
+          if (userCart) {
+            const parsed = JSON.parse(userCart);
+            if (Array.isArray(parsed)) return parsed.filter((l: CartLine) => l && l.id && !DUMMY_PRODUCT_IDS.has(l.id));
+          }
+          if (Array.isArray(u.cart)) return u.cart.filter((l: CartLine) => l && l.id && !DUMMY_PRODUCT_IDS.has(l.id));
         }
       }
     } catch {}
@@ -768,6 +771,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const logout = logoutUser;
 
+  // Only consider cart items whose product genuinely exists in products list or active flash deal
+  const validCart = useMemo(() => {
+    if (!Array.isArray(cart)) return [];
+    return cart.filter((l) => {
+      if (!l || !l.id || DUMMY_PRODUCT_IDS.has(l.id)) return false;
+      return products.some((p) => p.id === l.id) || flashDeal.items?.some((p) => p.id === l.id);
+    });
+  }, [cart, products, flashDeal.items]);
+
+  // Clean out dead/stale products from cart state and storage automatically
+  useEffect(() => {
+    if (products.length > 0 && cart.length > validCart.length) {
+      setCart(validCart);
+      if (user) {
+        syncWithBackend(validCart, wishlist);
+      }
+    }
+  }, [products, cart.length, validCart, user, wishlist, syncWithBackend]);
+
   const value = useMemo<StoreShape>(
     () => ({
       products,
@@ -776,8 +798,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateProduct,
       deleteProduct,
 
-      cart,
-      cartCount: cart.reduce((n, l) => n + l.qty, 0),
+      cart: validCart,
+      cartCount: validCart.reduce((n, l) => n + (Number(l.qty) || 0), 0),
       addToCart: (id, qty = 1): boolean => {
         if (!user) {
           setAuthPromptModal({

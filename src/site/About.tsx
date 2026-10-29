@@ -142,15 +142,15 @@ export default function About() {
         </div>
 
         <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, opacity: 0.9 }}>
-          Premier multi-brand smartphone showroom and service center situated in Sithurajapuram and Sivakasi.
+          Premier multi-brand smartphone showroom and service center situated in Sithurajapuram, Sivakasi.
         </p>
 
         <div style={{ display: 'flex', gap: 24, marginTop: 18 }}>
           <div>
             <div style={{ fontSize: 26, fontWeight: 800, color: C.accent }}>
-              <CountUp to={2} suffix=" Branches" />
+              <CountUp to={1} suffix=" Branch" />
             </div>
-            <div style={{ fontSize: 11, opacity: 0.85 }}>Sithurajapuram & Sivakasi</div>
+            <div style={{ fontSize: 11, opacity: 0.85 }}>Sithurajapuram, Sivakasi</div>
           </div>
           <div>
             <div style={{ fontSize: 26, fontWeight: 800, color: C.accent }}>
@@ -302,7 +302,7 @@ export default function About() {
               Looking to Buy a Smartphone or Book a Repair?
             </h3>
             <p style={{ margin: '0 0 14px', fontSize: 12.5, opacity: 0.88 }}>
-              Our expert team across both branches in Sivakasi and Sithurajapuram is ready to assist you.
+              Our expert team at our Sithurajapuram, Sivakasi showroom is ready to assist you.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <Btn variant="accent" onClick={() => nav('/services')} style={{ flex: 1 }}>
